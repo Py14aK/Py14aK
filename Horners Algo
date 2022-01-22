@@ -1,0 +1,64 @@
+
+/*Horner's algo for multikey array hash*/
+data arrayhash2(keep=k1 k2 d1 d2) / stack = 100;
+	array key1  {0 : &hsize.} _temporary_;
+	array key2  {0 : &hsize.} _temporary_;
+	array data1 {0 : &hsize.} _temporary_;
+	array data2 {0 : &hsize.} _temporary_;
+	array link  {0 : &hsize.} _temporary_;
+	r=&hsize.;
+
+	do until (lr1);
+		set small end=lr1;
+		h = mod(mod(k1, &hsize.) * 1e4 + k2, &hsize.);
+		found=0;
+
+		if link [h] > . then
+			do;
+				link traverse;
+
+				if found then
+					continue;
+
+				do r=r by -1 until (link [r]=.);
+				end;
+
+				link [h] = r;
+				h        = r;
+			end;
+
+		link  [h] = 0;
+		key1  [h] = k1;
+		key2  [h] = k2;
+		data1 [h] = d1;
+		data2 [h] = d2;
+	end;
+
+	do until (lr2);
+		set large end=lr2;
+		found=0;
+		h = mod(mod(k1, &hsize.) * 1e4 + k2, &hsize.);
+
+		if link[h] > . then
+			link traverse;
+
+		if found then
+			do;
+				d1 = data1[h];
+				d2 = data2[h];
+			end;
+		else call missing(d1, d2);
+		output;
+	end;
+
+	stop;
+traverse:
+
+	if k1 = key1 [h] and k2 = key2 [h] then
+		found=1;
+	else if link [h] ne 0 then
+		do;
+			h=link [h];
+			link traverse;
+		end;
+run;
