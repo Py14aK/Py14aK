@@ -1,0 +1,263 @@
+%let start_mnt = 80;
+%let end_mnt = 218;
+%let startper=80;
+%let endper=218;
+
+/*py14ak*/
+
+/**/
+/*/**/*/
+/*proc Sort data=revnew.scored_all_bkwrd_cal sortsize=10G;*/
+/*	by descending month;*/
+/*run;*/
+/**/
+/*/* Input beh calibration function for next 3+12 months like in RWA(?_) calc,*/
+/*changed to array because old code took entire day*/*/
+/*data revnew.app_A;*/
+/*	array mi{0:240}_temporary_;*/
+/**/
+/*	do i=&end_mnt.-15 to &start_mnt.-12  by -3;*/
+/*		mi{i}=i;*/
+/*	end;*/
+/**/
+/*	call sortn (of mi{*});*/
+/**/
+/*	do _N_=1 by 1 until(last.month);*/
+/*		set revnew.scored_all_bkwrd_cal(where=(model="APP")keep=APP_INTERCEPT model APP_SLOPE  month) end=eof;*/
+/*		by descending month;*/
+/**/
+/*		do j=0 to 200;*/
+/*			if month = mi{j} then*/
+/*				do;*/
+/*					APP_INTERCEPTc=APP_INTERCEPT;*/
+/*					APP_SLOPEc=APP_SLOPE;*/
+/*				end;*/
+/**/
+/*			*/
+/*		end;*/
+/*		output;*/
+/*	end;*/
+
+end;*/
+run;
+
+proc Sort data=revnew.scored_all_bkwrd_cal   nodupkey sortsize=10G;
+	by descending  period month customer_id model;
+run;
+proc Sort data=a2;
+	by descending period;
+run;
+
+data revnew.beh_a;
+	do _N_=1 by 1 until(last.period);
+		set A2(keep=BEH_INTERCEPT model BEH_SLOPE period ) end=eof;
+		by descending period;
+		BEH_INTERCEPTc=BEH_INTERCEPT;
+		BEH_SLOPEc=BEH_SLOPE;	 month=period-1;
+	end;
+run;
+
+proc Sort data=a1;
+	by descending period;
+run;
+
+data revnew.app_a;
+	do _N_=1 by 1 until(last.period);
+		set A1(keep=APP_SLOPE model APP_INTERCEPT period month) end=eof;
+		by descending period;
+		APP_INTERCEPTc=APP_INTERCEPT;
+		APP_SLOPEc=APP_SLOPE;
+		 month=period-1;
+	end;
+run;
+
+proc Sql;
+	create table revnew.scored_all_cal
+		as select a.APP_INTERCEPTc,A.MODEL, a.APP_SLOPEc,C.BEH_INTERCEPTc, C.BEH_SLOPEc,C.MODEL  ,b.* 
+		from revnew.scored_all_bkwrd_cal b
+		left join revnew.app_a a
+		on B.period=A.month
+		and b.model=a.model
+		LEFT JOIN REVNEW.BEH_A C
+			ON B.period=C.MONTH
+		AND	B.MODEL=C.MODEL;
+quit;
+/**/
+/*data revnew.scored_all_frwd_cal_app;*/
+/*	array store{0:400}_temporary_;*/
+/*	array store2{0:400}_temporary_;*/
+/*	array fw{0:400} _temporary_;*/
+/*	array fw2{0:400} _temporary_;*/
+/*	array fw3{0:400} _temporary_;*/
+/*	call missing(of store[*], _N_,APP_INTERCEPTC);*/
+/*	call missing(of fw[*], _N_,APP_SLOPEC);*/
+/**/
+/*	py14ak*/
+/**/
+/*	if _N_=0 then*/
+/*		set revnew.app_a  revnew.scored_all_bkwrd_cal;*/
+/**/
+/*	do _N_=1 by 1 until (last.month);*/
+/*		set revnew.app_a;*/
+/*		by month;*/
+/*		fw{_N_}=lag15(month);*/
+/*		fw2{_N_}=lag14(month);*/
+/*		fw3{_N_}=lag13(month);*/
+/*		store{_N_}=A;*/
+/*		store{_N_}=B;*/
+/*	end;*/
+/**/
+/*	do _N_ = 1 to _N_;*/
+/*		set revnew.scored_all_bkwrd_cal(where=(model="APP"));*/
+/*		by month;*/
+/**/
+/*				retain APP_INTERCEPTC APP_SLOPEC;*/
+/**/
+/*		if month=fw{_N_} or month=fw2{_N_} or month=fw3{_N_} then*/
+/*			do;*/
+/*				APP_INTERCEPTC=store{_N_};*/
+/*				APP_SLOPEC=store{_N_};*/
+/*				output;*/
+/*			end;*/
+/*	end;*/
+/**/
+/*	do _N_ = 1 to _N_-1;*/
+/*		set revnew.scored_all_bkwrd_cal(where=(model="APP")) end=eo;*/
+/*		by month;*/
+/*		output;*/
+/*	end;*/
+/*run;*/
+/**/
+/*data revnew.scored_all_frwd_cal_beh;*/
+/*	array store{0:15}_temporary_;*/
+/*	array store2{0:15}_temporary_;*/
+/*	array fw{0:15} _temporary_;*/
+/**/
+/**/
+/*	do _N_=1 by 1 until (last.month);*/
+/*		set revnew.beh_a;*/
+/*		by descending month;*/
+/*		fw{1}=lag15(month);*/
+/*		fw{2}=lag14(month);*/
+/*		fw{3}=lag13(month);*/
+/*		store{1}=A;*/
+/*		store{2}=B; */
+/*	end;*/
+/**/
+/*	do _N_ = 1 by 1 until(last.month);*/
+/*		set revnew.scored_all_bkwrd_cal;*/
+/*		by descending month;*/
+/**/
+/*		do i=1 to 3;*/
+/*			if month=fw{i} then*/
+/*			do;*/
+/*				BEH_INTERCEPTC=store{1};*/
+/*				BEH_SLOPEC=store{2};	output;*/
+/*			end;*/
+/*			end;*/
+/*	*/
+/*	end;*/
+/**/
+/*	drop rc rc_2 rc_cf var j i a b;*/
+/*run;*/
+
+
+
+
+
+/**/
+/*/`
+
+`
+
+`
+
+`
+
+`
+
+`
+
+`
+
+`
+
+`
+
+`
+
+`
+
+`
+`
+`
+
+`
+
+`
+`
+`
+`
+`
+`
+
+`
+*Test*/
+
+*/
+/**/
+/*data _null_;*/
+/*	declare hash HoH();                          /* 1 */
+*/
+/*	HoH.definekey ('month');*/
+/*	HoH.definedata('h','month');*/
+/*	HoH.definedone();*/
+/*	declare hiter HoHiter("HoH");*/
+/*	declare hash h;*/
+/**/
+/*	do until (eof);                              /* 2 */
+*/
+/*		set  revnew.scored_all end=eof;*/
+/**/
+/*		if HoH.find() ne 0 then*/
+/*			do;*/
+/*				/* 3 */
+*/
+/*				h=_new_ hash(dataset:'revnew.scored_all', multidata:'Y');*/
+/*				h.definekey('month');*/
+/*				h.definedata(all:'Y');*/
+/*				h.definedone();*/
+/*				HoH.add();*/
+/*			end;*/
+/**/
+/*		h.add();                                  /* 4 */
+*/
+/*	end;*/
+/**/
+/*	do while(HoHiter.next() = 0);               /* 5 */
+*/
+/*		h.output(dataset:cats('revnew.scored_all_',month));*/
+/*	end;*/
+/*run;*/
+;
+
+
+/*proc Sort data=revnew.scored_all_cal nodup sortsize=15G;
+	by credit_id month;
+run;*/
+/*cHECK MISSING*/
+proc Format;
+	value $missfmt ' '='Missing' other='Not Missing';
+	value  missfmt  . ='Missing' other='Not Missing';
+run;
+/**/
+/*proc Freq data=scored_all_frwd_cal_app;*/
+/*	format  APP_INTERCEPTC missfmt.;*/
+/*	tables  APP_INTERCEPTC / missing missprint nocum nopercent;*/
+/*run;*/
+
+proc Freq data=revnew.scored_all_frwd_cal;
+	format  BEH_INTERCEPT BEH_SLOPE APP_INTERCEPT APP_SLOPE missfmt.;
+	tables  BEH_INTERCEPT BEH_SLOPE APP_INTERCEPT APP_SLOPE / missing missprint nocum nopercent out=revnewold_cal_miss;
+	tables  BEH_INTERCEPTc BEH_SLOPEc APP_INTERCEPTc APP_SLOPEc / missing missprint nocum nopercent;
+run;
