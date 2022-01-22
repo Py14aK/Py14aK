@@ -1,0 +1,107 @@
+
+
+data PY.merged;
+
+set merged (where=(date>='01APR2010'd))
+
+;run;
+
+               proc contents data=PY.merged out=names(keep=name);run;
+
+               data names;
+
+               set names;
+
+               if name="Date" then delete;
+
+               run;
+
+               proc sql;
+
+               select name into :line separated by ' ' from names ;quit;
+
+                                           
+
+                 data merged;
+
+               set PY.merged;
+
+               array off_out [0:10] var_out dfdx_out dfdx2_out y_out x_out dif_out holo_out pred_out diff2_out cor_out R;
+
+               array line[*] &line;                                                                                                                                              
+
+               array out[0:10] var dfdx dfdx2 y x dif holo pred cor diff2  R;
+
+               out[0]=tanh(((high-low)/2));
+
+                               
+
+               /*out[6]=((dif5(out[4])+dif4(out[4])+dif3(out[4])+dif2(out[4])+dif1(out[4]))/5);*/
+
+               BY group date;
+
+               OUT[1]=TANH(((LINE[5])-LINE[2]));
+
+               out[2]=1-out[1]**2;                                    
+
+               out[3]=lag1(out[1]);
+
+               out[4]=open+out[3]*out[2];
+
+               out[5]=close-out[4];
+
+               out[6]=1/(1+(exp(out[5])));
+
+               out[7]=out[5]*(1-out[6]);
+
+               out[8]=out[4]+2*out[7];
+
+               out[9]= close-out[8];
+
+ 
+
+ 
+
+               off_out[1]= TANH(lag1(line[5])-line[2]);
+
+               off_out[2]=1-out[1]**2;
+
+               off_out[3]=lag1(out[1]);
+
+               off_out[4]=open+out[3]*out[2];
+
+               off_out[5]=close-out[4];
+
+               off_out[6]=1/(1+(exp(out[5])));
+
+               off_out[7]=out[5]*(1-out[6]);
+
+               off_out[9]=out[4]+2*out[7];
+
+               off_out[8]= close-out[9];
+
+               if out[1]>0 then spin='up';
+
+               if out[1]<0 then spin='do';
+
+               if out[1]=0 then spin='bo';
+
+/*           S=DIF1(dfdx);*/
+
+ 
+
+ 
+
+               /*  OUT[10]=OUT[0];*/
+
+               /*if out[10]>0 and out[10]<0.3 then cluster='A';*/
+
+               /*if out[10]>=0.3 and out[10]<0.55 then cluster='B';*/
+
+               /*IF OUT[10]>=0.55 AND OUT[10]<0.77 THEN CLUSTER='C';*/
+
+               /*IF OUT[10]>=0.77 THEN CLUSTER='D';*/
+
+/*           DROP  Close  Open Low High;*/
+
+run;
