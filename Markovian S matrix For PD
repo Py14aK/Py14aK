@@ -1,4 +1,4 @@
-libname MCRPROD '/saswork/IRB_Models/Monitoring/Samples';
+
 options mprint mlogic symbolgen compress=binary;
 options nodlcreatedir;
 %let enddate = '01MAR2021'd;
@@ -6,7 +6,7 @@ options nodlcreatedir;
 %let cut_off = 218;
 
 proc Sql;
-	create table revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB as
+	create table revnew._PI_MCR_ALL_PD_PRODCALIB as
 		select distinct
 			intnx("month","31dec2002"d,a.month,"E") as Observation_Date format=yymmdd10., 
 			a.customer_id as Customer_ID,
@@ -95,13 +95,13 @@ DATA revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB;
 	else bad = 0;
 run;
 
-proc Sort data=revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB;
+proc Sort data=revnew.PI_MCR_ALL_PD_PRODCALIB;
 	by    month customer_id;
 run;
 
 /**/
-/*data revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB;*/
-/*	set revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB;*/
+/*data revnew.PI_MCR_ALL_PD_PRODCALIB;*/
+/*	set revnew.PI_MCR_ALL_PD_PRODCALIB;*/
 /*	by  month customer_id;*/
 /*	lag1_default_12_a=lag1(Default_12min);*/
 /*	lag2_default_12_a=lag2(Default_12min);*/
@@ -118,7 +118,7 @@ run;
 /*run;*/
 ODS GRAPHICS OFF;
 
-proc Freq data=revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB;
+proc Freq data=revnew.PI_MCR_ALL_PD_PRODCALIB;
 	BY MONTH;
 	tables Calibrated_Score / measures  alpha=0.1   out=revnew.score_cal_format_micro_PD;
 	format Calibrated_Score scoringggggg.;
@@ -131,7 +131,7 @@ proc Freq data=revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB;
 	/*		fORMAT LAG: DEF_FLAG_MAX.;*/
 run;
 
-proc Freq data=revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB noprint;
+proc Freq data=revnew.PI_MCR_ALL_PD_PRODCALIB noprint;
 	by month;
 	tables Calibrated_Score*Default_12min / nopercent nocol nofreq out=revnew.score_cal_format_micro_PD;
 	format Calibrated_Score scoringggggg.;
@@ -143,7 +143,7 @@ proc Freq data=revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB noprint;
 		fORMAT LAG: DEF_FLAG_MAX.;
 run;
 
-proc Freq data=revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB;
+proc Freq data=revnew.pI_MCR_ALL_PD_PRODCALIB;
 	by month;
 	tables good*Calibrated_Score / measures alpha=0.1;
 	tables good*URG_FWD / measures alpha=0.1 nopercent nocol nofreq;
@@ -230,12 +230,12 @@ data revnew.SomersD_PD_MICRO_calibrated;
 	keep period name GINI nValue1;
 run;
 
-proc Sort data=revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB;
+proc Sort data=revnew.PI_MCR_ALL_PD_PRODCALIB;
 	by  customer_id;
 run;
 ods graphics off;
 
-proc Freq data=revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB noprint;
+proc Freq data=revnew.PI_MCR_ALL_PD_PRODCALIB noprint;
 	by customer_id;
 	tables month /measures  alpha=0.05 out= cont_hist;
 	tables mob / measures   alpha=0.05 out= cont_hist2;
