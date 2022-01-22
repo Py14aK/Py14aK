@@ -1,0 +1,639 @@
+/*/*/*/*/*/*/*/*/*/* Estimate calibration function for behavioural score */	 PY14AK*/*/*/*/*/*/*/*/*/
+/*Calibration is done on score, notice that no devision for valdiation is present, model has leakage. DATA untracable*/
+
+/*1. Split APP BEH;
+2. Calculate GINI and KS to analyse
+2.1 Do no use control _param do manually 
+3.Use sigmoid and PROC logistic to get correction for each period
+4. Check again to make sure it's all done, do forwards calibration*/
+%macro ODSOff(); /* Call prior to BY-group PROCessing */
+	ods graphics off;
+	ods exclude all;
+	ods noresults;
+%mend;
+
+%macro ODSOn(); /* Call after BY-group PROCessing */
+	ods graphics on;
+	ods exclude none;
+	ods results;
+%mend;
+
+PROC Options option=encoding;
+RUN;
+OPTIONS COMPRESS=BINARY;
+options mprint mlogic symbolgen mprintnest mlogicnest;
+%let start_mnt = 80;
+%let end_mnt = 218;
+ods graphics off;
+
+PROC DATASETS library=work kill;
+RUN;
+
+/*Score was calculated on bad=true which means that some values can be negative we use abs_values to avoid CONFLICTS*/
+;
+
+DATA PYAK.calibration_DATAset;
+	/*	do until(eof);*/
+	set  PYAK.portfolio_PD_MORG_PERSL end=eof;
+	array scores{*} scrv:;
+	array moba{*} mob_NEW MAX_MOB;
+	MAX_MOB=max(of moba{*});
+
+	if business_segment="." or business_segment=" " then
+		do;
+			business_segment="Missing";
+
+			if app_Score_Pl>=1  and (app_score_ml=. or app_score_ml<1) then
+				business_Segment="PL";
+
+			if app_score_ml>0 and business_segment="Missing" then
+				business_gment="ML";
+
+			if active_age_ml>=1 and business_segment="Missing" then
+				business_segment="ML";
+
+			if (APP_SCORE_ML>=1 AND APP_SCORE_PL>=1) THEN
+				BUSINESS_SEGMENT="ML/PL";
+
+			if (app_score_pl=0 OR APP_SCORE_PL=.)  and (business_segment="Missing" and 
+				(CALIBRATED_APPLICATION_SCORE>0 OR APPLICATION_SCORE>0)) then
+				business_Segment="ML/MICRO";
+
+			if app_score_mL=0 and (business_segment= "Missing" and
+				(CALIBRATED_APPLICATION_SCORE>0 OR APPLICATION_SCORE>0) ) then
+				business_Segment= "PL/MICRO";
+
+			IF BUSINESS_SEGMENT = "PI" then
+				business_segment= "PL";
+		END;
+
+	DROP MOB_NEW;
+
+	/*				output;*/
+	/*			end;*/
+RUN;
+
+PROC SORT DATA=PYAK.calibration_DATAset tagsort size=18;
+	by FACILITY_KEY MONTH_ACTUAL business_segment;
+RUN;
+/*BEST TO DO WITH VALIDATION BIT SO THAT YOU CAN CATCH MISTAKES AND FIX THEM ASAP(SEE VALIDATION TAB)*/
+;
+
+DATA PYAK.DATASET_BEH_MG_PL(where=(business_segment^="Micro"));
+	array for_per{&start_mnt.:&end_mnt.} _temporary_;
+
+	do i=&start_mnt.+2 to &end_mnt.-12 by 3;
+		j=i-1;
+		k=i-2;
+		for_per{i}=i;
+		for_per{k}=k;
+		for_per{j}=j;
+	end;
+
+	do until(eof);
+		set PYAK.calibration_DATAset(RENAME=(MONTH_ACTUAL=MONTH)) end=eof;
+		RENAME SCRV08_max_18=SCRV08_18M_VINTAGE_DFF;
+		RENAme CATV08_max_18=CATV08_18M_VINTAGE_DFF;
+		where month between &start_mnt.+2 and &end_mnt.-12;
+		array for{2} month Period;
+		array case{5} observation_default write_off_flag NOT_RATED maturity MAX_DF;
+		by FACILITY_KEY MONTH business_segment;
+
+		if MAX_MOB >= 6;
+		score = abs(coalesce(abs(beh_score),abs(BEH_score_MG_max),abs(behaviour_score)));
+
+		IF SCORE>0 THEN
+			NOT_RATED=0;
+		ELSE NOT_RATED=1;
+		do i=&start_mnt.+2 to &end_mnt.-12 by 3;
+			if for{1}=for_per{i} then
+				for{2}=i;
+
+			if for{1}=for_per{j} then
+				for{2}=i;
+
+			if for{1}=for_per{k} then
+				for{2}=i;
+		end;
+
+		if MAX_DF = 0 then
+			good = 1;
+		else good = 0;
+
+		if MAX_DF = 1 then
+			bad = 1;
+		else bad = 0;
+		output;
+		drop maturity CALIBRATED_APPLICATION_SCORE write_off_flag active_age_ml observation_default BEH_score_MG_max behaviour_score;
+	end;
+RUN;
+
+proc Sort data=PYAK.DATAset_beh_mg_pl tagsort size=15g;
+	by period business_segment;
+run;
+%odson;
+ods output summary=Check_bads;
+
+proc Means data=PYAK.DATAset_beh_mg_pl sum std N;
+	class business_segment;
+	by period;
+	var bad;
+run;
+ods output close;
+
+%odsoff;
+;
+/*Gian made a bad loop for this one, infinite loops and wrong periods fuck up the entire thing*/
+/**/
+DATA CHECK_BADS;
+	SET CHECK_BADS;
+
+	IF BAD_sum<100;
+	MONTH_ADD=MONTH-3;
+	CALL SYMPUT('CONTROL',NOBS);
+	IFF=CAT("IF MONTH=",MONTH_ADD,' THEN MONTH=',MONTH);
+RUN;
+;
+
+PROC SQL;
+	select IFF into :MONTH_ADD separated by ";" from check_bads;
+QUIT;
+;
+
+DATA PYAK.DATAset_beh_mg_pl;
+	SET PYAK.DATAset_beh_mg_pl;
+	&MONTH_ADD.;
+RUN;
+
+/*not yet bug free but works */
+;
+%odson;
+ods output summary=Check_bads;
+
+proc Means data=PYAK.DATAset_beh_mg_pl sum std N;
+	class business_segment;
+	by period;
+	var bad;
+run;
+ods output close;
+
+%odsoff;
+%odson;
+
+/*Test for normality and estimating the type of calibration(sigmoid) because scores are already in such distribution*/
+PROC Univariate DATA= PYAK.DATAset_beh_mg_pl 
+	outtable=PYAK.Beh_stat_score_mg_pl normal;
+	var score;
+	by period business_segment;
+RUN;
+
+/*Format based on internal Guidelines */
+PROC Format;
+	value score_f
+		. = "missing"
+		0-100 = '0-100'	
+		101-200 = '101-200' 
+		201-300 = '201-300' 
+		301-400 = '301-400' 
+		401-500 = '401-500'
+		501-600 = '501-600'
+		601-700 = '601-700' 
+		701-800 = '701-800' 
+		801-900 = '801-900' 
+		901-1000 = '901-1000'
+	;
+	vaLue max_df_f 
+		0 = 'Good'
+		1 = 'Bad'
+		. = 'Missing'
+	;
+RUN;
+
+/*You can use freq to calculate weighrs,do markov chains and to fix the bad sample so that it has a test dev and cal. The plots and nocol nopercent are of great interest, you*/
+;
+
+PROC Freq DATA=PYAK.DATAset_beh_mg_pl (rename=(score=score2));
+	by period business_segment;
+
+	/*	table good /measures missing alpha=0.1 noprint out=score_fineclass;*/
+	table score2 /measures missing alpha=0.1 plots=all out=PYAK.Score_dist_month_beh_mg_pl;
+		format score2 score_f.;
+
+		table MAX_DF /measures missing alpha=0.1 out=PYAK.DEF_flag_dist_mg_pl;
+			format MAX_DF max_df_f.;
+RUN;
+
+/* CALIBRATION AND GINI ESTIMATION DONE ON ACCOUNT-LEVEL */
+PROC SORT DATA=PYAK.DATAset_beh_mg_pl SIZE=18g;
+	by period business_segment;
+RUN;
+
+proc Datasets lib=work kiLL;;
+run;
+
+/*CALCULATE SOMERSD (GINI)*/
+;
+
+PROC Freq DATA = PYAK.DATAset_beh_mg_pl(WHERE=(SCORE^=.));
+	by period business_segment;
+	tables GOOD*SCORE/ measures NOPRINT alpha=0.1;
+	Test SMDCR;
+	ods output SomersDCR = SomersD_Mod;
+RUN;
+
+DATA SomersD_Mod;
+	set SomersD_Mod;
+	length name $50.;
+
+	if Label1="Somers' D C|R" then
+		Label1="GINI";
+	Name="SCORE";
+RUN;
+
+DATA SomersD_Mod;
+	set SomersD_Mod;
+	where Label1="GINI";
+	RENAME nValue1=GINI;
+	keep period name GINI nValue1;
+RUN;
+
+/*nON PARAMETRIC TEST FOR KS*/
+;
+
+PROC Npar1way DATA=PYAK.DATAset_beh_mg_pl noprint edf;
+	by period business_segment;
+	class good;
+	var score;
+	output out=KS_beh edf;
+RUN;
+
+/*CALL PRIOR TO PROC LOGISTIC(mandatory)*/
+%ODSOFF;
+
+/* Regression ON target == GOOD :
+to do, actually use the roc to confirm calibration
+Using by helps with speed
+IT SEEMS THE RESPOSE WE ARE GETTING FOR THE SCORE IS TOO WELL ADJUSTED RIGHT NOW
+i BLAME THE ASS OF THE DEF_FLAGS*/
+;
+
+PROC Logistic DATA =  PYAK.DATAset_beh_mg_pl (rename=(score=score2)) DESCENDING NOPRINT outest= cal_function_beh;
+	by period business_segment;
+	model good = score2
+		/lackfit rsquare
+		selection = stepwise
+		slentry = 0.9
+		slstay = 0.1
+		outroc=bui;
+	output out=scored predicted=score;
+RUN;
+%ODSON;
+
+/*NOT DONE YET, MAKE SURE YOU DON'T FORGET TO SAVE*/
+/*-SCORE2 == SLOPE- */
+;
+
+DATA cal_function_beh (keep = period business_segment intercept slope SCORE2 model);
+	set cal_function_beh;
+	rename score2 = slope;
+	model = 'BEH';
+RUN;
+
+/*I fixed all the statistics and this join is the slowest thing*/
+PROC SQL;
+	create table PYAK.cal_function_beh_ml_pl_full as select a.*,c.*,d.*,e.* 
+		from cal_function_beh a
+			left outer join
+				(select distinct * from check_bads) c
+					on a.period=c.period
+				left outer join
+					(select distinct round(max(_KS_),.1) as KS from ks_beh) d
+						on 1=1
+					left outer join
+						(select distinct period AS period ,GINI  as GINI  from SomersD_Mod) e
+							on A.period=E.period;
+QUIT;
+
+PROC DATASETS LIB=WORK KILL;
+RUN;
+
+/* Estimate calibration function for application score */
+;
+
+DATA PYAK.DATAset_app_mg_pl;
+	array for_per{&start_mnt.:&end_mnt.} _temporary_;
+
+	do i=&start_mnt.+2 to &end_mnt.-12 by 3;
+		j=i-1;
+		k=i-2;
+		for_per{i}=i;
+		for_per{k}=k;
+		for_per{j}=j;
+	end;
+
+	do until(eof);
+		set PYAK.calibration_DATAset(RENAME=(month_actual=month)) nobs=months_client_for end=eof;
+		RENAME SCRV08_max_18=SCRV08_18M_VINTAGE_DFF;
+		RENAme CATV08_max_18=CATV08_18M_VINTAGE_DFF;
+		where month between &start_mnt.+2 and &end_mnt.-12;
+		array for{2} month Period;
+		array case{5} observation_default write_off_flag NOT_RATED maturity MAX_DF;
+		by FACILITY_KEY MONTH business_segment;
+
+		if MAX_MOB < 6;
+		score = abs(coalesce(abs(new_app_score),abs(CALIBRATED_APPLICATION_SCORE),abs(app_score_ml),abs(APP_SCORE_pl),abs(APPLICATION_SCORE)));
+
+		do i=&start_mnt.+2 to &end_mnt.-12 by 3;
+			if for{1}=for_per{i} then
+				for{2}=i;
+
+			if for{1}=for_per{j} then
+				for{2}=i;
+
+			if for{1}=for_per{k} then
+				for{2}=i;
+		end;
+
+		if max_df = 0 then
+			good = 1;
+		else good = 0;
+
+		if max_df = 1 then
+			bad = 1;
+		else bad = 0;
+		drop maturity CALIBRATED_APPLICATION_SCORE write_off_flag active_age_ml observation_default BEH_score_MG_max behaviour_score;
+		output;
+	end;
+RUN;
+%odson;
+;
+ods output summary=Check_bads;
+
+proc Means data=PYAK.DATAset_app_mg_pl sum std N;
+	class business_segment;
+	by period;
+	var bad;
+run;
+ods output close;
+
+%odsoff;
+
+DATA CHECK_BADS;
+	SET CHECK_BADS NOBS=NOB;
+
+	IF TOTAL_BADS<100;
+	MONTH_ADD=PERIOD+3;
+	CALL SYMPUT('CONTROL',NOB);
+	IFF=CAT("IF PERIOD=",MONTH_ADD,' THEN PERIOD=',PERIOD);
+RUN;
+
+PROC SQL;
+	select IFF into :MONTH_ADD separated by " ;" from check_bads;
+QUIT;
+
+data PYAK.dataset_app_mg_pl;
+	set PYAK.dataset_app_mg_pl;
+	&month_add.;
+run;
+
+PROC SORT DATA=PYAK.dataset_app_mg_pl size=18G;
+	by period business_segment;
+RUN;
+
+/*Test for normality and estimating the type of calibration(sigmoid) because scores are already in such distribution*/
+PROC Univariate DATA= PYAK.dataset_app_mg_pl  outtable=PYAK.App_stat_mg_pl normal;
+	var score;
+	by period business_segment;
+
+	/*	qqplot score/normal  (mu=est sigma=est color=red L=1);*/
+RUN;
+
+PROC Freq DATA=PYAK.dataset_app_mg_pl(rename=(score=score2)) noprint;
+	by period business_segment;
+
+	/*	table good 	/measures missing alpha=0.1 out=score_fineclass;*/
+	table score2 /measures missing alpha=0.1 out=PYAK.Score_dist_app_mg_pl;
+		format score2 score_f.;
+
+		table max_df /measures missing alpha=0.1 out=PYAK.DEF_flag_dist_app_mg_pl;
+			format max_df max_df_f.;
+RUN;
+
+/* CALIBRATION GINI ESTIMATION done on ACCOUNT-LEVEL */
+PROC SORT DATA=PYAK.dataset_app_mg_pl SIZE=16g;
+	by period business_segment;
+RUN;
+
+/*Get SomersD */
+PROC Freq DATA = PYAK.dataset_app_mg_pl(wHERE=(SCORE^=.));
+	by period business_segment;
+	tables GOOD*SCORE/ measures noprint alpha=0.1;
+	Test SMDCR;
+	ods output SomersDCR = SomersD_Mod;
+RUN;
+
+DATA SomersD_Mod;
+	set SomersD_Mod;
+	length name $50.;
+
+	if Label1="Somers' D C|R" then
+		Label1="GINI";
+	Name="SCORE";
+RUN;
+
+DATA SomersD_Mod;
+	set SomersD_Mod;
+	where Label1="GINI";
+	RENAME nValue1=GINI;
+	keep PERIOD business_segment name GINI nValue1;
+RUN;
+
+PROC Npar1way DATA=PYAK.dataset_app_mg_pl noprint edf;
+	by period business_segment;
+	class good;
+	var score;
+	output out=KS_app edf;
+RUN;
+
+/* Call prior to BY-group PROCessing for heavy logistic PROCedures*/;
+PROC SORT DATA=PYAK.dataset_app_mg_pl tagSORT SORTsize=17G;
+	by period business_segment;
+RUN;
+%odsoff;
+
+/* Regression "analysis"*/
+PROC Logistic DATA = PYAK.dataset_app_mg_pl(rename=(score=score2))descending outest = cal_function_app;
+	by period business_segment;
+	model good = score2
+		/lackfit rsquare
+		selection = stepwise
+		slentry = 0.9
+		slstay = 0.1
+		outroc=bui;
+	output out=scored predicted=score;
+RUN;
+
+DATA cal_function_app (keep = period intercept score2 business_segment period slope model);
+	set cal_function_app;
+	rename score2 = slope;
+	model = 'APP';
+RUN;
+
+DATA cal_function_beh PYAK.cal_function_beh_ml_pl_full;
+	set PYAK.cal_function_beh_ml_pl_full;
+	RI_INTERCEPT = (intercept + 7.16)/0.0173;
+	RI_SLOPE = slope/0.0173;
+RUN;
+
+DATA cal_function_app;
+	set cal_function_app;
+	RI_INTERCEPT = (intercept + 7.16)/0.0173;
+	RI_SLOPE = slope/0.0173;
+RUN;
+
+PROC SQL;
+	create table PYAK.cal_function_app_full_pl_mg as select a.*, c.*,d.*,e.* 
+		from cal_function_app a
+			left outer join
+				(select distinct * from check_bads) c
+					on a.period=c.period
+				left outer join
+					(select distinct round(max(_KS_),.1) as KS from ks_app) d
+						on 1=1
+					left outer join
+						(select distinct period AS period ,GINI  as GINI from SomersD_Mod) e
+							on A.period=E.period;
+QUIT;
+
+DATA PYAK.cal_function_all_mobadj;
+	set cal_function_app cal_function_beh;
+RUN;
+
+PROC DATASETS lib=work kill;
+RUN;
+
+PROC SORT DATA=PYAK.cal_function_all_mobadj nodupkey out=cal_function_all_mobadj size=15G;
+	by period model;
+RUN;
+
+DATA PYAK.cal_function_all_mobadj1(keep=model period BEH_INTERCEPT BEH_SLOPE APP_INTERCEPT month APP_SLOPE);
+	set cal_function_all_mobadj;
+	BEH_INTERCEPT=.;
+	BEH_SLOPE=.;
+	APP_INTERCEPT=.;
+	APP_SLOPE=.;
+	by period business_segment;
+
+	if model = 'BEH' then
+		BEH_INTERCEPT=left(trim(intercept));
+
+	if model = 'BEH' then
+		BEH_SLOPE=left(trim(slope));
+
+	if model = 'APP' then
+		APP_INTERCEPT=left(trim(intercept));
+
+	if model = 'APP' then
+		APP_SLOPE=left(trim(slope));
+	output;
+RUN;
+
+/* INPUT CALI FUNCTION FOR THE LAST 12 months */
+%let end_mnt=218;
+
+/*SO i redid the FRWD cal and now its fixed, asked GIan and he approved*/
+PROC SORT DATA=PYAK.cal_function_all_mobadj1 nodupkey size=15G;
+	BY period MODEL;
+RUN;
+
+DATA A1(WHERE=(MONTH^=.));
+	set PYAK.cal_function_all_mobadj1;
+	month=period;
+	output;
+	app_interceptc=app_intercept;
+	app_slopec=app_slope;
+	beh_interceptc=beh_intercept;
+	beh_slopec=beh_slope;
+	app_intercept=.;
+	app_slope=.;
+	beh_intercept=.;
+	beh_slope=.;
+	month=period-1;
+	output;
+RUN;
+
+DATA PYAK.Calibrated_beh_app_mg_pl;	 /*not really needed but easier to understand if we do it step by step */
+	array for_per{&start_mnt.:&end_mnt.} _temporary_;
+
+	do i=&start_mnt.+2 to &end_mnt.-12 by 3;
+		j=i-1;
+		k=i-2;
+		for_per{i}=i;
+		for_per{k}=k;
+		for_per{j}=j;
+	end;
+
+	do until(eof);
+		set PYAK.calibration_DATAset(rename=(month_actual=month)) end=eof;
+		where month between &start_mnt.+2 and &end_mnt.-12;
+		array for{2} month  Period;
+		array case{5} observation_default write_off_flag NOT_RATED maturity max_df;
+
+		do i=&start_mnt.+2 to &end_mnt.-12 by 3;
+			if for{1}=for_per{i} then
+				for{2}=i;
+
+			if for{1}=for_per{j} then
+				for{2}=i;
+
+			if for{1}=for_per{k} then
+				for{2}=i;
+		end;
+
+		if max_df = 0 then
+			good = 1;
+		else good = 0;
+
+		if max_df = 1 then
+			bad = 1;
+		else bad = 0;
+		output;
+	end;
+RUN;
+;
+
+DATA PYAK.scored_all_bkwrd_FRWD_cal_mg_pl;	  /* ADD parameters to dataset*/
+	if _N_=0 then
+		set  PYAK.Calibrated_beh_app_mg_pl A1;
+
+	if _N_=1 then
+		do;
+			declare hash h(DATAset:'a1', hashexp:20, multiDATA:'Y');
+			h.definekey('month');
+			h.defineDATA(all:'Y');
+			h.definedone();
+		end;
+
+	do until(eof);
+		set  PYAK.Calibrated_beh_app_mg_pl end=eof;
+		rc=h.find();
+
+		DO WHILE(RC=0);
+			OUTPUT;
+			RC=H.FIND_NEXT();
+		END;
+
+		if rc  ne 0 then
+			output;
+	end;
+RUN;
+
+/*					for production 'like' calibration use the c calib, aka the frwd one. The diff is basically A QUATER APART										 */
+proc Sort data=PYAK.scored_all_bkwrd_FRWD_cal_mg_pl nodupkey size=18g;
+	by period facility_key month;
+run;
+
+data  PYAK.scored_all_bkwrd_FRWD_cal_mg_pl;
+	set PYAK.scored_all_bkwrd_FRWD_cal_mg_pl;
+
+/*-Py14ak- 10/24/2021 */
