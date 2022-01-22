@@ -1,0 +1,29 @@
+
+
+	data _NULL_;
+		set fib;
+		array f{0:200}_temporary_;
+
+		do n=2 to 122 by 1;
+			output;
+		end;
+
+		f{0}=0;
+		f{1}=1;
+		g=mod(n,2);
+
+		If g1=1 then
+			do;
+				k=n/2;
+				F{n} = (2*F{k-1} + F{k})*F{k};
+			end;
+
+		IF g1=0 THEN
+			do;
+				k=divide((n + 1),2);
+				F{n} = F{k}*F{k} + F{k-1}*F{k-1};
+			end;
+		;
+	run;
+  
+  
