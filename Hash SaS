@@ -1,0 +1,842 @@
+/*Merge with HASH objects macro*/
+
+%macro merge(hash,ds,key,data,wh,multi,order);
+%local i temp key_right key_renam data_left data_right data_renam ;
+%if %length(&wh)=0 %then %let wh=1;
+%let i=1;
+%do %while(%length(%scan(&key,&i)));
+%let temp=%scan(&key,&i);
+%if &i=1 %then %let key_right=%sysfunc(quote(%scan(&temp,-1,=)));
+%else %let key_right=&key_right, %sysfunc(quote(%scan(&temp,-1,=)));
+%if %index(&temp,=) %then %let key_renam=&key_renam &temp;
+%let i=%eval(&i+1);
+%end;
+%put &=key_right;
+%put &=key_renam;
+%let i=1;
+
+ 
+
+%do %while(%length(%scan(&data,&i)));
+%let temp=%scan(&data,&i);
+%if &i=1 %then %let data_right=%sysfunc(quote(%scan(&temp,-1,=)));
+%else %let data_right=&data_right, %sysfunc(quote(%scan(&temp,-1,=)));
+%if %index(&temp,=) %then %let data_renam=&data_renam &temp;
+%let data_left=&data_left %scan(&temp,1,=);
+%let i=%eval(&i+1);
+%end;
+%put &=data_left;
+%put &=data_right;
+%put &=data_renam;
+if 0 then set &ds(keep=&data_left %if %length(&data_renam) %then 
+rename=(&data_renam););
+if _n_ =1 then do;
+declare hash &hash(dataset: %if %length(&key_renam) or %length(&data_renam) 
+%then "&ds(where=(&wh) rename=(&key_renam &data_renam))"; 
+%else "&ds(where=(&wh))" , Multidata:"&multi.", ordered:"&order."): 
+);
+&hash..defineKey(&key_right);
+&hash..defineData(&data_right);
+&hash..defineDone();
+end;
+rc=&hash..find();
+drop rc;
+%mend merge();
+ 
+
+/*Not macro merge alternative*/
+
+data _null_; 
+if _n_=0 then set Първи_сет( where еди кво си) втори_СЕТ(where edi kvo si);
+if _n_=1 then do;
+    declare hash k(dataset: "Първи_сет");
+        k.definekey ("Акоунт_ИД");
+        k.definedata ("Нещата", "дет", "trqbwat", "бла");
+        k.definedone();
+
+ 
+
+        declare hash j(dataset:"втори_СЕТ", multidata: "Y",);
+        j.definekey("Акоунт_ИД");
+        j.definedata ("Нещата", "дет", "trqbwat", "бла");
+        j.definedone();
+    
+end;
+set втори_СЕТ;
+if k.find()=0 then output;
+run;
+
+
+/*Hash sort*/
+
+data _null_; 
+ if 0 then set mydata.movies; /* load variable properties into hash tables */ 
+ if _n_ = 1 then do; 
+ declare Hash HashSort (ordered:'a'); /* declare the sort order for hash */ 
+ HashSort.DefineKey ('Length'); /* identify variable to use as simple key */ 
+ HashSort.DefineData (‘Title‘, 
+ ‘Length’, 
+ ‘Category’, 
+ ‘Rating’); /* identify columns of data */ 
+ HashSort.DefineDone (); /* complete hash table definition */ 
+ end; 
+ set mydata.movies end=eof; 
+ HashSort.add (); /* add data with key to hash object */ 
+ if eof then HashSort.output(dataset:sorted_movies); /* write data using hash 
+ HashSort */ 
+run;
+
+/* HashSort no dups */ 
+data _null_; 
+ if 0 then set want; /* load variable properties into hash tables */ 
+ if _n_ = 1 then
+do; 
+	declare Hash HashSort (ordered:'a'); /* declare the sort order for hash */ 
+	HashSort.DefineKey ('facility_key','month'); /* identify variable to use as simple key */ 
+	HashSort.DefineData ('GB_FLAG', 'coconut_type', 'prev_def_flag', 'month'); /* identify columns of data */ 
+	HashSort.DefineDone (); /* complete hash table definition */ 
+ end; 
+ set want end=eof; 
+ HashSort.ref (); /* add data with key to hash object */ 
+ if eof then HashSort.output(dataset:want_sorted); /* write data using hash 
+ HashSort no dups */ 
+run;
+/*Find the largest value in an unsorted set*/
+		 
+%macro merge(hash,ds,key,data,wh,multi,order);
+%local i temp key_right key_renam data_left data_right data_renam ;
+%if %length(&wh)=0 %then %let wh=1;
+%let i=1;
+%do %while(%length(%scan(&key,&i)));
+%let temp=%scan(&key,&i);
+%if &i=1 %then %let key_right=%sysfunc(quote(%scan(&temp,-1,=)));
+%else %let key_right=&key_right, %sysfunc(quote(%scan(&temp,-1,=)));
+%if %index(&temp,=) %then %let key_renam=&key_renam &temp;
+%let i=%eval(&i+1);
+%end;
+%put &=key_right;
+%put &=key_renam;
+%let i=1;
+
+ 
+
+%do %while(%length(%scan(&data,&i)));
+%let temp=%scan(&data,&i);
+%if &i=1 %then %let data_right=%sysfunc(quote(%scan(&temp,-1,=)));
+%else %let data_right=&data_right, %sysfunc(quote(%scan(&temp,-1,=)));
+%if %index(&temp,=) %then %let data_renam=&data_renam &temp;
+%let data_left=&data_left %scan(&temp,1,=);
+%let i=%eval(&i+1);
+%end;
+%put &=data_left;
+%put &=data_right;
+%put &=data_renam;
+if 0 then set &ds(keep=&data_left %if %length(&data_renam) %then 
+rename=(&data_renam););
+if _n_ =1 then do;
+declare hash &hash(dataset: %if %length(&key_renam) or %length(&data_renam) 
+%then "&ds(where=(&wh) rename=(&key_renam &data_renam))"; 
+%else "&ds(where=(&wh))" , Multidata:"&multi.", ordered:"&order."): 
+);
+&hash..defineKey(&key_right);
+&hash..defineData(&data_right);
+&hash..defineDone();
+end;
+rc=&hash..find();
+drop rc;
+%mend merge();
+ 
+
+/*Not macro merge alternative*/
+
+data _null_; 
+if _n_=0 then set Първи_сет( where еди кво си) втори_СЕТ(where edi kvo si);
+if _n_=1 then do;
+    declare hash k(dataset: "Първи_сет");
+        k.definekey ("Акоунт_ИД");
+        k.definedata ("Нещата", "дет", "trqbwat", "бла");
+        k.definedone();
+
+ 
+
+        declare hash j(dataset:"втори_СЕТ", multidata: "Y",);
+        j.definekey("Акоунт_ИД");
+        j.definedata ("Нещата", "дет", "trqbwat", "бла");
+        j.definedone();
+    
+end;
+set втори_СЕТ;
+if k.find()=0 then output;
+run;
+
+
+data want;
+
+   dcl hash HoH(ordered : 'D');                                                    
+   HoH.definekey('month');
+   HoH.definedata('h', 'hi', 'month');
+   HoH.definedone();
+   dcl hiter HoHiter('HoH');
+
+-   do until (lr);
+      set out end=lr;
+ 
+      if HoH.find() ne 0 then do;                                               
+         dcl hash h(dataset : 'out(obs=0)', multidata : 'Y', ordered : 'D');
+         h.definekey('month');
+         h.definedata('month');
+         h.definedone();
+         dcl hiter hi('h');
+         HoH.add();
+      end;
+
+      h.add();
+   end;
+ 
+   do while(HoHiter.next() = 0);                                                  
+      _N_ = hi.next();
+      _N_ = hi.prev();
+      output;
+   end;
+
+run;
+
+/*Find largest in ordered set*/
+
+data want;
+   if _N_ = 1 then do;                                                             
+      declare hash h (dataset : 'out', ordered : 'D', multidata : 'Y');
+      h.definekey ('month');
+      h.definedata(all : 'Y');
+      h.definedone();
+      declare hiter hi ('h');
+   end;
+ 
+   do until (last.month);                                                             
+      set out;
+      by month;
+      h.add();
+   end;
+ 
+   _N_ = hi.next();                                                                 
+   _N_ = hi.prev();
+   h.clear(); 
+run;
+
+/*Sum*/
+
+data _null_;
+   dcl hash h();
+   h.definekey('id');
+   h.definedata('id', 's');
+   h.definedone();
+ 
+   do until (z);
+      set have end = z;
+      if h.find() ne 0 then s = 0;
+      else                  s + x;
+      h.replace();
+   end;
+ 
+   h.output(dataset : 'want');
+run;
+
+/*Cumulative Sums With the SAS Hash Object*/
+
+
+/*Minimum Value with Hash Object*/
+
+data want;
+   if _N_ = 1 then do;                                                              /* 1 */
+      declare hash h (dataset : 'have(obs=0)', ordered : 'A', multidata : 'Y');
+      h.definekey ('d');	  	
+      h.definedata(all : 'Y');
+      h.definedone();
+      declare hiter hi ('h');
+   end;
+ 
+   do until (last.k);                                                               /* 2 */
+      set have;
+      by k;
+      h.add();
+   end;
+ 
+   _N_ = hi.next();                                                                 /* 3 */
+   _N_ = hi.prev();
+   h.clear(); 
+run;
+
+/*Calculate distinct*/
+
+data want;
+   dcl hash hoh (ordered : "Y");
+   hoh.definekey("id");
+   hoh.definedata("h", "id");
+   hoh.definedone();
+   dcl hiter i ("hoh");
+ 
+   dcl hash h;
+ 
+   do until (lr);
+      set have end=lr;
+      if hoh.find() ne 0 then do;
+         h = _new_ hash (multidata : "Y");
+         h.definekey ("id", "x");
+         h.definedone();
+         hoh.add();
+      end;
+      h.ref();
+   end;
+ 
+   do while (i.next() = 0);
+      unq = h.num_items;
+      output;
+   end;
+run;
+
+
+/*Mean and mean imputation*/
+data _null_;
+   dcl hash h(ordered : "A");
+   h.definekey("id");
+   h.definedata("id", "n", "s", "m");
+   h.definedone();
+ 
+   do until (z);
+      set have end = z;
+      call missing(n, s);
+      rc = h.find();
+      if v then do;
+         n + 1;
+         s + v;
+         m = divide(s, n);
+         h.replace();
+      end;
+   end;
+ 
+   h.output(dataset : "mean_hash(drop = n s)");
+run;
+
+
+data want(drop = s n rc);
+   dcl hash h(ordered : "A");
+   h.definekey("id");
+   h.definedata("id", "n", "s", "v");
+   h.definedone();
+ 
+   do until (z1);
+      set have end = z1;
+      call missing(n, s);
+      rc = h.find();
+      if v then do;
+         n + 1;
+         s + v;
+         v = divide(s, n);
+         h.replace();
+      end;
+   end;
+ 
+   do until (z2);
+      set have end = z2;
+      if v = . then h.find();
+      output;
+   end;
+run;
+
+/*Group Sums With the SAS Hash Object*/
+
+
+/* Moving avrg */
+
+data MovAv(drop = s t);
+ 
+   if _N_ = 1 then do;
+      dcl hash h(dataset : "have");
+-      h.definekey("time");
+      h.definedata("value");
+      h.definedone();
+   end;
+ 
+   set have;
+   s = 0; d = 0;
+ 
+   do t = time - 2 to time;
+      value = .;
+      if h.find(key : t) = 0 then do;
+         s = sum(s, value);
+         d + 1;
+      end;
+   end;
+ 
+   MovAv = divide(s, d);
+ 
+run;
+
+
+/*Centered Moving avrg*/
+
+data CMovAv(drop = s t);
+ 
+   if _N_ = 1 then do;
+      dcl hash h(dataset : "have");
+      h.definekey("time");
+      h.definedata("value");
+      h.definedone();
+   end;
+ 
+   set have;
+   s = 0; d = 0;
+ 
+   do t = time - 1 to time + 1;
+-      value = .;
+      if h.find(key : t) = 0 then do;
+         s = sum(s, value);
+         d + 1;
+      end;
+   end;
+ 
+   MovAv = divide(s, d);
+ 
+run;
+
+/*Ram optimised stat agregation*/
+
+
+/* the DoW-loop, instead of cycling through the entire input file (think of it 
+as a single by-group), cycles through each ID by-group consecutively, clearing the hash tables before and 
+adding aggregated output after. From the standpoint of the intended reduction of hash RAM footprint, it 
+has two consequences*/
+
+data hash_agg_presorted (keep = ID KEY SUM UNQ SUM2 UNQ2) ; 
+ if _n_ = 1 then do ; 
+ dcl hash H (ordered: "A") ; 
+ dcl hiter I ("H") ; 
+ h.definekey ("KEY") ; 
+ h.definedata ("KEY", "SUM", "UNQ", "SUM2", "UNQ2") ; 
+ h.definedone () ; 
+ 
+ dcl hash U () ; 
+ u.definekey ("KEY", "VAR") ; 
+ u.definedone () ; 
+ 
+ dcl hash U2 () ; 
+ u2.definekey ("KEY", "VAR2") ; 
+ u2.definedone () ; 
+ end ; 
+ *clear hash tables ; 
+ h.clear() ; 
+ u.clear() ; 
+ u2.clear() ; 
+ *loop over next ID by-group ; 
+ do until (last.ID) ; 
+ set DETAILS3 ; 
+ by ID ; 
+ if h.find() ne 0 then call missing (SUM, SUM2, UNQ, UNQ2) ; 
+ SUM = sum (SUM, VAR) ; 
+ SUM2 = sum (SUM2, VAR2) ; 
+ if u.check() ne 0 then do ; 
+  UNQ = sum (UNQ, 1) ; 
+ u.add() ; 
+ end ; 
+ if u2.check() ne 0 then do ; 
+ UNQ2 = sum (UNQ2, 1) ; 
+ u2.add() ; 
+ end ; 
+ h.replace() ; 
+ end ; 
+ *output aggregates for current ID by-group ; 
+ do while (i.next() = 0) ; 
+ output ; 
+ end ; 
+run ;
+																  ***
+
+/*MD5 function style hash*/
+
+
+/*Original multi key hash*/
+
+data _null_ ; 															  	`
+ dcl hash H (ordered: "A") ; 
+ h.definekey ("KN1", "KN2", "KN3", "KC1", "KC2", "KC3") ; 
+ h.definedata ("KN1", "KN2", "KN3", "KC1", "KC2", "KC3", "SUM", "UNQ") ; 
+ h.definedone () ; 
+ 
+ dcl hash U () ; 
+ u.definekey ("KN1", "KN2", "KN3", "KC1", "KC2", "KC3", "VAR") ; 
+ u.definedata ("_N_") ; 
+ u.definedone () ; 
+ 
+ do until (end) ; 
+ set MULTIKEY end = end ; 
+ if h.find() ne 0 then call missing (SUM, UNQ) ; 
+ SUM = sum (SUM, VAR) ; 
+ if u.check() ne 0 then do ; 
+ UNQ = sum (UNQ, 1) ;
+  u.add() ; 
+ end ; 
+ h.replace() ; 
+ end ; 
+ 
+ h.output (dataset: "hash_agg_multikey") ; 
+ 
+ h_size = h.item_size ; 
+ u_size = u.item_size ; 
+ put h_size= u_size= ; 
+ stop ; 
+run ; 
+
+/*MD5 by using  MD5=MD5(CATS(KN1,KN2,KN3,KC1,KC2,KC3)) */
+
+data _null_ ; 
+ dcl hash H (ordered: "A") ; 
+ h.definekey ("MD5") ; 
+ h.definedata ("KN1", "KN2", "KN3", "KC1", "KC2", "KC3", "SUM", "UNQ") ; 
+ h.definedone () ; 
+ 
+ dcl hash U () ; 
+ u.definekey ("MD5", "VAR") ; 
+ u.definedata ("_N_") ; 
+
+  u.definedone () ; 
+ 
+ do until (end) ; 
+ set MULTIKEY end = end ; 
+ length MD5 $ 16 ; 
+ MD5 = MD5 (cats (of KN:, of KC:)) ; 
+ if h.find() ne 0 then call missing (SUM, UNQ) ; 
+ SUM = sum (SUM, VAR) ; 
+ if u.check() ne 0 then do ; 
+ UNQ = sum (UNQ, 1) ; 
+ u.add() ; 
+ end ; 													*****
+ h.replace() ; 
+ end ; 
+ 
+ h.output (dataset: "hash_agg_multikey_md5") ; 
+ 
+ h_size = h.item_size ; 
+ u_size = u.item_size ; 
+ put h_size= u_size= ; 
+ stop ; 
+run ;
+
+
+/*Semisorted algo, idea being we subset with where similar to class processing in Procs*/
+
+/* The more distinct key values are involved in this repetitive process, the more RAM we save -
+provided that the values are distributed more or less uniformly throughout the input data set.
+ 
+At the same time, the more such values to rely upon we have, the more passes through the input file 
+we have to make. However, this negative effect is mitigated by using the WHERE clause, so the 
+filtered-out observations are never moved from the buffer for processing. The great advantage we 
+gain is that is definitely doable, and a few passes with the WHERE clause are certainly less taxing 
+that sorting the whole thing, if it is even possible. (A variant of this method, more general than the 
+simple case at hand, will be presented later on.) 
+ 
+Needless to say, it is not necessary to write repetitive code to do this: It can be done instead by 
+writing a simple macro or using other methods of dynamic code generation (e.g. PUT-%INCLUDE). 
+Above, it was done explicitly to convey an idea how the assembled code may look like*/
+
+
+
+data hash_agg_where (keep = KEY SUM UNQ) ; 
+ if _n_ = 1 then do ; 
+ dcl hash H (ordered: "A") ; 
+ dcl hiter I ("H") ; 
+ h.definekey ("KEY") ; 
+ h.definedata ("KEY", "SUM", "UNQ") ; 
+ h.definedone () ; 
+ dcl hash U () ; 
+ u.definekey ("KEY", "VAR") ; 
+ u.definedone () ; 
+ end ; 
+ 
+ h.clear() ; 
+ u.clear() ; 
+ do end = 0 by 0 until (end) ; 
+ set UNSORTED (WHERE = (KEY = 1)) end = end ; 
+ if h.find() ne 0 then call missing (SUM, UNQ) ; 
+ SUM = sum (SUM, VAR) ; 
+ if u.check() ne 0 then do ; 
+ UNQ = sum (UNQ, 1) ; 
+ u.add() ; 
+
+  end ; 
+ h.replace() ; 
+ end ; 
+ do while (i.next() = 0) ; 
+ output ; 
+ end ; 
+ 
+ h.clear() ; 
+ u.clear() ; 
+ do end = 0 by 0 until (end) ; 
+ set UNSORTED (WHERE = (KEY = 2)) end = end ; 
+ if h.find() ne 0 then call missing (SUM, SUM2, UNQ, UNQ2) ; 
+ SUM = sum (SUM, VAR) ; 
+ if u.check() ne 0 then do ; 
+ UNQ = sum (UNQ, 1) ; 
+ u.add() ; 
+ end ; 
+ h.replace() ; 
+ end ; 
+ do while (i.next() = 0) ; 
+ output ; 
+ end ; 
+run ; 
+
+
+/* simple example presented above is good to illustrate the concept. Data aggregation life, however, is 
+almost never as simple as the luck of having a whole key with a few, uniformly distributed values. On the 
+other hand, the applicability of the technique is not limited to such a case. To understand why, let us 
+observe that our only really necessary and sufficient criteria for being able to aggregate separate chunks 
+of input independently and save hash memory are: 
+1. No two chunks must share the same key
+2. All chunks should be of roughly equal size
+3. The number of the chunks should not be too high
+Let us consider them separately:
+
+
+1. Two composite keys cannot be identical if any one of their components is different between them. 
+Therefore, any partial key is good if it can be used to satisfy criteria (2) and (3). Moreover, if two keys 
+- simple or composite - differ even in a single same-position byte, they are different. Hence, the 
+required key separation can be achieved based on any byte (or bytes), as long as its values lend 
+themselves to meeting criteria (2) and (3). 
+
+2. This criterion is met when the values of the component (see criterion 1), on which the chunks are 
+segregated, are distributed more or less uniformly in the input file. Oftentimes, business knowledge 
+can help. For example, a character or digit in a customer identifier (e.g. a bank account, phone 
+number, patient ID, etc.) may be limited to several values specifically intended to be evenly 
+distributed amid the customer base. If so, the WHERE clause can be based on it.
+
+3. The number of chunks into which input is "split" is a matter of reasonable balance between the 
+desirable RAM load reduction and the number of passes through the input file for each value of the 
+component, on which segregation is based, fed into the WHERE clause. To wit, if the number of 
+chunks is 1000, say, it will sure reduce hash objects' RAM usage accordingly, but it will lead to 1000 
+passes and a mountain of generated code and at the same time may result in memory 
+underutilization and poorer performance. (One exception to this line of thought is the case when the 
+component is an indexed partial key, as it would make each pass blisteringly quick, and the 
+enormous SAS log generated by the process may be a price easy to pay.) On the other hand, if there 
+are 10 chunks only and the system can comfortably handle enough RAM for each, there is no reason 
+to opt for more, and the aggregation process will be more efficient.
+
+Consider for example, the Point-of-Sale use case referenced above. The authors had determined that the 
+last character of the consumer ID was roughly equally split between 0 thru 9. Thus, a macro loop could be 
+used to read approximately 10% of the input data at a time, thus cutting the size of the hash tables by a 
+factor of 10. And if more reduction is needed, the last two digits could be used to get a 100 fold reduction. 
+The use of a WHERE clause to read the subsets introduced very little additional overhead, thus making 
+the RAM savings worthwhile*/
+
+
+/*what if no component can be found in the aggregation key that would satisfy 
+the criteria listed above? Fortunately, not only the situation can be remedied but it is possible to both 
+ensure the approximate equality of the chunks and control their number at will. The MD5 function, again, 
+is to rescue, but at a different angle*/
+
+/*MD5 + where Macro*/
+%Macro MD5 (n_chunks) ; 
+ %do x = 0 %to %eval (&n_chunks - 1) ; 
+ %let lo = %eval (64 * &x) ; 
+ %let hi = %eval (64 * (&x + 1) - 1) ; 
+ h.clear() ; 
+ u.clear() ; 
+ do end = 0 by 0 until (end) ; 
+ set MD5VIEW end = end ; 
+ WHERE MD5_BYTE1 between &lo and &hi ; 
+ if h.find() ne 0 then call missing (SUM, UNQ) ; 
+ SUM = sum (SUM, VAR) ; 
+ if u.check() ne 0 then do ; 
+ UNQ = sum (UNQ, 1) ; 
+ u.add() ; 
+ end ; 
+ h.replace() ; 
+ end ; 
+ do while (i.next() = 0) ; 
+ output ; 
+ end ; 
+ %end ; 
+%mEnd ; 
+ 
+data md5view / view = md5view ; 
+ set MULTIKEY ; 	  +
+ MD5_BYTE1 = rank (char (md5 (cats (of KN:, of KC:)), 1)) ; 
+run ; 
+ 
+data hash_agg_multikey_chunks (keep = KN: KC: SUM UNQ) ;
+
+ if _n_ = 1 then do ; 
+ dcl hash H () ; 
+ dcl hiter I ("H") ; 
+ h.definekey ("KN1", "KN2", "KN3", "KC1", "KC2", "KC3") ; 
+ h.definedata ("KN1", "KN2", "KN3", "KC1", "KC2", "KC3", "SUM", "UNQ") ; 
+ h.definedone () ; 
+ dcl hash U () ; 
+ u.definekey ("KN1", "KN2", "KN3", "KC1", "KC2", "KC3", "VAR") ; 
+ u.definedata ("_N_") ; 
+ u.definedone () ; 
+ end ; 
+ %MD5 (4) 
+run ;
+
+
+/*Array Hashing for 5 times speedier hashesh*/
+
+/*Random set to show the method*/
+
+data large(keep=k1 k2) small(keep=k1 k2 d1 d2);
+   call streaminit(123);
+   array r {5000000} _temporary_ (1 : 5000000);
+   h = 5000000;
+   do _N_ = 1 to 5000000;  
+      i  = rand ("integer", h);
+      k1  = r [i];
+      k2 = rand('integer', 1, 1e4);
+      d1 = rand('integer', 1, 1e8);
+      d2 = rand('integer', 1, 1e8);
+      output large;
+      if rand('uniform') < .5 then output small;
+      r [i] = r [h];
+      h = h-1;
+   end;
+   stop;
+run;
+
+/*Classical */
+
+data hash1(keep=k1 d1 d2);
+ 
+   if _N_ = 1 then do;
+      dcl hash h(dataset : 'small');
+      h.definekey('k1');
+      h.definedata('d1', 'd2');
+      h.definedone();
+   end;
+ 
+   set large;
+   d1 = .; d2 = .;
+ 
+   rc = h.find();
+run;
+
+/*Find fitting Prime - look at this research paper to get more details: 
+			https://support.sas.com/resources/papers/proceedings/proceedings/sugi26/p008-26.pdf */
+
+%let load = 0.89;
+data _null_;
+   do p=ceil(p/&load) by 1 until (j = up + 1);
+      up = ceil(sqrt(p));
+      do j=2 to up until (not mod(p,j)); end;
+   end;
+   call symput('hsize',left(put(p,best.)));
+   stop;
+   set small nobs=p;
+run;
+ 
+%put &hsize.;
+
+/*The method*/
+
+data arrayhash1(keep=k1 d1 d2);
+   array key   {0 : &hsize.} _temporary_;
+   array data1 {0 : &hsize.} _temporary_;
+   array data2 {0 : &hsize.} _temporary_;
+   array link  {0 : &hsize.} _temporary_;
+ 
+   r=&hsize.;
+ 
+   do until (lr1);
+      set small end=lr1;
+      h=mod(k1, &hsize.) + 1;                 
+      found=0;
+      if link [h] > . then do;               
+         link traverse;                      
+         if found then continue;
+         do r=r by -1 until (link [r]=.);    
+         end;
+         link [h] = r;                       
+         h        = r;
+      end;
+
+ 
+      link  [h] = 0;                          
+      key   [h] = k1;
+      data1 [h] = d1;
+      data2 [h] = d2;
+   end;
+ 
+   do until (lr2);
+      set large end=lr2;
+      found=0;
+     h=mod(k1, &hsize.) + 1;                 
+      if link[h] > . then link traverse;     
+      if found then do;
+         d1 = data1[h];  
+         d2 = data2[h];
+      end; 
+      else call missing(d1, d2);
+      output;
+   end;
+ 
+   stop;
+   traverse:
+ 
+   if k1 = key [h] then found=1;
+   else if link [h] ne 0 then do;
+      h=link [h];
+      link traverse;
+   end;
+run;
+
+/*Horner's algo for multikey array hash*/
+
+data arrayhash2(keep=k1 k2 d1 d2) / stack = 100;
+   array key1  {0 : &hsize.} _temporary_;
+   array key2  {0 : &hsize.} _temporary_;
+   array data1 {0 : &hsize.} _temporary_;
+   array data2 {0 : &hsize.} _temporary_;
+   array link  {0 : &hsize.} _temporary_;
+   r=&hsize.;
+ 
+   do until (lr1);
+      set small end=lr1;
+      h = mod(mod(k1, &hsize.) * 1e4 + k2, &hsize.);              
+      found=0;
+      if link [h] > . then do;               
+         link traverse;                      
+         if found then continue;
+         do r=r by -1 until (link [r]=.);    
+         end;
+         link [h] = r;                       
+         h        = r;
+      end;
+ 
+      link  [h] = 0;                          
+      key1  [h] = k1;
+      key2  [h] = k2;
+      data1 [h] = d1;
+      data2 [h] = d2;
+   end;
+ 
+   do until (lr2);
+      set large end=lr2;
+      found=0;
+      h = mod(mod(k1, &hsize.) * 1e4 + k2, &hsize.);              
+      if link[h] > . then link traverse;     
+      if found then do;
+         d1 = data1[h];  
+         d2 = data2[h];
+      end; 
+      else call missing(d1, d2);
+      output;
+   end;
+ 
+   stop;
+   traverse:
+ 
+   if k1 = key1 [h] and k2 = key2 [h] then found=1;
+   else if link [h] ne 0 then do;
+      h=link [h];
+      link traverse;
+   end;
+run;
