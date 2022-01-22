@@ -1,0 +1,26 @@
+
+	1-Z^/3 ==(z^/3)1(-z^3/);
+	+n(n+1)y=0;
+	-> stationary point	 d^2/z=0;
+	-> find 2 different stationary points and try to model between	 them;
+
+	->	legendre weights for each centroid0
+
+	tslf to tlsf2
+
+	1-t^2 d[cov[x_1,x_2]/dt	-2t*cov[x_1,x_2]+cor[i,t]*G[i,t,t*]cor[ i ] =	  0;
+
+	=>												]1/p-1
+
+	anc0hrr->oBS11/period  dif. b.c.;
+	HARD			.3				
+		[ t*]
+		-> 'lambert'D;
+												   
+	-2t*cov[x_1,X_2]=c[i,j]f[t,t*]dy		 ->logit
+	1-t^2* d^2/dt^2(y)=c[i,j]f[t,t*]dt	 ->tanh
+	b^2-4ac=D
+	-4t^2-4*(1-t^2)=d
+	-8t^2-=d
+
+	-8t^2=4
