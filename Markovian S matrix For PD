@@ -1,0 +1,292 @@
+libname MCRPROD '/saswork/IRB_Models/Monitoring/Samples';
+options mprint mlogic symbolgen compress=binary;
+options nodlcreatedir;
+%let enddate = '01MAR2021'd;
+%let endper = 218;
+%let cut_off = 218;
+
+proc Sql;
+	create table revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB as
+		select distinct
+			intnx("month","31dec2002"d,a.month,"E") as Observation_Date format=yymmdd10., 
+			a.customer_id as Customer_ID,
+			catt(a.credit_id) as Credit_ID,
+			catt(a.account_flag) as Account_Flag,
+			'SME' as Default_Group_ID,  
+			a.observation_default as DefaultStatus, 
+			a.APP_SLOPEc,a.APP_INTERCEPTc,a.BEH_SLOPEc,a.BEH_INTERCEPTc,a.BALANCE_DATE as Fin_inf_source1,
+			a.SCORING_DATE as Fin_inf_source2,
+			a.def_flag_max as Default_12min, A.TECHNICAL_DEFAULT AS TECHNICAL_DEFAULT,
+			a.outstanding_local/1.95583 as OnBalance_Exposure,
+		case 
+			when a.offbalance_exposition < 0.1 then 0
+			else a.offbalance_exposition/1.95583 
+		end 
+	as OffBalance_Exposure,
+		a.customer_mob as MOB,
+		a.date_opened as Date_Opened,
+	case 
+		when a.month<50 or a.month>=203 then a.observation_default
+		when a.month>=50 and a.month<203 then a.default_ndd 
+		else 0 
+	end 
+as DefaultStatusNDD,
+	case 
+		when a.customer_mob<6 and (a.APP_Slopec>. and a.APP_INTERCEPTc>.) then
+		round(sum(app_score * (APP_SLOPEc/0.0173) , ((a.APP_INTERCEPTc + 7.16)/0.0173)), 1)
+		when a.customer_mob>=6  and (a.BEH_SLOPEc>. and a.BEH_SLOPEc>.)  then 
+		round(sum(beh_score * (a.BEH_SLOPEc/0.0173) , ((a.BEH_INTERCEPTc + 7.16)/0.0173)), 1) 
+		when a.customer_mob<6 and (a.APP_Slope=. and a.APP_INTERCEPTc=.) then
+		round(sum(app_score * (APP_SLOPE/0.0173) , ((a.APP_INTERCEPT + 7.16)/0.0173)), 1)
+		when a.customer_mob>=6  and (a.BEH_SLOPEc=. and a.BEH_SLOPEc=.)  then 
+		round(sum(beh_score * (a.BEH_SLOPE/0.0173) , ((a.BEH_INTERCEPT + 7.16)/0.0173)), 1) 
+	end
+as Calibrated_Score,
+	case 
+		when a.month=&cut_off. then 1 
+		else 0 
+	end 
+as Recent_sample,
+	case 
+		when a.month<=&cut_off. - 12 then 1 
+		else 0 
+	end 
+as Base_sample,
+	case 
+		when mod(a.month, 3)=0 then 1 
+		else 0 
+	end 
+as QuatFull_sample,
+	case 
+		when MOD(a.month,12)=0 then 1 
+		else 0 
+	end 
+as YearlySlices_sample,
+	a.URG_BCK,
+	a.beh_score,
+	a.app_score,
+	a.URG_FWD,
+	A.URG_APP,
+	A.URG_BEH,
+	a.period,
+	a.month,
+	a.Net_profit_margin,
+	a.Net_profit,
+	a.PRofit
+from revnew.scored_all_cal_URG_all a;
+quit;
+
+DATA revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB;
+	SET revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB;
+	CCF=1;
+	EAD=OffBalance_Exposure+CCF*OnBalance_Exposure;
+	good = .;
+	bad =.;
+	Total_pr=net_profit/net_profit_margin;
+	total_loses=total_pr-net_profit;
+	LGD_gross=total_loses/ead;
+
+	if Default_12min = 0 then
+		good = 1;
+	else good = 0;
+
+	if Default_12min = 1 then
+		bad = 1;
+	else bad = 0;
+run;
+
+proc Sort data=revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB;
+	by    month customer_id;
+run;
+
+/**/
+/*data revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB;*/
+/*	set revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB;*/
+/*	by  month customer_id;*/
+/*	lag1_default_12_a=lag1(Default_12min);*/
+/*	lag2_default_12_a=lag2(Default_12min);*/
+/*	lag3_default_12_a=lag3(Default_12min);*/
+/*	lag4_default_12_a=lag4(Default_12min);*/
+/*	lag5_default_12_a=lag5(Default_12min);*/
+/*	lag6_default_12_a=lag6(Default_12min);*/
+/*	lag7_default_12_a=lag7(Default_12min);*/
+/*	lag8_default_12_a=lag8(Default_12min);*/
+/*	lag9_default_12_a=lag9(Default_12min);*/
+/*	lag10_default_12_a=lag10(Default_12min);*/
+/*	lag11_default_12_a=lag11(Default_12min);*/
+/*	lag12_default_12_a=lag12(Default_12min);*/
+/*run;*/
+ODS GRAPHICS OFF;
+
+proc Freq data=revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB;
+	BY MONTH;
+	tables Calibrated_Score / measures  alpha=0.1   out=revnew.score_cal_format_micro_PD;
+	format Calibrated_Score scoringggggg.;
+	tables good*URG_FWD / measures alpha=0.1 nopercent nocol out=revnew.urg_frwd_cal_format_micro_PD;
+	tables good*urg_bck / measures alpha=0.1  nopercent nocol out=revnew.urg_bck_cal_format_micro_PD;
+	tables urg_bck*URG_FWD / measures alpha=0.1 nopercent nocol out=revnew.urg_Forw_mig_mat_format_micro_PD;
+	tables URG_FWD*urg_bck / measures alpha=0.1  nopercent nocol out=revnew.urg_bck_mig_mat_format_micro_PD;
+
+	/*	table lag1_default_12_a*lag2_default_12_a*lag3_default_12_a*lag4_default_12_a*lag5_default_12_a*lag6_default_12_a*lag7_default_12_a*lag8_default_12_a*lag9_default_12_a*lag10_default_12_a*lag11_default_12_a*Default_12min / nopercent nocol  out=revnew.DF12_cal_format_micro_PD;*/
+	/*		fORMAT LAG: DEF_FLAG_MAX.;*/
+run;
+
+proc Freq data=revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB noprint;
+	by month;
+	tables Calibrated_Score*Default_12min / nopercent nocol nofreq out=revnew.score_cal_format_micro_PD;
+	format Calibrated_Score scoringggggg.;
+	format Default_12min def_flag_max.;
+	tables urg_bck*URG_FWD / nopercent nocol nofreq out=revnew.urg_frwd_cal_format_micro_PD;
+	tables URG_FWD*urg_bck /  nopercent nocol  nofreq out=revnew.urg_bck_cal_format_micro_PD;
+
+	table lag1_default_12_a*lag2_default_12_a*lag3_default_12_a*lag4_default_12_a*lag5_default_12_a*lag6_default_12_a*lag7_default_12_a*lag8_default_12_a*lag9_default_12_a*lag10_default_12_a*lag11_default_12_a*Default_12min / nopercent nocol  out=revnew.DF12_cal_format_micro_PD;
+		fORMAT LAG: DEF_FLAG_MAX.;
+run;
+
+proc Freq data=revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB;
+	by month;
+	tables good*Calibrated_Score / measures alpha=0.1;
+	tables good*URG_FWD / measures alpha=0.1 nopercent nocol nofreq;
+	tables good*urg_bck / measures alpha=0.1 nopercent nocol nofreq;
+	Test SMDCR;
+	ods output SomersDCR = SomersD_Mod;
+run;
+
+/**/
+/*data revnew.DF12_cal_format_micro_PD;*/
+/*	do _n_=1 by 1 until(last.month);*/
+/*		set revnew.DF12_cal_format_micro_PD;*/
+/*		array lag{*} lag1_default_12_a lag:;*/
+/*		format R best32.;*/
+/*		by month;*/
+/**/
+/*		if first.month then*/
+/*			do;*/
+/*				cnt_1=1;*/
+/*				cnt_2=1;*/
+/*				PD_markov=percent;*/
+/*				Surv_prob_markov=percent;*/
+/*			end;*/
+/**/
+/*		if (lag1_default_12_a=0 and Default_12min=1 ) or (lag1_default_12_a=1 and default_12min=0) then*/
+/*			do;*/
+/*				PD_markov=sum(PD_markov,percent);*/
+/*				cnt_1+1;*/
+/*			end;*/
+/**/
+/*		if (lag1_default_12_a=1 and default_12min=1) or (lag1_default_12_a=0 and default_12min=0) then*/
+/*			do;*/
+/*				Surv_prob_markov=sum(Surv_prob_markov,percent);*/
+/*				cnt_2+1;*/
+/*			end;*/
+/*	end;*/
+/**/
+/*	do _n_=1 by 1 until(last.month);*/
+/*		set revnew.df12_cal_format_micro_pd end=eof;*/
+/*		by month;*/
+/*		output;*/
+/*	end;*/
+/*run;*/
+/*	if first.month;*/
+/*	Period_to=Period+3;*/
+/*	percent=100-percent;*/
+/*	R=round(0.03*(1-exp(-35*(percent/100)))/(1-exp(-35))+0.16*(1-(1-exp(-35*(percent/100)))/(1-exp(-35))),.00000000000000000001);*/
+run;
+
+data test;
+	do _n_=1 by 1 until(last.month);
+		set revnew.DF12_cal_format_micro_PD;
+		by monts;
+
+		if first.month then
+			do;
+				Monthly_LTA_pd=(PD_markov/cnt_1);
+				Monthly_LTA_surv=(surv_prob_markov/cnt_2);
+				output;
+			end;
+
+		if last.month then
+			do;
+				Monthly_LTA_pd=(PD_markov/cnt_1);
+				Monthly_LTA_surv=(surv_prob_markov/cnt_2);
+				output;
+			end;
+	end;
+run;
+
+data SomersD_Mod;
+	set SomersD_Mod;
+	length name $50.;
+
+	if Label1="Somers' D C|R" then
+		Label1="GINI";
+	Name="SCORE";
+run;
+
+data revnew.SomersD_PD_MICRO_calibrated;
+	set SomersD_Mod;
+	where Label1="GINI";
+	RENAME nValue1=GINI;
+	keep period name GINI nValue1;
+run;
+
+proc Sort data=revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB;
+	by  customer_id;
+run;
+ods graphics off;
+
+proc Freq data=revnew.RBBG_PI_MCR_ALL_PD_PRODCALIB noprint;
+	by customer_id;
+	tables month /measures  alpha=0.05 out= cont_hist;
+	tables mob / measures   alpha=0.05 out= cont_hist2;
+run;
+
+data cont_hist;
+	set cont_hist end=eof;
+	RETAIN DELNUM GG month;
+	by Customer_ID;
+
+	IF FIRST.CUSTOMER_ID THEN
+		GG=. AND DELNUM=MONTH+1;
+	ELSE
+		DO;
+			delnum=month+1;
+			GG=LAG1(DELNUM);;
+		END;
+
+	if month^=GG then
+		disc=1;
+	ELSE DISC=0;
+RUN;
+
+DATA revnew.cont_hist_PD_Micro_month;
+	SET cont_hist;
+
+	IF DISC=1 AND GG>0;
+	;
+run;
+
+data cont_hist2;
+	set cont_hist2 end=eof;
+	RETAIN DELNUM GG mob;
+	by Customer_ID;
+
+	IF FIRST.CUSTOMER_ID THEN
+		GG=. AND DELNUM=mob+1;
+	ELSE
+		DO;
+			delnum=mob+1;
+			GG=LAG1(DELNUM);;
+		END;
+
+	if mob^=GG then
+		disc=1;
+	ELSE DISC=0;
+RUN;
+
+DATA revnew.cont_hist2_PD_Micro_mob;
+	SET cont_hist2;
+
+	IF DISC=1 AND GG>0;
+	;
+run;
