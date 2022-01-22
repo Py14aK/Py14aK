@@ -26,4 +26,78 @@ Relation | Transaction Link --> Transaction.Identifier
 
 -
 
-Relation | Leading Distribution Channel Link --> Distribution Channel.Identifier
+SQL EXAMPLE:
+
+
+
+select
+
+p.ref_prod_tp_id,p.product_type_id,
+
+p.product_subtype_id,
+
+p.product_type_subtype_descr,p.status_indicator,
+
+p._date_from, p._date_until
+
+from somewhere.tb_product_type_subtype p
+
+ 
+
+where date '2021-09-30'
+
+      --between _date_from and
+
+      --_date_until
+
+--           
+
+ --and _date_until = date '9999-07-01' / some kind of other row/date/window function
+
+      --
+
+--and p.status_indicator = 'A' and p.entity_id = 'group'
+
+and p.product_subtype_id like '% '--and
+
+    --between
+
+    -
+
+    --between
+
+    +
+
+order by  p.product_subtype_id asc      
+
+  -1         --= 0
+
++
+
+--and _date_from = date '2019-12-13'
+
+        as      
+
+               --   +                         =>2
+
+                                      1
+
+             -           0
+
+                      --and _date_until = date '9999-07-01'
+
+      --
+
+--and p.status_indicator = 'A' and p.entity_id = 'Group'
+
+and p.product_subtype_id like '% '--and
+
+    --between
+
+    -
+
+    --between
+
+    +
+
+order by  p.product_subtype_id asc
