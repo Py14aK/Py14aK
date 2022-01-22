@@ -1,0 +1,70 @@
+*PSI*/
+/*		Calculate % of records in each group based on month sample	done*/
+/*		Calculate % of records in each group based on training sample	 done */
+proc Freq data=rgv.dataset_beh_mg_pl;
+	by period business_segment;
+	tables max_DF /measures alpha=0.1 plots(only)=freqplot out=valid.DF_BEH_PL_ML60202;
+	format max_df max_df_f.;
+	tables score /measures alpha=0.1 plots(only)=freqplot out=valid.SCORE_BEH_MG_ML60202;
+	format score score_f.;
+	tables corrected_status_flag /measures alpha=0.1 plots(only)=freqplot out=valid.Corrected_Flag_dist_beh60202;
+	format corrected_Status_flag missfmt.;
+run;
+%let NumSamples = 1 ;       /* number of bootstrap resamples */
+%put &NumSamples.;
+
+/* 2. Generate many bootstrap samples */
+proc Surveyselect data=rgv.dataset_beh_mg_pl NOPRINT seed=4322426
+	out=valid.data_set_beh_mg_pl_oot(rename=(Replicate=SampleID)) outhits
+	method=urs               /* resample with replacement */
+	samprate=1             /* each bootstrap sample has N observations */
+
+	/* OUTHITS                 option to suppress the frequency var */
+	reps=&NumSamples;        /* generate NumSamples bootstrap resamples */
+
+	/*	 strata month default_30*/
+	;
+run;
+ods graphics on;
+
+%odson;
+
+/*GET tables for Bad flag ,score and urg analysis*/
+;
+
+proc Freq data=valid.data_set_beh_mg_pl_oot;
+	by period business_segment;
+	tables max_DF /measures alpha=0.1 plots(only)=freqplot out=valid.DF_BEH_PL_ML60202oot;
+	format max_df max_df_f.;
+	tables score /measures alpha=0.1 plots(only)=freqplot out=valid.SCORE_BEH_MG_ML60202oot;
+	format score score_f.;
+	tables corrected_status_flag /measures alpha=0.1 plots(only)=freqplot out=valid.Corrected_Flag_dist_beh60202oot;
+	format corrected_Status_flag missfmt.;
+run;
+ods graphics off;
+
+proc Sql;
+	create table valid.PSI_Dataset_BEH_MG_PL as select distinct A.*, B.percent as percent_oot, b.count as count_oot, 
+		b.business_Segment,b.period,b.score 
+
+	from  		 valid.SCORE_BEH_MG_ML60202 a
+		full join valid.SCORE_BEH_MG_ML60202oot b on a.period=b.period and a.business_segment=b.business_Segment	  and a.score=b.score;
+quit;
+
+/*PSI=(freq_oot-freq_mod)*log(freq_oot/freq_mod)*/
+data valid.PSI_Dataset_BEH_MG_PL;
+	set valid.PSI_Dataset_BEH_MG_PL;
+	Diff_count=count-count_oot;
+	Diff_perc=percent-percent_oot;
+	PSI_count=diff_count*log(percent/percent_oot);
+	PSI_percent=diff_perc*log(count/count_oot);
+run;
+
+proc Sgplot data=valid.PSI_Dataset_BEH_MG_PL;
+	by period;
+	vbar score / response=count transparency=0.4 FILLATTRS=(color=yellow);
+	vbar score / response=count_oot transparency=0.4 FILLATTRS=(color=blue) barwidth=0.7;
+	format score score_f.;
+	keylegend / down=2 location=outside position=top /* noborder */
+	;
+run;
