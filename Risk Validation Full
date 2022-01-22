@@ -1,0 +1,255 @@
+
+PROC Options option=encoding;
+RUN;
+OPTIONS COMPRESS=BINARY;
+
+/*		TEST TO GATHER 									
+PSI, 
+SMD BEFORE AND AFTER, 
+HIERFENDAL,
+KS,DF_FLAG,
+MISSING,
+COMAPRE URG WITH HO*/
+;
+/*Use the custom missing format*/
+PROC Format;
+	value $missfmt ' '='Missing' other='Not Missing';
+	value  missfmt  . ='Missing' other='Not Missing';
+RUN;
+
+PROC Format;
+	value score_f
+		. = "missing"
+		0-100 = '0-100'	
+		101-200 = '101-200' 
+		201-300 = '201-300' 
+		301-400 = '301-400' 
+		401-500 = '401-500'
+		501-600 = '501-600'					
+		601-700 = '601-700' 
+		701-800 = '701-800' 
+		801-900 = '801-900' 
+		901-1000 = '901-1000'
+	;
+	vaLue max_df_f 
+		0 = 'Good'
+		1 = 'Bad'
+		. = 'Missing'
+	;
+RUN;
+;
+%odson;
+ods graphics on;
+;
+ODS trace on/ excluded LISTING label;
+ODs output onewayfreqs=valid.DF_CUM_ANAL_TECH_PPLMLMC202222(drop=F_:);
+
+PROC FREQ data=PY14.portfolio_PD_MORG_PERSL_micro_202_222;
+	TABLE app_score_ml / MEASURES MISSING ALPHA=0.1 PLOTS(ONLY)=FREQPLOT OUT=VALID.APP_SCORE_MORGAGE_LOANS_202_222;
+		FORMAT APP_SCORE_ML MISSFMT.;
+
+		table  DEFAULT_FLAG: / measures Missing alpha=0.1 
+			Plots(only)=freqplot;
+			format DEFAULT_FLAG: max_df_f.;
+RUN;
+;
+ods output close;
+ods graphics off;
+ods trace off;
+
+proc Sort data=PY14.portfolio_PD_MORG_PERSL_60_202 tagsort size=19G;
+	by number;
+run;
+%odson;
+ods graphics on;
+ODS output onewayfreqs=valid.DF_CUM_ANAL_TECH_PPLMLMC60202(drop=F_:);
+
+PROC Freq data=PY14.portfolio_PD_MORG_PERSL_60_202;
+	table app_score_ml /MEASURES MISSING ALPHA=0.1 PLOTS(ONLY)=FREQPLOT;
+		FORMAT APP_SCORE_ML MISSFMT.;
+		BY number;
+
+		table ACTIVE_AGE_Ml/missing measures alpha=0.1;
+			format ACTIVE_AGE_Ml missfmt.;
+
+			table ACTIVE_AGE_scoring_ml;
+				/missing measures alpha=0.1;
+				format ACTIVE_AGE_scoring_ml missfmt.;
+
+				table  DEFAULT_FLAG: / measures Missing alpha=0.1 	PLOTS(ONLY)=FREQPLOT 
+					Plots(only)=freqplot;
+					format DEFAULT_FLAG: max_df_f.;
+RUN;
+ods graphics off;
+ods trace off;
+ods output close;
+ODS CLOSE;
+
+/*	PY14.portfolio_PD_MORG_PERSL_micro_202_222 PY14.portfolio_PD_MORG_PERSL_60_202*/
+PROC FREQ DATA= PY14.calibration_Dataset;
+	table Business_segment/ measures missing alpha=0.1 plots(only)=freqplot out=valid.Business_segment_dist;
+		format Business_Segment;
+
+		table max_df / measures MISSING ALPHA=0.1 PLOTS(ONLY)=FREQPLOT OUT=VALID.max_df_flag_dist;
+			format max_df max_df_f.;
+run;
+;
+%odson;
+;
+;
+ods on;
+ods graphics on;
+ods output  onewayfreqs=valid.beh_freqs_miss_all_pl_mg(drop=F_:);
+
+/*proc Freq data= PY14.DATASET_BEH						*/
+/* Some descriptive stats for validation*/
+proc Sort data=PY14.DATAset_beh_mg_pl tagsort size=20G;
+	by PERIOD business_Segment;
+run;
+
+PROC FREQ DATA=PY14.DATAset_beh_mg_pl;
+	by PERIOD business_segment;
+	tables max_Df	 /measures alpha=0.1 plots(ONLY)=freqplot;
+	format max_Df max_df_f.;
+	tables _CHAR_ /  measures missing alpha=0.1;
+	format _CHAR_ $missfmt.;
+	tables _NUMERIC_ / measures missing alpha=0.1;
+	tables business_segment / missing;
+	format _NUMERIC_ missfmt.;
+	format PERIOD business_segment;
+RUN;
+ods graphics off;
+ods close;
+
+/*ods on;*/
+ods graphics on;
+
+%odson;
+
+/*GET tables for Bad flag ,score and urg analysis*/
+;
+
+proc Freq data=PY14.dataset_beh_mg_pl;
+	by period business_segment;
+	tables max_DF /measures alpha=0.1 plots(only)=freqplot out=valid.DF_BEH_PL_ML60202;
+	format max_df max_df_f.;
+	tables score /measures alpha=0.1 plots(only)=freqplot out=valid.SCORE_BEH_MG_ML60202;
+	format score score_f.;
+	tables corrected_status_flag /measures alpha=0.1 plots(only)=freqplot out=valid.Corrected_Flag_dist_beh60202;
+	format corrected_Status_flag missfmt.;
+run;
+ods graphics off;
+ods close;
+	  %macro close;
+/*						reported	found mistake 08/20/2021;*/
+/*proc Freq data=z.irb_mapping;*/
+/*	tables retail_approval_PROCess/ missing alpha=0.1 OUT= rap_IRB_MAPPING;*/
+/*	format retail_approval_PROCess $missfmt.;*/
+/*run;*/
+/**/
+/*proc Freq data=z.irb_mapping_backup;*/
+/*	tables retail_approval_PROCess /missing ALPHA=0.1 OUT=RAP_IRB_MAPPING_BACKUP;*/
+/*	FORMAT RETAIL_APPROVAL_PROCESS $missfmt.;*/
+/*RUN;*/
+/*;*/
+;
+%mend;
+/*PSI*/
+/*		Calculate % of records in each group based on month sample	done*/
+/*		Calculate % of records in each group based on training sample	 done */
+proc Freq data=PY14.dataset_beh_mg_pl;
+	by period business_segment;
+	tables max_DF /measures alpha=0.1 plots(only)=freqplot out=valid.DF_BEH_PL_ML60202;
+	format max_df max_df_f.;
+	tables score /measures alpha=0.1 plots(only)=freqplot out=valid.SCORE_BEH_MG_ML60202;
+	format score score_f.;
+	tables corrected_status_flag /measures alpha=0.1 plots(only)=freqplot out=valid.Corrected_Flag_dist_beh60202;
+	format corrected_Status_flag missfmt.;
+run;
+%let NumSamples = 1 ;       /* number of bootstrap resamples */
+%put &NumSamples.;
+
+/* 2. Generate many bootstrap samples */
+proc Surveyselect data=PY14.dataset_beh_mg_pl NOPRINT seed=4322426
+	out=valid.data_set_beh_mg_pl_oot(rename=(Replicate=SampleID)) outhits
+	method=urs               /* resample with replacement */
+	samprate=1             /* each bootstrap sample has N observations */
+
+	/* OUTHITS                 option to suppress the frequency var */
+	reps=&NumSamples;        /* generate NumSamples bootstrap resamples */
+
+	/*	 strata month default_30*/
+	;
+run;
+ods graphics on;
+
+%odson;
+
+/*GET tables for Bad flag ,score and urg analysis*/
+;
+
+proc Freq data=valid.data_set_beh_mg_pl_oot;
+	by period business_segment;
+	tables max_DF /measures alpha=0.1 plots(only)=freqplot out=valid.DF_BEH_PL_ML60202oot;
+	format max_df max_df_f.;
+	tables score /measures alpha=0.1 plots(only)=freqplot out=valid.SCORE_BEH_MG_ML60202oot;
+	format score score_f.;
+	tables corrected_status_flag /measures alpha=0.1 plots(only)=freqplot out=valid.Corrected_Flag_dist_beh60202oot;
+	format corrected_Status_flag missfmt.;
+run;
+ods graphics off;
+
+proc Sql;
+	create table valid.PSI_Dataset_BEH_MG_PL as select distinct A.*, B.percent as percent_oot, b.count as count_oot, 
+		b.business_Segment,b.period,b.score 
+
+	from  		 valid.SCORE_BEH_MG_ML60202 a
+		full join valid.SCORE_BEH_MG_ML60202oot b on a.period=b.period and a.business_segment=b.business_Segment	  and a.score=b.score;
+quit;
+
+/**/
+/*Herfindal_index=HHI-1*/
+/*PSI=(freq_oot-freq_mod)*log(freq_oot/freq_mod)*/
+PROC FORMAT;
+	VALUE PSI
+		0-0.1 = "GREEN"
+		0.10000000000000000000000000001-0.25 = "YELLOW"
+		0.2500000000000000000001-1 = "GREEN"
+	;
+RUN;
+
+proc Format;
+	value HHI
+		0-0.1 = "GREEN"
+		0.100000000001-0.2 = "YELLOW"
+		0.21 = "RED"
+	;
+RUN;
+
+data valid.PSI_Dataset_BEH_MG_PL;
+	do _N_=1 by 1 until(last.period);
+		set valid.PSI_Dataset_BEH_MG_PL;
+		FORMAT PSI_count_SUM PSI_PERCENT_SUM PSI.;
+		FORMAT S_HHI_MINUS_ONE HHI.;
+		by period business_segment;
+		Diff_count=abs(count-count_oot);
+		Diff_perc=abs(percent-percent_oot);
+		PSI_count=abs((diff_count*log(percent/percent_oot))/100);
+		PSI_percent=abs((diff_perc*log(count/count_oot))/100);
+		PSI_percent_sum= abs(SUM(Psi_percent_sum,PSI_PERCENT));
+		PSI_COUNT_SUM= abs(SUM(PSI_COUNT_SUM,PSI_COUNT));
+		S_HHI=abs(ROUND((percent**2),0.0001));
+		S_HHI_SUM=abs(SUM(S_HHI_SUM,S_HHI));
+		HHI_MIN_ONE=abs((((10*S_HHI_SUM) - 1)/(10 - 1)));
+		output;
+	end;
+Run;
+
+proc Sgplot data=valid.PSI_Dataset_BEH_MG_PL;
+	by period;
+	vbar score / response=count transparency=0.4 FILLATTRS=(color=yellow);
+	vbar score / response=count_oot transparency=0.4 FILLATTRS=(color=blue) barwidth=0.7;
+	format score score_f.;
+	keylegend / down=2 location=outside position=top /* noborder */
+	;
+run;
