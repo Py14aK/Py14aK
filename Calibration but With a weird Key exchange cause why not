@@ -13,10 +13,12 @@
 /**/
 /*/* Input beh calibration function for next 3+12 months like in RWA(?_) calc,*/
 /*changed to array because old code took entire day*/*/
+
+
 /*data revnew.app_A;*/
 /*	array mi{0:240}_temporary_;*/
 /**/
-/*	do i=&end_mnt.-15 to &start_mnt.-12  by -3;*/
+/*	do i=&end_mnt.-15 to &start_mnt.-12  by -3;*/ 
 /*		mi{i}=i;*/
 /*	end;*/
 /**/
