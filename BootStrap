@@ -1,49 +1,48 @@
 /*Bootstrap*/
 /*1.Clean work library*/
 proc Datasets library=work kill;
-run;
-%let NumSamples = 1000 ;       /* number of bootstrap resamples */
+	run;
+	%let NumSamples = 1000 ;
+
+	/* number of bootstrap resamples */
 %put &NumSamples.;
 
-/* 2. Generate many bootstrap samples */
-proc Surveyselect data=source NOPRINT seed=4322426
-	out=bootstrap(rename=(Replicate=SampleID)) outhits
-	method=urs               /* resample with replacement */
-	samprate=1             /* each bootstrap sample has N observations */
+	/* 2. Generate many bootstrap samples */
+proc Surveyselect data=source NOPRINT seed=4322426 
+		out=bootstrap(rename=(Replicate=SampleID)) outhits 
+		method=urs               /* resample with replacement */
+		samprate=1             /* each bootstrap sample has N observations */
 
-	/* OUTHITS                 option to suppress the frequency var */
-	reps=&NumSamples;        /* generate NumSamples bootstrap resamples */
-
-	/*	 strata month default_30*/
-	;
+		/* OUTHITS                 option to suppress the frequency var */
+		reps=&NumSamples;
+	/* generate NumSamples bootstrap resamples */
+	/*	 strata month default_30*/;
 run;
 
 /*ods oFF, THIS IS ALWAYS OFF IN MEMORY INTENSIVE PROCESSES*/
-
-%macro ODSOff(); /* Call prior to BY-group processing */
+%macro ODSOff();
+	/* Call prior to BY-group processing */
 	ods graphics off;
 	ods exclude all;
 	ods noresults;
 %mend;
 
-%macro ODSOn(); /* Call after BY-group processing */
+%macro ODSOn();
+	/* Call after BY-group processing */
 	ods graphics on;
-*	ods exclude none;
+	*	ods exclude none;
 	ods results;
 %mend;
+
 %ODSOff();
 %ODSOn();
 
-proc Logistic data=bootstrap descending outest=_pe2  namelen=50;
-	model good=
-		&short_woe.  / lackfit rsquare
-		selection=stepwise  
-		slentry=0.90	
-		slstay=0.05
-		outroc=roc;
+proc Logistic data=bootstrap descending outest=_pe2 namelen=50;
+	model good=&short_woe. / lackfit rsquare selection=stepwise slentry=0.90 
+		slstay=0.05 outroc=roc;
 	by SampleID;
 	output out=logit predicted=score2;
-	ods output ParameterEstimates = OutputStats;
+	ods output ParameterEstimates=OutputStats;
 	;
 run;
 
@@ -72,17 +71,17 @@ data boot_stat_estimate;
 	if _name_="Estimate";
 run;
 
-proc Transpose data= boot_stat_estimate out=tr_boot_est;
+proc Transpose data=boot_stat_estimate out=tr_boot_est;
 	by SampleID;
 	id _name_;
 run;
 
-proc Transpose data= boot_stat_err out=tr_boot_err;
+proc Transpose data=boot_stat_err out=tr_boot_err;
 	by SampleID;
 	id _name_;
 run;
 
-proc Transpose data= boot_stat_prbsquare out=tr_boot_pval;
+proc Transpose data=boot_stat_prbsquare out=tr_boot_pval;
 	by SampleID;
 	id _name_;
 run;
@@ -94,13 +93,9 @@ proc Ttest data=bootstrap;
 run;
 
 proc Sql;
-	create table t_stat
-		as select a.*, b.StdErr, c.ProbChiSq
-			from tr_boot_est a
-				left join tr_boot_err b
-					on a.sampleid=b.sampleid and a._name_=b._name_
-				left join tr_boot_pval c
-					on a.sampleid=c.sampleid and a._name_=c._name_;
+	create table t_stat as select a.*, b.StdErr, c.ProbChiSq from tr_boot_est a 
+		left join tr_boot_err b on a.sampleid=b.sampleid and a._name_=b._name_ left 
+		join tr_boot_pval c on a.sampleid=c.sampleid and a._name_=c._name_;
 quit;
 
 data T;
