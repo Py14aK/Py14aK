@@ -1,100 +1,52 @@
-
-/ Get API Trading data
-data _null_;
-
-               do _n_=1 by 1 until(eof);
-
-                              set work.constituents_csv(keep=Symbol)             end=eof;
-
-                              col[1]=cats(' https://api.tiingo.com/tiingo/fundamentals/',symbol, '/daily?token=3a5dd05b622b4504c74add5c1afe6491064363e0');
-
-                              col[3]=cats('https://api.tiingo.com/iex/?tickers=',&IEX_name.     '/prices?startDate=2019-01-02&token=3a5dd05b622b4504c74add5c1afe6491064363e0');
-
-                              OUTPUT;
-
-               end;
-
+/ Get API Trading data data _null_;
+do _n_=1 by 1 until(eof);
+set work.constituents_csv(keep=Symbol) end=eof;
+col[1]=cats(' https://api.tiingo.com/tiingo/fundamentals/', symbol, 
+	'/daily?token=3a5dd05b622b4504c74add5c1afe6491064363e0');
+col[3]=cats('https://api.tiingo.com/iex/?tickers=', &IEX_name.     '/prices?startDate=2019-01-02&token=3a5dd05b622b4504c74add5c1afe6491064363e0');
+OUTPUT;
+end;
 run;
-
-/ get tickers
-
-proc Sql;
-
-               select Symbol into :IEX_name2 separated by ' ' from work.CONSTITUENTS_CSV;
-
+/ get tickers proc Sql;
+select Symbol into :IEX_name2 separated by ' ' from work.CONSTITUENTS_CSV;
 quit;
 
-
-
 data PY.constituents;
+	set work.c0onstituents_csv end=eof;
+	array ASS {0:200000} &IEX_name2.;
 
-               set work.c0onstituents_csv end=eof; array ASS {0:200000} &IEX_name2. ;
-
-               do _N=1 BY 1 TO 200 ;   ASS{_N}=200;
-
-                              caTAP=cats(' https://a pi.tiingo.com/tiingo/fundamentals/',  symbol, '/daily?token=3a5dd05b622b4504c74add5c1afe6491064363e0');
-
- 
-
-                                            caTAP=cats('https://api.tiingo.com/iex/?tickers=', &IEX_name. , '&token=3a5dd05b622b4504c74add5c1afe6491064363e0' )      ;
-
-                              catp3=cats(' https://api.tiingo.com/tiingo/daily/',symbol,'/prices?startDate=2019-01-02&token=3a5dd05b622b4504c74add5c1afe6491064363e0');
-
-                              OUTPUT;
-
-               end;
-
+	do _N=1 BY 1 TO 200;
+		ASS{_N}=200;
+		caTAP=cats(' https://a pi.tiingo.com/tiingo/fundamentals/', symbol, 
+			'/daily?token=3a5dd05b622b4504c74add5c1afe6491064363e0');
+		caTAP=cats('https://api.tiingo.com/iex/?tickers=', &IEX_name. , 
+			'&token=3a5dd05b622b4504c74add5c1afe6491064363e0');
+		catp3=cats(' https://api.tiingo.com/tiingo/daily/', symbol, 
+			'/prices?startDate=2019-01-02&token=3a5dd05b622b4504c74add5c1afe6491064363e0');
+		OUTPUT;
+	end;
 run;
 
- 
-
- / data is in csv format with Headers, Use DoW-loop and sep. the const.
+/ data is in csv format with Headers, Use DoW-loop and sep. the const.
 
 data work.merged;
-
-               do _N_=1 by 1 until(eof);
-
-                              set work.merged end=eof;
-
- 
-
-                              if _N_=1 then
-
-                                            group=1;
-
- 
-
-                              if date=. then
-
-                                            group=group+1;
-
-                              output;
-
-               end;
-
+do _N_=1 by 1 until(eof);
+set work.merged end=eof;
+if _N_=1 then group=1;
+if date=. then group=group+1;
+output;
+end;
 run;
 
-
-
 data work.constituents_csv;
-
-               do _n_=1 BY 1 UNTIL(EOF);
-
-                              SET WORK.CONSTITUENTS_CSV END=EOF;;
-
-                              GROUP=_N_;
-
-                              OUTPUT;
-
-               END;
-
+	do _n_=1 BY 1 UNTIL(EOF);
+		SET WORK.CONSTITUENTS_CSV END=EOF;
+		;
+		GROUP=_N_;
+		OUTPUT;
+	END;
 RUN;
 
- 
-
 PROC SQL;
-
-CREATE TABLE TIMELINE AS SELECT DISTINCT DATE FROM WORK.MERGED;
-
+	CREATE TABLE TIMELINE AS SELECT DISTINCT DATE FROM WORK.MERGED;
 QUIT;
-
