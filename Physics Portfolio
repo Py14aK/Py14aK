@@ -6,6 +6,7 @@ set merged (where=(date>='01APR2010'd))
 
 ;run;
 
+
                proc contents data=PY.merged out=names(keep=name);run;
 
                data names;
