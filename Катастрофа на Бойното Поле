@@ -1,0 +1,640 @@
+%macro quicksort(DSN, OUT, BY, DEBUG=N);
+	%let KEEP_SYNTAX_HIGHLIGHTING = %nrstr(%mend);
+	%let LIB = %upcase(%scan(&DSN, 1, .));
+	%let DS  = %upcase(%scan(&DSN, -1, .));
+	%let BY  = %upcase(%trim(%sysfunc(compbl(&BY))));
+	%let BYVARS = %eval(%sysfunc(countc(&BY, %str( )))+1);
+	%put Sorting &LIB..&DS by &BY into output dataset &OUT;
+
+	%if &LIB=&DS %then
+		%let LIB = WORK;
+
+	proc sql noprint;
+		select upcase(NAME), LENGTH, COUNT(*)
+
+        into    :NNAMES     separated by ' ', 
+			:NLENGTHS separated by ' ', :NCOUNT
+
+        from sashelp.vcolumn
+
+        where LIBNAME = "&LIB" and MEMNAME = "&DS" and TYPE = 'num'
+
+        ;
+		select upcase(NAME), LENGTH, COUNT(*), max(LENGTH) into    :CNAMES separated 
+			by ' ', :CLENGTHS separated by ' ', :CCOUNT, :MAXCLENGTH from 
+			sashelp.vcolumn where LIBNAME="&LIB" and MEMNAME="&DS" and TYPE='char';
+		select NAME into    :LISTNAMES separated by '--' from sashelp.vcolumn where 
+			LIBNAME="&LIB" and MEMNAME="&DS" having varnum=min(varnum) or 
+			varnum=max(varnum);
+		select NLOBS into    :NOBS from sashelp.vtable where LIBNAME="&LIB" and 
+			MEMNAME="&DS";
+	quit;
+
+	%put NNAMES         = &NNAMES;
+	%put NLENGTHS   = &NLENGTHS;
+	%put NCOUNT     = &NCOUNT;
+	%put CNAMES         = &CNAMES;
+	%put CLENGTHS   = &CLENGTHS;
+	%put CCOUNT     = &CCOUNT;
+	%put MAXCLENGTH = &MAXCLENGTH;
+	%put LISTNAMES  = &LISTNAMES;
+	%put NOBS       = &NOBS;
+
+	/*Define macro vars for names and positions of by variables*/
+
+
+	%do i=1 %to &BYVARS;
+		%let NPOS = 0;
+		%let CPOS = 0;
+		%let BYVAR&i = %scan(&BY, &i);
+
+		%do j=1 %to &NCOUNT;
+
+			%if &&BYVAR&i=%scan(&NNAMES, &j) %then
+				%let NPOS = &j;
+		%end;
+
+		%do j=1 %to &CCOUNT;
+
+			%if &&BYVAR&i=%scan(&CNAMES, &j) %then
+				%let CPOS = &j;
+		%end;
+		%let BYVAR&i._POS = %sysfunc(max(&NPOS, &CPOS));
+
+		%if &NPOS %then
+			%let BYVAR&i._TYPE = N;
+		%else
+			%let BYVAR&i._TYPE = C;
+		%put BYVAR&i                = &&BYVAR&i;
+		%put BYVAR&i._POS       = &&BYVAR&i._POS;
+		%put BYVAR&i._TYPE  = &&BYVAR&i._TYPE;
+	%end;
+
+	data &OUT(keep=&LISTNAMES);
+		/*Construct PDV for output dataset*/
+		if 0 then
+			set &DSN;
+
+		%if &NCOUNT %then
+			%do;
+
+				/*Define 1-d array for each var with nobs entries (to assign correct lengths)*/
+
+        
+				%do i=1 %to &NCOUNT;
+					array N&i._{&NOBS} %scan(&NLENGTHS, &i);
+				%end;
+
+				/*Define 2-d array containing the above 1-d arrays - use these for the actual sorting*/
+				array _N{&NCOUNT, &NOBS} 
+				%do i=1 %to &NCOUNT;
+
+					%do j=1 %to &NOBS;
+						N&i._&j
+
+            %end;
+				%end;
+				;
+
+				/*Array to use for input / output*/
+				array nums{*} &NNAMES;
+			%end;
+
+		/*Repeat the above steps for character vars*/
+
+    
+		%if &CCOUNT %then
+			%do;
+
+				%do i=1 %to &CCOUNT;
+					array C&i._{&NOBS} $%scan(&CLENGTHS, &i);
+				%end;
+				array _C{&CCOUNT, &NOBS} $
+
+        
+				%do i=1 %to &CCOUNT;
+
+					%do j=1 %to &NOBS;
+						C&i._&j
+
+            %end;
+				%end;
+				;
+				array chars{*} $ &CNAMES;
+			%end;
+
+		/*Array to hold quicksort parameters low and high for each branch, plus whether or not it's run*/
+		array _branch[2, &NOBS];
+
+		/*Populate the 2-d arrays ready for sorting*/
+		do _n_=1 by 1 until(eof);
+			set &DSN end=eof;
+
+			%if &NCOUNT %then
+				%do;
+
+					do i=1 to &NCOUNT;
+						_N[i, _n_]=nums[i];
+					end;
+				%end;
+
+			%if &CCOUNT %then
+				%do;
+
+					do i=1 to &CCOUNT;
+						_C[i, _n_]=chars[i];
+					end;
+				%end;
+		end;
+
+		/*Sort logic goes here!*/
+		/*First-time setup*/
+		call streaminit(2);
+		row1=1;
+		row2=&NOBS;
+		link queue;
+		link quicksort;
+
+		/*A routine for queueing up runs of quicksort*/
+queue:
+
+		if row1 < row2 then
+			do;
+				max_branch + 1;
+				_branch[1, max_branch]=row1;
+Skip to content
+Pull requests
+Issues
+Marketplace
+Explore
+@Py14aK
+Py14aK /
+Py14aK
+Public
+
+Code
+Pull requests
+Actions
+Projects
+Security
+Insights
+
+    Settings
+
+Py14aK/Trading View and Funstions for SaS
+@Py14aK
+Py14aK Create Trading View and Funstions for SaS
+Latest commit 99615dd 10 days ago
+History
+1 contributor
+Skip to content
+Pull requests
+Issues
+Marketplace
+Explore
+@Py14aK
+Py14aK /
+Py14aK
+Public
+
+Code
+Pull requests
+Actions
+Projects
+Security
+Insights
+
+    Settings
+
+Py14aK/Trading View and Funstions for SaS
+@Py14aK
+Py14aK Create Trading View and Funstions for SaS
+Latest commit 99615dd 10 days ago
+History
+1 contributor
+100 lines (43 sloc) 2.17 KB
+
+/ Get API Trading data
+data _null_;
+
+               do _n_=1 by 1 until(eof);
+
+                              set work.constituents_csv(keep=Symbol)             end=eof;
+
+                              col[1]=cats(' https://api.tiingo.com/tiingo/fundamentals/',symbol, '/daily?token=3a5dd05b622b4504c74add5c1afe6491064363e0');
+
+                              col[3]=cats('https://api.tiingo.com/iex/?tickers=',&IEX_name.     '/prices?startDate=2019-01-02&token=3a5dd05b622b4504c74add5c1afe6491064363e0');
+
+                              OUTPUT;
+
+               end;
+
+run;
+
+/ get tickers
+
+proc Sql;
+
+               select Symbol into :IEX_name2 separated by ' ' from work.CONSTITUENTS_CSV;
+
+quit;
+
+
+
+data PY.constituents;
+
+               set work.c0onstituents_csv end=eof; array ASS {0:200000} &IEX_name2. ;
+
+               do _N=1 BY 1 TO 200 ;   ASS{_N}=200;
+
+                              caTAP=cats(' https://a pi.tiingo.com/tiingo/fundamentals/',  symbol, '/daily?token=3a5dd05b622b4504c74add5c1afe6491064363e0');
+
+ 
+
+                                            caTAP=cats('https://api.tiingo.com/iex/?tickers=', &IEX_name. , '&token=3a5dd05b622b4504c74add5c1afe6491064363e0' )      ;
+
+                              catp3=cats(' https://api.tiingo.com/tiingo/daily/',symbol,'/prices?startDate=2019-01-02&token=3a5dd05b622b4504c74add5c1afe6491064363e0');
+
+                              OUTPUT;
+
+               end;
+
+run;
+
+ 
+
+ / data is in csv format with Headers, Use DoW-loop and sep. the const.
+
+data work.merged;
+
+               do _N_=1 by 1 until(eof);
+
+                              set work.merged end=eof;
+
+ 
+
+                              if _N_=1 then
+
+                                            group=1;
+
+ 
+
+                              if date=. then
+
+                                            group=group+1;
+
+                              output;
+
+               end;
+
+run;
+
+
+
+data work.constituents_csv;
+
+               do _n_=1 BY 1 UNTIL(EOF);
+
+                              SET WORK.CONSTITUENTS_CSV END=EOF;;
+
+                              GROUP=_N_;
+
+                              OUTPUT;
+
+               END;
+
+RUN;
+
+ 
+
+PROC SQL;
+
+CREATE TABLE TIMELINE AS SELECT DISTINCT DATE FROM WORK.MERGED;
+
+QUIT;
+
+    © 2022 GitHub, Inc.
+
+    Terms
+    Privacy
+    Security
+    Status
+    Docs
+    Contact GitHub
+    Pricing
+    API
+    Training
+    Blog
+    About
+
+
+100 lines (43 sloc) 2.17 KB
+
+/ Get API Trading data
+data _null_;
+
+               do _n_=1 by 1 until(eof);
+
+                              set work.constituents_csv(keep=Symbol)             end=eof;
+
+                              col[1]=cats(' https://api.tiingo.com/tiingo/fundamentals/',symbol, '/daily?token=3a5dd05b622b4504c74add5c1afe6491064363e0');
+
+                              col[3]=cats('https://api.tiingo.com/iex/?tickers=',&IEX_name.     '/prices?startDate=2019-01-02&token=3a5dd05b622b4504c74add5c1afe6491064363e0');
+
+                              OUTPUT;
+
+               end;
+
+run;
+
+/ get tickers
+
+proc Sql;
+
+               select Symbol into :IEX_name2 separated by ' ' from work.CONSTITUENTS_CSV;
+
+quit;
+
+
+
+data PY.constituents;
+
+               set work.c0onstituents_csv end=eof; array ASS {0:200000} &IEX_name2. ;
+
+               do _N=1 BY 1 TO 200 ;   ASS{_N}=200;
+
+                              caTAP=cats(' https://a pi.tiingo.com/tiingo/fundamentals/',  symbol, '/daily?token=3a5dd05b622b4504c74add5c1afe6491064363e0');
+
+ 
+
+                                            caTAP=cats('https://api.tiingo.com/iex/?tickers=', &IEX_name. , '&token=3a5dd05b622b4504c74add5c1afe6491064363e0' )      ;
+
+                              catp3=cats(' https://api.tiingo.com/tiingo/daily/',symbol,'/prices?startDate=2019-01-02&token=3a5dd05b622b4504c74add5c1afe6491064363e0');
+
+                              OUTPUT;
+
+               end;
+
+run;
+
+ 
+
+ / data is in csv format with Headers, Use DoW-loop and sep. the const.
+
+data work.merged;
+
+               do _N_=1 by 1 until(eof);
+
+                              set work.merged end=eof;
+
+ 
+
+                              if _N_=1 then
+
+                                            group=1;
+
+ 
+
+                              if date=. then
+
+                                            group=group+1;
+
+                              output;
+
+               end;
+
+run;
+
+
+
+data work.constituents_csv;
+
+               do _n_=1 BY 1 UNTIL(EOF);
+
+                              SET WORK.CONSTITUENTS_CSV END=EOF;;
+
+                              GROUP=_N_;
+
+                              OUTPUT;
+
+               END;
+
+RUN;
+
+ 
+
+PROC SQL;
+
+CREATE TABLE TIMELINE AS SELECT DISTINCT DATE FROM WORK.MERGED;
+
+QUIT;
+
+    © 2022 GitHub, Inc.
+
+    Terms
+    Privacy
+    Security
+    Status
+    Docs
+    Contact GitHub
+    Pricing
+    API
+    Training
+    Blog
+    About
+
+
+				_branch[2, max_branch]=row2;
+
+				%if &DEBUG=Y %then
+					%do;
+						put "Queueing branch " max_branch "from row " row1 "to row " row2;
+					%end;
+			end;
+		return;
+
+		/*A routine for swapping 2 rows*/
+swaprows:
+
+		if row1 ne row2 then
+			do;
+
+				%if &DEBUG=Y %then
+					%do;
+						put "Swapping rows " row1 " and " row2;
+					%end;
+				length row1 row2 8 
+				%if &NCOUNT %then
+					%do;
+						t_n 8 %end;
+
+				%if &CCOUNT %then
+					%do;
+						t_c $ &MAXCLENGTH %end;
+				;
+
+				/*This is called within an i-loop, so use j as index*/
+
+            
+				%if &NCOUNT %then
+					%do;
+
+						do j=1 to &NCOUNT;
+							t_n=_N[j, row1];
+							_N[j, row1]=_N[j, row2];
+							_N[j, row2]=t_n;
+						end;
+					%end;
+
+				%if &CCOUNT %then
+					%do;
+
+						do j=1 to &CCOUNT;
+							t_c=_C[j, row1];
+							_C[j, row1]=_C[j, row2];
+							_C[j, row2]=t_c;
+						end;
+					%end;
+			end;
+		return;
+
+		/*A routine for printing the by variables of the selected row to the log for debugging*/
+
+    
+		%if &DEBUG=Y %then
+			%do;
+byvars:
+
+				if row1=high then
+					t_c="pivot";
+				else
+					t_c="row";
+				put "BYVARS for " t_c row1 @;
+
+				%do i=1 %to &BYVARS;
+
+					%if &&BYVAR&i._TYPE=C %then
+						%do;
+							t_c=_&&BYVAR&i._TYPE[&&BYVAR&i._POS, row1];
+							put "&&BYVAR&i=" t_c @;
+						%end;
+					%else
+						%do;
+							t_n=_&&BYVAR&i._TYPE[&&BYVAR&i._POS, row1];
+							put "&&BYVAR&i=" t_n @;
+						%end;
+				%end;
+				put;
+				return;
+			%end;
+
+		/*Let's try quicksort!*/
+quicksort:
+		branch=0;
+
+		do until(branch=max_branch);
+			branch + 1;
+			low=_branch[1, branch];
+			high=_branch[2, branch];
+
+			%if &DEBUG=Y %then
+				%do;
+					put "Quicksorting range " low " to " high branch=;
+				%end;
+
+			/*Choose a pivot*/
+			store_index=low;
+			pivot_index=low + floor(rand('uniform')*(high - low));
+
+			%if &DEBUG=Y %then
+				%do;
+					put "Pivoting on row " pivot_index;
+				%end;
+
+			/*Swap the high and pivot rows*/
+			row1=high;
+			row2=pivot_index;
+			link swaprows;
+
+			%if &DEBUG=Y %then
+				%do;
+					link byvars;
+				%end;
+
+			/*Partition based on selected pivot*/
+			do i=low to (high - 1);
+				swap_flag=0;
+
+				/*If byvar1(row1) < bybar1(row2), trigger a swap*/
+				if _&BYVAR1_TYPE[&BYVAR1_POS, i] < _&BYVAR1_TYPE[&BYVAR1_POS, high] then
+					swap_flag=1;
+
+				/*For all subsequent byvars, only trigger a swap if byvar(n-1)(row1) = byvar(n-1)(row2)*/
+
+            
+				%do i=1 %to &BYVARS;
+
+					%if &i > 1 %then
+						%do;
+							%let j = %eval(&i - 1);
+							else if _&&BYVAR&j._TYPE[&&BYVAR&j._POS, 
+								i]=_&&BYVAR&j._TYPE[&&BYVAR&j._POS, high] and 
+								_&&BYVAR&i._TYPE[&&BYVAR&i._POS, i] < _&&BYVAR&i._TYPE[&&BYVAR&i._POS, 
+								high] then
+									swap_flag=1;
+						%end;
+				%end;
+
+				%if &DEBUG=Y %then
+					%do;
+						put "Partition:" i=Store_index=swap_flag=;
+						row1=i;
+						link byvars;
+					%end;
+
+				if swap_flag then
+					do;
+						row1=i;
+						row2=store_index;
+						link swaprows;
+						store_index + 1;
+					end;
+			end;
+
+			/*Move pivot to final place*/
+			row1=high;
+			row2=store_index;
+			link swaprows;
+
+			/*Queue up next two runs of quicksort*/
+			row1=low;
+			row2=store_index - 1;
+			link queue;
+			row1=store_index + 1;
+			row2=high;
+			link queue;
+		end;
+
+		/*Ouput the contents of the 2-d arrays now that they've been sorted*/
+		do _n_=1 to _n_;
+
+			%if &NCOUNT %then
+				%do;
+
+					do i=1 to &NCOUNT;
+						nums[i]=_N[i, _n_];
+					end;
+				%end;
+
+			%if &CCOUNT %then
+				%do;
+
+					do i=1 to &CCOUNT;
+						chars[i]=_C[i, _n_];
+					end;
+				%end;
+			output;
+		end;
+	run;
+
+%mend quicksort;
