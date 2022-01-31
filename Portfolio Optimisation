@@ -1,117 +1,120 @@
+DATA PY.Time_var;
+	/*	->TIME VARIABLES*/
+	do _n_=1 by 1 until(last.day);
+		set PY.full_non_padding end=eof;
+		array x_1 {0:107} x1_0 &names_lst.;
+		array x_2 {0:107} x2_0-x2_107;
+		array v_1 {0:107} v1_0-v1_107;
+		array v_2 {0:107} v2_0-v2_107;
+		array hyp_tan {0:107} hyp_tan_0-hyp_tan_107;
+		array acc {0:107} acc_0-acc_107;
+		array MA_1{0:107} MA1_0-MA1_107;
+		array MA_2{0:107} MA2_0-MA2_107;
+		array EMA{0:107} ema_0-ema_107;
+		array ema2{0:107} ema2_0-ema2_107;
+		array portfolio{0:19} portfolio0-portfolio19;
+		array BS11 {0:107} BS11_0-BS11_107;
+		array tslf {0:107} tslf_0-tslf_107;
+		array margin{0:107} margin_0-margin_107;
+		by day;
+		array NumVar _numeric_;
+		ema2_0=1138;
 
-	DATA PY.Time_var;
-		/*	->TIME VARIABLES*/
+		do over NumVar;
 
-		do _n_=1 by 1 until(last.day);
-			set  PY.full_non_padding end=eof;
-			array x_1 {0:107} x1_0 &names_lst.;
-			array x_2 {0:107} x2_0-x2_107;
-			array v_1 {0:107} v1_0-v1_107;
-			array v_2 {0:107}  v2_0-v2_107;
-			array hyp_tan {0:107} hyp_tan_0-hyp_tan_107;
-			array acc {0:107}  acc_0-acc_107;
-			array MA_1{0:107} MA1_0-MA1_107;
-			array MA_2{0:107} MA2_0-MA2_107;
-			array EMA{0:107} ema_0-ema_107;
-			array ema2{0:107} ema2_0-ema2_107;
-			array portfolio{0:19}  portfolio0-portfolio19;
-			array BS11 {0:107} BS11_0-BS11_107;
-			array tslf {0:107} tslf_0-tslf_107;
-			array margin{0:107}  margin_0-margin_107;
-			by day;
-			array NumVar _numeric_;
-			ema2_0=1138;
-
-			do over NumVar;
-				if numvar=. then
-					Numvar=0;
-			end;
-
-			margin_sum_0=1138;
-			X1_0=1138;	/*DELIMETER FOR THE DATA SETS*/
-			X2_0=1138;
-			V1_0=1138;
-			V2_0=1138;
-			ACC_0=1138;
-			MA1_0=1138;
-			MA2_0=1138;
-			EMA_0=1138;
-			BS11_0=1138;
-			TSLF_0=1138;
-			MARGN_0=1138;
-			E=2000;
-			RR=100;
-
-			do i=1 to 107;
-				BS11{i}=X_1{i};
-				x_2{i}=lag1(x_1{i});
-			end;
-
-			if first.day then
-				DO;
-					s=1;
-				END;
-			ELSE
-				DO;
-					do i=1 to 107;			  
-						BS11{i}=X_1{i};
-						portfolio{0}=min(of portfolio{*});
-						DV/DT{i}=DIF1(BS11{i});
-
-						/*					margin_sum{i}=0;*/
-						x_2{i}=lag1(x_1{i});
-						INCOME_TR=SUM(OF 	MARGIN[*]);
-						transactionsCoST=PR_PER*NUMBER_OF_TR;
-
-						if margin{i}>portfolio[0] then
-							do;
-								if margin{i}<PORTFOLIO{S} THEN
-									S=S+1;
-								ELSE If margin{i}>portfolio{s} then
-									do;
-										if (margin{i}>portfolio[s+1] or margin{i}=portfolio[s+1]) and (s0<19 and margin{i}=portfolio[s]) then
-											do;
-												s=s+1;
-												position='A';
-											end;
-										else if margin{i}<portfolio[s+1] then
-											do;
-												portfolio[s]=margin{i};
-												position='P';
-											end;
-
-										if  s=18 then
-											portfolio[s]=margin{i};
-									end;
-							END;
-					end;
-
-					DO i=1 to 107;
-						v_1{i}=	((DIF2(x_2{i})+DIF2(x_1{i}))/2);
-
-						v_2{i}=((DIF3(x_2{i})+DIF3(x_1{i}))/2);
-						acc{i}=((((x_2{i}-x_1{i}))+v_2{i}+v_1{i})/3);
-						MA_1{I}=((DIF5(X_1{i})+DIF4(X_1{i})+DIF3(X_1{i})+DIF2(X_1{i})+DIF1(X_1{i}))/5);
-						MA_2{i}=((DIF5(X_2{i})+DIF4(X_2{i})+DIF3(X_2{i})+DIF2(X_2{i})+DIF1(X_2{i}))/5);
-						EMA{i}=EXP(Ma_1{i});
-						ema2{i}=exp(-MA_1{i});
-						hyp_tan{i}=	(ema{i}-ema2{i})/(ema{i}+ema2{i});
-
-						/*					EMA{i}=(exp(of MA_2{i})-EXP(MA_1{i})/2);*/
-						var=SQRT((((MA_2{i}-X_2{i})**2+(MA_1{i}-X_1{i})**2)/2));
-						;
-
-						if DIF1(acc{i})>0 then
-							TSLF{i}=_N_;
-
-						if DIF1 (acc{i})<0 then
-							tslf{i}=0;
-					end;
-				END;
-
-			output;
+			if numvar=. then
+				Numvar=0;
 		end;
-	run;
-	output;
+		margin_sum_0=1138;
+		X1_0=1138;
+
+		/*DELIMETER FOR THE DATA SETS*/
+		X2_0=1138;
+		V1_0=1138;
+		V2_0=1138;
+		ACC_0=1138;
+		MA1_0=1138;
+		MA2_0=1138;
+		EMA_0=1138;
+		BS11_0=1138;
+		TSLF_0=1138;
+		MARGN_0=1138;
+		E=2000;
+		RR=100;
+
+		do i=1 to 107;
+			BS11{i}=X_1{i};
+			x_2{i}=lag1(x_1{i});
+		end;
+
+		if first.day then
+			DO;
+				s=1;
+			END;
+		ELSE
+			DO;
+
+				do i=1 to 107;
+					BS11{i}=X_1{i};
+					portfolio{0}=min(of portfolio{*});
+					DV/DT{i}=DIF1(BS11{i});
+
+					/*					margin_sum{i}=0;*/
+					x_2{i}=lag1(x_1{i});
+					INCOME_TR=SUM(OF MARGIN[*]);
+					transactionsCoST=PR_PER*NUMBER_OF_TR;
+
+					if margin{i}>portfolio[0] then
+						do;
+
+							if margin{i}<PORTFOLIO{S} THEN
+								S=S+1;
+							ELSE If margin{i}>portfolio{s} then
+								do;
+
+									if (margin{i}>portfolio[s+1] or margin{i}=portfolio[s+1]) and (s0<19 
+										and margin{i}=portfolio[s]) then
+											do;
+											s=s+1;
+											position='A';
+										end;
+									else if margin{i}<portfolio[s+1] then
+										do;
+											portfolio[s]=margin{i};
+											position='P';
+										end;
+
+									if s=18 then
+										portfolio[s]=margin{i};
+								end;
+						END;
+				end;
+
+				DO i=1 to 107;
+					v_1{i}=((DIF2(x_2{i})+DIF2(x_1{i}))/2);
+					v_2{i}=((DIF3(x_2{i})+DIF3(x_1{i}))/2);
+					acc{i}=((((x_2{i}-x_1{i}))+v_2{i}+v_1{i})/3);
+					MA_1{I}=((DIF5(X_1{i})+DIF4(X_1{i})+DIF3(X_1{i})+DIF2(X_1{i})+DIF1(X_1{i}))/5);
+					MA_2{i}=((DIF5(X_2{i})+DIF4(X_2{i})+DIF3(X_2{i})+DIF2(X_2{i})+DIF1(X_2{i}))/5);
+					EMA{i}=EXP(Ma_1{i});
+					ema2{i}=exp(-MA_1{i});
+					hyp_tan{i}=(ema{i}-ema2{i})/(ema{i}+ema2{i});
+
+					/*					EMA{i}=(exp(of MA_2{i})-EXP(MA_1{i})/2);*/
+					var=SQRT((((MA_2{i}-X_2{i})**2+(MA_1{i}-X_1{i})**2)/2));
+					;
+
+					if DIF1(acc{i})>0 then
+						TSLF{i}=_N_;
+
+					if DIF1 (acc{i})<0 then
+						tslf{i}=0;
+				end;
+			END;
+		output;
+	end;
+run;
+
+output;
 END;
-	run;
+run;
