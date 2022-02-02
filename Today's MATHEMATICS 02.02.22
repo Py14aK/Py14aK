@@ -1,0 +1,45 @@
+
+
+Inverse Map (фоф-1) of a R^n->R^n-1 such that the L-B eq. are sattisfied means 
+Existence Of Teichmuller Holomorphic Function(Feynman/Polyakov Path integral).
+
+Such That
+	F*F^-1= 1/2 Log Fx/Fx2
+	-> Which Is Jacoby Change Of Coordinates and is how Bosonic string is derived.
+
+For Hyperbolic Solutions
+Polyakov Has To Have A T-sym Metric(linear sigma model Nambu-GoTo equivalence)
+
+11-D Supra And D10 Super String -> M-Theory Compact
+Also Is A Type Of Teichmuller Torus Embedding -> Strogatsky theorem on manifolds
+	1/(1-Exp(-X)) = 1/2 Log Fx/Fx2.
+
+This is A Quantim Model With Additive Model
+	(R^11 X S^1D)
+- Integral from <-inf to inf>
+
+\begin{aligned}
+\mathcal{L}=&-\frac{1}{2 k^{2}} e R-\frac{1}{48} e F_{\mu \nu \rho \sigma} F^{\mu \nu \rho \sigma} \\
+&-\frac{1}{2} e\bar{\Psi}_{\mu} \Gamma^{\mu \nu \rho} D_{\nu} \Psi_{\rho}-\frac{\sqrt{2} k}{384} e\left(\bar{\Psi}_{\mu} \Gamma^{\mu \nu \rho \sigma \delta \lambda} \Psi_{\lambda}\right.
+\end{aligned}
+		
+-> Integral Over Boundry
+	The Thurston Boundary Of The Teichmüller Space Of A Closed Surface Of Genus G
+	\{\Displaystyle G} G Is Homeomorphic To A Sphere Of Dimension 6 G − 7 {\Displaystyle 6g-7} {\Displaystyle 6g-7}.
+	For G>=2 , 5
+	Thurston Constructed A Compactification Of The
+	Teichmüller Space T(S) Of A Surface S Such That
+	The Action Induced On T(S) By Any Diffeomorphism F
+	Of S Extends To A Homeomorphism Of The Thurston
+	Compactification. The Dynamics Of This Homeomorphism
+	Is The Simplest When F Is A Pseudo-Anosov Map: In This
+	Case, There Are Two Fixed Points On The Thurston Boundary,
+	One Attracting And One Repelling, And The Homeomorphism Behaves Similarly To A Hyperbolic Automorphism Of The Poincaré Half-Plane. 
+	A "Generic" Diffeomorphism Of A Surface Of Genus At Least Two Is Isotopic To A Pseudo-Anosov Diffeomorphism.
+
+(P,Q,)
+
+-> (1-X^2) Linear Limit. -> For Weak Energy as is done in linearised gravity(Newthonian limit)
+->Holomorphic Due To Teichmuller Universal covering, embedded torus with Penrose like dynamics)
+	Admits One Einstein-Kahler Solution/ metric, a non closed(gap-existance) ADS/CFT from bellow, and a hyperbolic DS for future cones
+		After that evolving the equations in Matrix theory should lead cyclic universe 
