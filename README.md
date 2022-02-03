@@ -6,4 +6,4 @@ Wavelet Analysis, Teichmuller Coverings and metrics, Metric spaces, Topology, Li
   - How to reach me antoniokotsevpy14ak@gmail.com
   - Website :
   - https://www.wolframcloud.com/obj/antoniokotsepy14ak/Published/Wu-Yang-Monopol.nb
-  - Professional Business Cards
+  - Professional Signatures for KEP
