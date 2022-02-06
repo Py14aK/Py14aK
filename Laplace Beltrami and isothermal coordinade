@@ -1,0 +1,79 @@
+S1->S3>S2
+	-> leads to irreversible change
+	
+From Hawking --> $$
+d s^{2}=-d \tau^{2}+h_{\alpha \beta}\left(\tau, x^{\mu}\right) d x^{\alpha} d x^{\beta}
+$$
+
+Boundry metric
+
+-> Golomorov Triangles, which is just a geometric manifold with tanh.
+A quasi-convex subspace of an hyperbolic space is hyperbolic.
+
+A quasi-isometry between two hyperbolic spaces X , Y {\displaystyle X,Y} X,Y induces a homeomorphism between the boundaries. 
+
+Zalcman's lemma
+
+ A family <math>\mathcal F</math> of functions meromorphic [analytic] on the unit disc <math>\Delta</math> is not normal if and  only if there exist
+ (a) a number <math>0 < r < 1</math>
+ (b) points <math>z_n,</math> <math>|z_n|<r</math>
+ (c) functions <math>f_n \in \mathcal F</math>
+ (d) numbers <math>\rho_n \to 0 +</math>
+ such that
+ <math>f_n(z_n+\rho_n \zeta)\to g(\zeta), </math>
+ spherically uniformly [uniformly] on compact subsets of <math>C,</math> where <math>g</math> is a nonconstant meromorphic  [entire] function on <math>C.</math><ref>{{cite journal|first=L.|last=Zalcman|
+title=Heuristic principle in complex function theory|journal=Amer. Math. Monthly|
+volume=82|year=1975|issue=8|pages=813–817|doi=10.1080/00029890.1975.11993942}}</ref>
+
+
+let $\alpha:[0,1] \rightarrow X$ be a path from $x$ to $y$ in $X$. We define the length of the arc to be $d_{\alpha}(x, y)=\lim _{n \rightarrow \infty} \sum_{i=0}^{n-1} d\left(\alpha\left(\frac{i}{n}\right), \alpha\left(\frac{i+1}{n}\right)\right)$
+Definition $3.1$
+An arc $\alpha$ in a geodesic metric space $X$ is called a $(\lambda, \epsilon)$-quasigeodesic if there are positive constants $\lambda>1, \epsilon \geq 0$ such that for all points $x, y$ on $\alpha$,
+$$
+d_{\alpha}(x, y) \leq \lambda d(x, y)+\epsilon
+$$
+We must first prove the following technical result, which is essential to all that follows.
+Proposition 3.2. ( $(\mathrm{G}, 8.1 . \mathrm{D}],[\mathrm{GH}, 8.21])$
+Let $g$ be an element of infinite order in a hyperbolic group $G$, and let $\Gamma$
+ be the Cayley graph with respect to some finite generating set. Let $\alpha$ be a path from the vertex corresponding to the identity element to the vertex corresponding to $g$. Then the bi-infinite path
+ 
+ 	///
+ 
+-> Cauchy Tensor Must equal zero -> octonic basis SUpergravity Kerr which $ sqrt(r) - 1 $ / $ sqrt(r) + 1 $  
+ 
+ What does all this have to do with normed division algebras? To answer this, let $\mathbb{K}$ be a normed division algebra of dimension $n$. Then the Jordan algebra $h_{2}(\mathbb{K})$ is secretly a spin factor! There is an isomorphism
+$$
+\phi: \mathfrak{h}_{2}(\mathbb{K}) \rightarrow J(\mathbb{K} \oplus \mathbb{R}) \cong \mathbb{K} \oplus \mathbb{R} \oplus \mathbb{R}
+$$
+given by
+$$
+\phi\left(\begin{array}{cc}
+\alpha+\beta & x \\
+x^{*} & \alpha-\beta
+\end{array}\right)=(x, \beta, \alpha), \quad x \in \mathbb{K}, \alpha, \beta \in \mathbb{R}
+$$
+Furthermore, the determinant of matrices in $\mathfrak{h}_{2}(\mathbb{K})$ is well-defined even when $\mathbb{K}$ is noncommutative or nonassociative:
+$$
+\operatorname{det}\left(\begin{array}{cc}
+\alpha+\beta & x \\
+x^{*} & \alpha-\beta
+\end{array}\right)=\alpha^{2}-\beta^{2}-\|x\|^{2}, -> can use Hyp. so that it's a smaller Basiis. 
+$$
+and clearly we have
+$$
+\operatorname{det}(a)=-\phi(a) \cdot \phi(a)
+$$
+for all $a \in \mathfrak{h}_{2}(\mathbb{K})$
+
+
+Try dif. Soboleva Schemes for these so lOCALLY CONVEX FUNCTORS ARE CLOSED IN INTERVAL
+
+
+
+
+
+
+	> Do we really want every space point to be geodesically conected
+	
+	existance of isothermal coordintes -> mean value approx?
+
