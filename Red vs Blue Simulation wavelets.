@@ -1,0 +1,218 @@
+  
+
+Unconstrained Optimization using Matlab's fminunc
+A Basic Call
+Example
+B Call with gradient information supplied
+Matlab's HELP DESCRIPTION
+
+Matlab provides the function fminunc to solve unconstrained optimization problems.
+
+A Basic call of fminunc  top
+
+Without any extra options the syntax is
+
+[x,fval]=fminunc('objfun',x0)
+
+where
+
+    objfun:                       name of a function file in which the objective function is coded
+    x0:              (column)  vector of starting values
+    x        (1st output):        optimal solution vector (column)
+    fval (2nd output):      optimal function value
+
+Notes:
+1) Instead of objfun you can use any other name.
+2) If you are not interested in fval, just type x=fminunc('objfun',x0).
+3) Various options can be adjusted, in particular the "gradient option" which utilizes information about the gradient of the objective function; see B and  Matlab's help description.
+4) fminunc seeks a minimum (as does linprog). If a maximum is sought, code -f in the function file!!
+
+Example:   top
+
+Minimize the objective function
+f(x,y,z)=(x2+y2)2-x2-y+z2
+
+(1) You first have to code the objective function. Open a new M-file in the editor and type in:
+
+function f=objfun(x)
+
+f=(x(1)^2+x(2)^2)^2-x(1)^2-x(2)+x(3)^2;
+
+Save the file under (any) name -- here we choose objfun.m. If the file is saved under this name then you have access to it and can retrieve the value of the function for any input vector x. For example, if you want to know the value at (1,1,1), type (command window or script file) objfun([1;1;1]) and execute. The answer in the command window is 3.
+
+(2) Now we can apply fminunc with a properly chosen starting value to find a minimum. We choose x0=[1;1;1] and execute the following commands in the command window:
+
+>> x0=[1;1;1];[x,fval] = fminunc('objfun',x0)
+
+Warning: Gradient must be provided for trust-region method;
+   using line-search method instead.
+
+> In C:\MATLABR12\toolbox\optim\fminunc.m at line 211
+
+Optimization terminated successfully:
+ Current search direction is a descent direction, and magnitude of
+ directional derivative in search direction less than 2*options.TolFun
+
+x =
+   0.49998491345499
+   0.50000453310525
+  -0.00000383408095
+fval =
+  -0.49999999985338
+
+The comment below the command line tells that no information about the gradient was provided which may lead to non-optimal performance.
+
+B Call of fminunc with gradient information supplied    top
+
+Optimization programs usually performs better if gradient information is exploited. This requires two modifications:
+
+(1) The objective file must be coded such that the gradient can be retireved as second output. For the function above this requires the following extension of the function file:
+
+function [f,gradf]=objfun(x)
+
+f=(x(1)^2+x(2)^2)^2-x(1)^2-x(2)+x(3)^2;
+gradf=[4*x(1)*(x(1)^2+x(2)^2)-2*x(1);4*x(2)*(x(1)^2+x(2)^2)-1;2*x(3)];
+
+The  2nd output argument, gradf, is the gradient vector of  f  written as column vector.
+
+(2) The program has to be`told' that it shall exploit gradient information. This is done by specifying one of the optimization options, and the program has to be informed that it has to use this option. The general syntax is
+
+>> options=optimset('GradObj','on');
+>> [x,fval]=fminunc('objfun',x0,options)
+
+For the Example, now with gradient information supplied, we execute in the command window:
+
+>> options=optimset('GradObj','on');
+>> x0=[1;1;1];[x,fval]=fminunc('objfun',x0,options)
+
+Optimization terminated successfully:
+ Relative function value changing by less than OPTIONS.TolFun
+
+x =
+   0.50045437772043
+   0.49981153795642
+   0.00003452966310
+fval =
+  -0.49999989244986
+
+As you can see, the values differ slightly from those obtained before, and are indeed more accurate.
+
+Matlab's HELP DESCRIPTION  top
+
+fminunc finds a local minimum of a function of several variables.
+X = fminunc(FUN,X0) starts at X0 and attempts to find a local minimizer
+X of the function FUN. FUN accepts input X and returns a scalar
+function value F evaluated at X. X0 can be a scalar, vector or matrix.
+
+X = fminunc(FUN,X0,OPTIONS) minimizes with the default optimization
+parameters replaced by values in OPTIONS, an argument created with the
+OPTIMOPTIONS function. See OPTIMOPTIONS for details. Use the
+SpecifyObjectiveGradient option to specify that FUN also returns a
+second output argument G that is the partial derivatives of the
+function df/dX, at the point X. Use the HessianFcn option to specify
+that FUN also returns a third output argument H that is the 2nd partial
+derivatives of the function (the Hessian) at the point X. The Hessian
+is only used by the trust-region algorithm.
+
+X = fminunc(PROBLEM) finds the minimum for PROBLEM. PROBLEM is a
+structure with the function FUN in PROBLEM.objective, the start point
+in PROBLEM.x0, the options structure in PROBLEM.options, and solver
+name 'fminunc' in PROBLEM.solver. Use this syntax to solve at the
+command line a problem exported from OPTIMTOOL.
+
+[X,FVAL] = fminunc(FUN,X0,...) returns the value of the objective
+function FUN at the solution X.
+
+[X,FVAL,EXITFLAG] = fminunc(FUN,X0,...) returns an EXITFLAG that
+describes the exit condition. Possible values of EXITFLAG and the
+corresponding exit conditions are listed below. See the documentation
+for a complete description.
+
+    1    Magnitude of gradient small enough.
+    2    Change in X too small.
+    3    Change in objective function too small.
+    5    Cannot decrease function along search direction.
+    0    Too many function evaluations or iterations.
+    -1   Stopped by output/plot function.
+    -3   Problem seems unbounded.
+
+[X,FVAL,EXITFLAG,OUTPUT] = fminunc(FUN,X0,...) returns a structure
+OUTPUT with the number of iterations taken in OUTPUT.iterations, the
+number of function evaluations in OUTPUT.funcCount, the algorithm used
+in OUTPUT.algorithm, the number of CG iterations (if used) in
+OUTPUT.cgiterations, the first-order optimality (if used) in
+OUTPUT.firstorderopt, and the exit message in OUTPUT.message.
+
+[X,FVAL,EXITFLAG,OUTPUT,GRAD] = fminunc(FUN,X0,...) returns the value
+of the gradient of FUN at the solution X.
+
+[X,FVAL,EXITFLAG,OUTPUT,GRAD,HESSIAN] = fminunc(FUN,X0,...) returns the
+value of the Hessian of the objective function FUN at the solution X.
+
+Examples:
+
+FUN can be specified using @:
+X = fminunc(@myfun,2)
+
+where myfun is a MATLAB function such as:
+
+function F = myfun(x)
+F = sin(x) + 3;
+
+To minimize this function with the gradient provided, modify
+the function myfun so the gradient is the second output argument:
+function [f,g] = myfun(x)
+f = sin(x) + 3;
+g = cos(x);
+and indicate the gradient value is available by creating options with
+OPTIONS.SpecifyObjectiveGradient set to true (using OPTIMOPTIONS):
+options = optimoptions('fminunc','SpecifyObjectiveGradient',true);
+x = fminunc(@myfun,4,options);
+
+FUN can also be an anonymous function:
+x = fminunc(@(x) 5*x(1)^2 + x(2)^2,[5;1])
+
+FUN can be specified using @:
+X = fminunc(@myfun,2)
+
+where myfun is a MATLAB function such as:
+
+function F = myfun(x)
+F = sin(x) + 3;
+
+To minimize this function with the gradient provided, modify
+the function myfun so the gradient is the second output argument:
+function [f,g] = myfun(x)
+f = sin(x) + 3;
+g = cos(x);
+and indicate the gradient value is available by creating options with
+OPTIONS.SpecifyObjectiveGradient set to true (using OPTIMOPTIONS):
+options = optimoptions('fminunc','SpecifyObjectiveGradient',true);
+x = fminunc(@myfun,4,options);
+
+FUN can also be an anonymous function:
+x = fminunc(@(x) 5*x(1)^2 + x(2)^2,[5;1])
+
+If FUN is parameterized, you can use anonymous functions to capture the
+problem-dependent parameters. Suppose you want to minimize the
+objective given in the function myfun, which is parameterized by its
+second argument c. Here myfun is a MATLAB file function such as
+
+function [f,g] = myfun(x,c)
+
+f = c*x(1)^2 + 2*x(1)*x(2) + x(2)^2; % function
+g = [2*c*x(1) + 2*x(2) % gradient
+2*x(1) + 2*x(2)];
+
+To optimize for a specific value of c, first assign the value to c.
+Then create a one-argument anonymous function that captures that value
+of c and calls myfun with two arguments. Finally, pass this anonymous
+function to fminunc:
+
+c = 3; % define parameter first
+options = optimoptions('fminunc','SpecifyObjectiveGradient',true); % indicate gradient is provided
+x = fminunc(@(x) myfun(x,c),[1;1],options)
+
+See also optimoptions, fminsearch, fminbnd, fmincon, @, inline.       top
+
+ 
