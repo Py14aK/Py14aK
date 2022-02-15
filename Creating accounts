@@ -1,0 +1,220 @@
+
+datalines;
+STOCK |GROUP OF CORRELATORS |TechCompany|TradingGroup1 |USD | NUMBER 
+
+;RUN;
+
+
+/* Create the cash account */
+data RDExamp.Cashinst;
+   length Instid Insttype $32.;
+   length Currency $3.;
+   infile datalines delimiter = '|';
+   input Insttype $ Instid $ Currency $ _SysCashAmount_;
+datalines;
+_syscash_ |system_cash_01 |USD |100
+;
+
+/* Register the Instrument Data */
+proc risk; 
+	env open = RDExamp.&test_env;
+	declare instvars=(
+		Stock_Symbol char 32 var label='Stock Price Reference',
+		Stock_Name char 32 var label='Stock Price Name',
+		cash num var label = 'Cash'
+	);
+	instdata Equities file = RDExamp.instdata format = simple;
+	instdata SysCash  file = RDExamp.Cashinst format = simple;
+	env save; 
+run;
+
+
+/* Value Your Portfolio */
+
+proc compile env=RDExamp.&test_env outlib=RDExamp.&test_env;
+   method EquityPrice desc= "Equity Pricing" kind= price;
+      _value_ = Stock.Stock_Symbol;
+	  _cash_ = 0;
+   endmethod;
+run;
+
+/* Define the Trading Methods */
+proc compile env=RDExamp.&test_env outlib=RDExamp.&test_env;
+	method ConvexTrading desc="Convex Trading Method" kind=trade;
+	index = 0;
+	do while (index >= 0);
+		index = GET_NEXTINSTRUMENTINCLASS(index,"Equity"); 		 
+		if (index > 0) then do;
+			inst_id = GET_INSTRUMENTID(index);
+			val_previous_1 = GET_CURRENTVALUE(index,-1,1);					
+			val_current = GET_CURRENTVALUE(index,0,1);						 
+			baseval=GET_BASEVALUE(index,1);
+			holding_current = GET_CURRENTHOLDING(index); 
+			val_previous = val_previous_1; 
+			if val_previous = . then do; 
+				val_previous = baseval; 
+			end;
+			equity_return =((val_current - (val_previous))/(val_previous));
+
+
+/*If return is decreasing then SELL all holding*/
+
+			if equity_return < 0 then do;
+				/* Step 1. Trade all shares for cash*/
+				return_code = TRADE(index, -1 * holding_current);
+				/* Step 2. Transfer cash to the system cash account*/
+				current_cash = GET_CURRENTCASH(index);
+				return_code =
+					TRANSFERCASH(inst_id, "system_cash_01",current_cash);
+			end;
+
+/*If return is increasing then BUY as much as possible*/
+
+
+	else if equity_return > 0 then do;
+				/* Step 1. Check for money in the system cash account*/
+				  avail_cash = GET_SYSTEMCASH ("system_cash_01");
+				  if avail_cash > 0 then do;
+				/* Step 2. Transfer system cash for trade*/
+				     return_code =
+								TRANSFERCASH("system_cash_01",inst_id,avail_cash);
+				/* Step 3. Determine number of shares to purchase*/
+				     buy_equity = floor(avail_cash/val_current);
+				/* Step 4. Trade cash for shares*/
+				     return_code = TRADE(index, buy_equity);
+				/* Step 5. Transfer any remaining cash back to system cash account*/
+				     current_cash = GET_CURRENTCASH(index);
+				     return_code =
+								TRANSFERCASH(inst_id, "system_cash_01",current_cash);
+				end;
+			end;
+		end;	
+	end;	
+	endmethod;
+run;
+
+proc compile env=RDExamp.&test_env outlib=RDExamp.&test_env;
+	method ConcaveTrading desc="Concave Trading Method" kind=trade;
+	index = 0;
+	do while (index >= 0);
+		index = GET_NEXTINSTRUMENTINCLASS(index,"Equity"); 		 
+		if (index > 0) then do;
+			inst_id = GET_INSTRUMENTID(index);
+			val_previous_1 = GET_CURRENTVALUE(index,-1,1);					
+			val_current = GET_CURRENTVALUE(index,0,1);						 
+			baseval=GET_BASEVALUE(index,1);
+			holding_current = GET_CURRENTHOLDING(index); 
+			val_previous = val_previous_1; 
+			if val_previous = . then do; 
+				val_previous = baseval; 
+			end;
+			equity_return =((val_current - (val_previous))/(val_previous));
+
+
+/*If return is increasing then SELL all holding*/
+
+			if equity_return > 0 then do;
+				/* Step 1. Trade all shares for cash*/
+				return_code = TRADE(index, -1 * holding_current);
+				/* Step 2. Transfer cash to the system cash account*/
+				current_cash = GET_CURRENTCASH(index);
+				return_code = 
+						TRANSFERCASH(inst_id, "system_cash_01",current_cash);
+			end;
+
+
+/*If return is decreasing then BUY as much as possible*/
+
+			else if equity_return < 0 then do;
+				/* Step 1. Check for money in the system cash account*/
+				avail_cash = GET_SYSTEMCASH ("system_cash_01");
+				if avail_cash > 0 then do;
+					/* Step 2. Transfer system cash for trade*/
+					return_code =
+							TRANSFERCASH("system_cash_01",inst_id,avail_cash);
+					/* Step 3. Determine number of shares to purchase*/
+					buy_equity = floor(avail_cash/val_current);
+					/* Step 4. Trade cash for shares*/
+					return_code = TRADE(index, buy_equity);
+					/* Step 5. Transfer remaining cash to system cash account*/
+					current_cash = GET_CURRENTCASH(index);
+					return_code = 
+							TRANSFERCASH(inst_id, "system_cash_01",current_cash);
+				end;
+			end;
+		end;	
+	end;	
+	endmethod;
+run;
+
+proc risk;
+	environment open = RDExamp.&test_env;
+	instrument Equity methods = (Price EquityPrice)
+		       variables = (Stock_Symbol 
+			                tradegroupid 
+			                Currency 
+			                Holding 
+			                Stock_Name
+		                    );
+	env save;
+run;
+
+/* Create the Project and Specify Analyses */
+proc risk;
+	   environment open = RDExamp.&test_env;	
+	   sources InstDataSource (Equities SysCash);
+	   read sources=InstDataSource out=Portfolio;
+       crossclass InstIDCC (InstID);
+	   simulation Covariance method=covariance
+		    interval = weekday
+		    ndraws=100
+       alpha=(0.01)
+		    data = (HistoricalMarket)
+		    horizon = (1 2 3 4 5);
+	   project Convex_Trading
+		    analysis=(Covariance)
+		    portfolio=Portfolio
+		    crossclass=InstIDCC
+		    Trademethod=(ConvexTrading)
+		    Tradetime=ALLIMMEDIATE
+		    data=( CurrentMarket HistoricalMarket );
+	   project Concave_Trading
+		    analysis=(Covariance)
+		    portfolio=Portfolio
+		    crossclass=InstIDCC
+		    Trademethod=(ConcaveTrading)
+		    Tradetime=ALLIMMEDIATE
+		    data=( CurrentMarket HistoricalMarket );
+	   project Buy_Hold
+		    analysis=(Covariance)
+		    portfolio=Portfolio
+		    crossclass=InstIDCC
+		    data=( CurrentMarket HistoricalMarket );
+	   env save;
+run;
+
+/* Run the Projects */
+proc risk;
+	env open=RDExamp.&test_env;
+	runproject Convex_Trading
+	   out= Convex_Trading
+	   options=(outall);
+	env save;
+run;
+
+proc risk;
+	env open=RDExamp.&test_env;
+	runproject Concave_Trading
+	   out= Concave_Trading
+	   options=(outall);
+	env save;
+run;
+
+proc risk;
+	env open=RDExamp.&test_env;
+	runproject Buy_Hold
+	   out= Buy_Hold
+	   options=(outall);
+	env save;
+run;
+
