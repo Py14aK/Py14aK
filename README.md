@@ -4,6 +4,5 @@ Wavelet Analysis, Teichmuller Coverings and metrics, Metric spaces, Topology, Li
   - I’m currently learning Catastrophe theory, Quantum Programming, NoSQL, Wolfram Mathematica for Business Reporting and Risk Analysis.
   - I’m looking to collaborate on anything that will teach me new techniques in C, Python, Wolfram, SQL etc.
   - How to reach me antoniokotsevpy14ak@gmail.com
-  - Website :
-  - https://www.wolframcloud.com/obj/antoniokotsepy14ak/Published/Wu-Yang-Monopol.nbl
-  - Professional Signatures for KEP
+  - FB : https://www.facebook.com/groups/1013734535891524
+  - Wolfram/SaS Presentation(under construction): https://www.wolframcloud.com/obj/antoniokotsepy14ak/Published/Wu-Yang-Monopol.nbl
