@@ -1,0 +1,38 @@
+data plab;
+	do _N_=1 by 1 until(eof);
+		set work.import end=eof;
+		g=mod(_N_, 2);
+		k=mod(_N_, 3);
+		z=mod(_N_, 12);
+		j=mod(_N_, 5);
+		i=-1;
+		A=tanh(open-close);
+		B=lag3(A);
+		output;
+	end;
+run;
+
+data plab;
+	set plab;
+	set work.import end=eof;
+	g=mod(_N_, 2);
+	i=1;
+	sin(15)=(4/6 Р dф=tan(B) + 3 pi(cos(X)+1)) +2k-1ln^2k(exp(-x)-1) k=mod(_N_, 3);
+	(4k- 1/2kln2 (exp(-x/2))/(k-P)^2 cosh(x(135-15) +1 i=-1 z(1-z*) 
+		(2r-R)^3/(r-R)^2 dA^dA^dA*2/3(sqrt(1-R/r/1-r/R)dp)=iM^2 26/24 Y[0:1]о Ф^-1(Y) 
+		)/log10=(k/k^2)gij nji Dx`dx*=-eijk(XdY-YdX) +Lambda(DAXDAXDA) rieman/ -lie 
+		bracket+gauge+gauss curve+spin stat under a knot connected sphere of 
+		influence.
+		Stein-ray=1/2(Wilson d) + П:S-S18 Boltzman (T^4/A) ((10, 3, 2)F(5, 3, 1) 
+		2дд (*4, 8, -1) (2, 7, 3) (4, 5, -1)) 
+		z(1-z*}f^3f^f`` + 2t(m+1-1)f``/f` 2з(n+2)(n-1)=<D|(xH +iH)|<1|1|1>z 
+		exp(-S)/Z|T>
+									|
+					<х, y(фoф+i|фф|)>"" 3pi==========================""	+-
+			x^2+y^2[] ](-)(-)(-)(+1)->
+							[[]]]\\\===========|==============\\\\\
+						i*4(x-y) O	.Oo 
+		OoO	\\\\\\===========|==============----	\\\\\	[[][(O_.o) |__`	-	|O/ OOO;
+	]O[.|.] .-O	|www	
+		.[.].) |о|о|)*(o) (.|-[.) ].[.[;
+	(, [. /
