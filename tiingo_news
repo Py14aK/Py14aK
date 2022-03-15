@@ -1,0 +1,47 @@
+1. Оправи простотията с Адреса
+2. HoH as manifolds via Kalza-Klein theory,try and mimick manifold behaviour more interactively.
+3. Maybe use the market as fluctuations and bacakgroudn noise.
+4. Запише се на някво тъпо съзтезание за да разнасяш Yang monopola
+5.
+
+ticker_metadata = client.get_ticker_metadata(BYND,IBM,CRISP,PLAB,AKAAM,TJX,GRAB,NTCO,NUE,TJX,RTX,HWM,CRS)
+
+# Get latest prices, based on 3+ sources as JSON, sampled weekly
+ticker_price = client.get_ticker_price(BYND,IBM,CRISP,PLAB,AKAAM,TJX,GRAB,NTCO,NUE,TJX,RTX,HWM,CRS, frequency="weekly")
+
+# Get historical GOOGL prices from August 2017 as JSON, sampled daily
+historical_prices = client.get_ticker_price(BYND,IBM,CRISP,PLAB,AKAAM,TJX,GRAB,NTCO,NUE,TJX,RTX,HWM,CRS,
+                                            fmt=json,
+                                            startDate=2017-08-01,
+                                            endDate=2017-08-31,
+                                            frequency=daily)
+
+# Check what tickers are available, as well as metadata about each ticker
+# including supported currency, exchange, and available start/end dates.
+tickers = client.list_stock_tickers()
+
+# Get news articles about given tickers or search terms from given domains
+articles = client.get_news(tickers=[BYND,IBM,CRISP,PLAB,AKAAM,TJX,GRAB,NTCO,NUE,TJX,RTX,HWM,CRS, AAPL],
+                            tags=[Laptops],
+                            sources=[washingtonpost.com],
+                            startDate=2017-01-01,
+                            endDate=2017-08-31)
+
+# Get definitions for fields available in the fundamentals-api, ticker is
+# optional
+definitions = get_fundamentals_definitions(BYND,IBM,CRISP,PLAB,AKAAM,TJX,GRAB,NTCO,NUE,TJX,RTX,HWM,CRS)
+
+# Get fundamentals which require daily-updated (like marketCap). A start-
+# and end-date can be passed. If omited, will get all available data.
+fundamentals_daily = CLIENT.get_fundamentals_daily(BYND,IBM,CRISP,PLAB,AKAAM,TJX,GRAB,NTCO,NUE,TJX,RTX,HWM,CRS,
+                                        startDate=2020-01-01,
+                                        endDate=2020-12-31)
+
+# Get fundamentals based on quarterly statements. Accepts time-range like
+# daily-fundamentals. asReported can be set to get the data exactly like
+# it was reported to SEC. Set to False if you want to get data containing
+# corrections
+fundamentals_stmnts = CLIENT.get_fundamentals_statements(BYND,IBM,CRISP,PLAB,AKAAM,TJX,GRAB,NTCO,NUE,TJX,RTX,HWM,CRS,
+                                                         startDate=2020-01-01,
+                                                         endDate=2020-12-31,
+                                                         asReported=True)
