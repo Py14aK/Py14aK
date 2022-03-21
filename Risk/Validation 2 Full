@@ -8,9 +8,12 @@ PSI,
 SMD BEFORE AND AFTER, 
 HIERFENDAL,
 KS,DF_FLAG,
+,hazard fun, 	
 MISSING,
 COMAPRE URG WITH HO*/
 ;
+
+
 /*Use the custom missing format*/
 PROC Format;
 	value $missfmt ' '='Missing' other='Not Missing';
