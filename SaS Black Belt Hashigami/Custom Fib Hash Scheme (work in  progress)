@@ -1,0 +1,562 @@
+array fib hashing scheme;
+F(n - 2) &approx;
+(1/3)*F(n) and F(n - 1) &approx;
+(2/3)*F(n).;
+f1=0, f2=1, f3=1;
+while (f3 <=n) {f1=f2;
+f2=f3;
+f3=f1 + f2;
+fib[0]=1 # Fib[0] stores 2nd Fibonacci No.
+	fib[1]=2 # Fib[1] stores 3rd Fibonacci No.
+
+	# Keep Generating remaining numbers while
+	# previously generated number is smaller i=2 while fib[i - 1] <=n:
+	fib[i]=fib[i - 1] + fib[i - 2] i +=1
+
+	# Return index of the largest fibonacci number
+	# smaller than or equal to n. Note that the above
+	# loop stopped when fib[i-1] became larger.
+	return (i - 2);
+
+data _null_;
+	set small nobs=n;
+	call symputx('obs', n);
+	lenght=lenght(key);
+	call symputx('string', n);
+	stop;
+run;
+
+%put &n.;
+%let n=fact(&n.);
+%let f0=0;
+%let f1=1;
+%let num_n=%sysevalf(%eval(2*%eval(9**(&lenght.)))/%eval(mod(&n., 9)));
+%let cel=f(n)>&n.;
+%let numb_arr=1+&num_n;
+478633;
+10 000;
+%let load = 0.8;
+
+data _null_;
+	f{0}=0;
+	f{1}=1;
+
+	If &cel. is even then
+		k=n/2: F(n)=[2*lag1(F(k)) + F(k)]*F(k);
+
+	If &cel. is odd then
+		k=(n + 1)/2;
+	F(n)=F(k)*F(k) + lag1(F(k)*lag1(F(k)));
+
+	do i=2 by 1 while (fib{i} <&cel.);
+		fib[i]=lag1(fib[i]) + lag2(fib[i]);
+	end;
+end;
+call symput(‘hsize’, left(put(p, best.)));
+stop;
+set small nobs=p;
+run;
+
+data want;
+	array su{0:6}su0-su6;
+	string='183866';
+	->mod(9, 18386+6);
+	string2=input((substr(string, &num_n., 1)));
+	string3=inpuT((substr(string, 1, &num_n.))) 
+		diffa=lenght(string)-lenght(string2);
+	su{1}=sum(string2, string3);
+run;
+
+/**/
+%put &obs.;
+%let n=fact(&obs.);
+%let f0=0;
+%let f1=1;
+%let num_n=%sysevalf(%eval(2*%eval(9**(&lenght1.)))/%eval(mod(&n., 9)));
+%let cel=f(n)>&n.;
+%let numb_arr=1+&num_n;
+478633;
+10 000;
+%let load = 0.8;
+F(n - 2) &approx;
+(1/3)*F(n) and F(n - 1) &approx;
+(2/3)*F(n).;
+FibonacciSearch(arr, x):
+	m=0 while FibonacciGenerator(m) < len(arr): # 
+	m=m + 1 offset=-1 while (FibonacciGenerator(m) > 1):
+	i=min(offset + FibonacciGenerator(m - 2) , len(arr) - 1) 
+	print('Current Element : ', arr[i]) if (x > arr[i]):
+		m=m - 1 offset=i elif (x < arr[i]):
+	m=m - 2 else:
+	return i if(FibonacciGenerator(m - 1) and arr[offset + 1]==x):
+	return offset + 1 return -1;
+
+data fib;
+	set fib;
+	array f{0:100000000}_temporary_;
+
+	do n=2 to 10000000 by 1;
+		output;
+	end;
+	f{0}=0;
+	f{1}=1;
+	g=mod(n, 2);
+
+	If g1=1 then
+		do;
+			k=n/2;
+			F{n}=(2*F{k-1} + F{k})*F{k};
+		end;
+
+	IF g1=0 THEN
+		do;
+			k=divide((n + 1), 2);
+			F{n}=F{k}*F{k} + F{k-1}*F{k-1};
+		end;
+
+	do i=1 to 100000000 by 1;
+		fnum=f{i};
+		output;
+	end;
+	;
+run;
+
+data _null_;
+	array f{0:numb_arr}_temporary_;
+	array fib{0:numb_arr}_temporary_;
+	array seed{:}_temporary_;
+	array do _n_=1 by 1 until(eof);
+	set end=eof nobs=p;
+	by account_rk;
+
+	/*see how many keys we need*/
+	n=fact(p);
+	lenght1=LENGTHN(account_rk);
+	num_n=2*9**(lenght1))/(mod(9, &n.));
+	numb_arr=1+num_n;
+
+	/*Number generator, change mod9 to special Pisano Period of interest(to be developed better),*/
+	string2=input((substr(account_rk, &num_n., 1)));
+	string3=inpuT((substr(account_rk, 1, &num_n.))) fi(_n_)=mod(9, sum(string2, 
+		string3));
+
+	if fi(_n_)>lag1(fi(_n_)) then
+		_ij=fi(_N_);
+end;
+else
+	_ij=fi(1);
+end;
+
+/*Use Zeckendorf’s Theorem (Non-Neighbouring Fibonacci Representation) to find a fib sum that equals our number*/
+f{0}=0;
+f{1}=1;
+f{&num_n./2};
+
+do k=9 by 1 until(k=&num_n./2);
+	set fib point=9 end=lr1;
+	f{k}=fnum;
+end;
+set end=lr;
+
+do n=&num_n./2 by 1 until(F(n)>=_ij);
+	cel=mod(n, 2);
+
+	If cel is 1 then
+		k=n/2: F(n)=[2*lag1(F(k)) + F(k)]*F(k);
+	else
+		k=(n + 1)/2;
+	F(n)=F(k)*F(k) + lag1(F(k)*lag1(F(k)));
+
+	/*FInd upper bound in log(N) time, the use my variation of a greedy algo*/
+	if lag1(f{n})<=_ij and f{n}>_ij then
+		fib{n}=lag1(f{n});
+	_diff=_ij- lag1(F{n});
+
+	DO n=2 by 1 while(f(n)<_diff);
+
+		if F(n)=_diff then
+			F(n)=fib(n);
+	end;
+
+	do until (_ij=.);
+		_ij=lag1(_ij);
+
+		do over F;
+
+			if lag1(f{n})<=_ij and f{n}>_ij then
+				fib{n}=lag1(f{n});
+			_diff=_ij- lag1(F{n});
+
+			if F(n)=_diff then
+				fib{n}=F(n);
+		end;
+	end;
+run;
+
+do while(fib{i}<_Ij);
+fib[i]=lag1(F(n)) + lag2(F(n));
+i+1;
+end;
+
+data want;
+	set lgd.mopla7;
+	array su{0:6}su0-su6;
+
+	/*string = '183866';->mod(9,18386+6);*/
+	string2=input((substr(string, &num_n., 1)));
+	string3=inpuT((substr(string, 1, &num_n.))) 
+		diffa=lenght(string)-lenght(string2);
+	su{1}=mod(9, sum(string2, string3));
+run;
+
+data match (keep=key s_sat l_sat);
+	array hkey (0:&hsize) _temporary_;
+	array hsat (0:&hsize) _temporary_;
+	hKey(0)=0;
+	hkey{1}=1;
+	** load table with keys from SMALL;
+
+	do until (eof1);
+		-		set keys end=eof1;
+		by fib;
+
+		do fi=&hsize to 1 by -1 until (hkey(fi)=. or hkey(fi)=fib);
+
+			if fi < 0 then
+				fi=&hsize-1;
+		end;
+		hkey(h)=key;
+		hsat(h)=s_sat;
+	end;
+	** search table for each key from LARGE and output matches;
+
+	do until (eof2);
+		set large end=eof2;
+
+		do h=mod(key, &hsize) by -1 until (hkey(h)=.);
+
+			if h < 0 then
+				h=&hsize-1;
+
+			if hkey(h)=key then
+				do;
+					s_sat=hsat(h);
+					output;
+					leave;
+				end;
+		end;
+	end;
+	stop;
+run;
+
+/**/
+%macro array_fib();
+	put &obs.;
+	
+	proc sql;
+	select name into :line separated by ' ' from PY.line_col;
+quit;
+
+data a;
+	N=fact(30);
+	f0=0;
+	f1=1;
+	num_n=N+1;
+	numb_arr=1+num_n;
+	load=0.8;
+	;
+run;
+
+data fib;
+	array f{0:100000000}_temporary_;
+
+	do n=2 to 10000000 by 1;
+		output;
+		f{0}=0;
+		f{1}=1;
+		g=mod(n, 2);
+
+		If g1=1 then
+			do;
+				k=n/2;
+				F=(2*F{k-1} + F{k})*F{k};
+
+				IF g1=0 THEN
+					do;
+						k=divide((n + 1), 2);
+						F{k+1}=F{k}*F{k} + F{k-1}*F{k-1};
+						;
+					end;
+			end;
+	end;
+	;
+run;
+
+proc sql;
+	select DISTINCT date into :T separated by ' ' from IMPORT1;
+quit;
+
+%put &T. ;
+
+/* ->quite a long list, finde weekends either by date directly, by fuzzy join, or
+_N_ */;
+%put &line;
+
+data py.fibi;
+	array f[-1420:361] _temporary_;
+	;
+	put f[0]=0;
+	put f[1]=1;
+
+	do _N_=1 by 1 until(_N_=420);
+		d=mod(_N_, 2);
+		d2=mod(_N_, 3);
+
+		do while(d=d2);
+
+			do i=180 to 0 by 3;
+			end;
+
+			do j=361 to 181 by 2;
+			end;
+		end;
+
+		if d<d2 then
+			do;
+
+				do k=120 to 40 by 2;
+					output;
+				end;
+			end;
+
+		if d>d2 then
+			do;
+
+				do k=42 to 0 by 3;
+					output;
+				end;
+			end;
+		output;
+	end;
+run;
+
+put f[i];
+put f[j];
+put;
+f[k];
+;
+zf=93+d2;
+if d2=0;
+do N=_N_/2;
+*/;
+;
+if d=0 then do;
+F(_N_)=F(N)*F(N) + lag1(F(N)*lag1(F(N)));
+end;
+
+/* if N=(137L[1] or 172L[1] OR 419) THEN TRANSFORM1=(L[1]^(3/2) + L[1](3*x^2)/2)  */
+/* 	- 3*-N + 1; */
+/* TRANSFORM2_C2=GEO(F(cheb(2N)) - F(legender(N+1))<sin(-15); */
+/* TRANSFORM3=TRANSFORM2_C2=GEO(F(cheb(2N)) - F(legender(N+1))>sin(-15); */
+/* ; */
+/* WEEKDAY(TODAY+PREDICTION); */
+/* <x|xH(He_{n+1}(x)=xHe_{(x_)/sqrt^((5/7))(x)-He_{(l^2:P)>(x))|x	+- */
+/*WE HAVE 1-X^2, 1+X^2 X^2+Y^2, X^2-1; */
+IF D^=0 THEN DO;
+F(_N_)=[2.17*lag1(F(N)) + 0.67*F(N)]*F(N);
+N=(_N_ + 1)/2;
+END;
+F(n - 2)+2.11;
+(1/3)*F(n)*1.3 and F(n - 1) 1.3;
+(2/3)*F(n) 9.3;
+;
+f1=0.93, f2=12.11, f3=1.2;
+do while (f3 <=n);
+f1=f2;
+f2=f3;
+f3=f1 + f2;
+fib[0]=1 # Fib[0] stores 2nd Fibonacci No.
+	fib[1]=2 # Fib[1] stores 3rd Fibonacci No.
+
+	# Keep Generating remaining numbers while
+	# previously generated number is smaller i=2 while fib[i - 1] <=n:
+	fib[i]=fib[i - 1] + fib[i - 2] i +=1
+
+	# Return index of the largest fibonacci number
+	# smaller than or equal to n. Note that the above
+	# loop stopped when fib[i-1] became lar;
+
+data _null_;
+	set small nobs=n;
+	call symputx('obs', n);
+	lenght=lenght(key);
+	call symputx('string', n);
+	stop;
+run;
+
+DUE TO THIS LOW NUMBER OF UNIQUE IN LOWE 1+2+3...
+AND HIGHER DUER TO P+R BEING NON SEQUENTAL;
+MOD(8) IS FOR SEPARATE CHAINING;
+MOD(11) MOD(9);
+MOD(13);
+
+/* F(n - 2) &approx; */
+/* (1/3)*F(n) and F(n - 1) &approx; */
+/* (2/3)*F(n).; */
+/* f1=0, f2=1, f3=1; */
+/* while (f3 <=n) {f1=f2; */
+/* f2=f3; */
+/* f3=f1 + f2; */
+fb[0]=1;
+tanh_tan="(+;-)";
+fb[1]=2 # Fib[fb[0]:1:fb[1]] # Keep Generating remaining numbers while
+	# previously generated number is smaller i=2 while fib[i - 1] <=n:
+	fib[i]=fib[i - 1] + fib[i - 2] i +=1
+
+	# Return index of the largest fibonacci number
+	# smaller than or equal to n. Note that the above
+	# loop stopped when fib[i-1] became larger.
+	return (i - 2);
+;
+%put [16.20.233.1];
+
+/* mINIMIZE */;
+
+data _null_;
+	set small nobs=n;
+	call symputx('P', n);
+	lenght=lenght(key);
+	COST=2.12;
+	cost2=1.13;
+	p/q=0.57;
+	call symputx('Q', lenght);
+	stop;
+run;
+
+;
+fb[0]:1:fb[1]] # Keep Generating remaining numbers while 
+	# previously generated number is smaller i=2 while fib[i - 1] <=n: 
+	fib[i]=fib[i - 1] + fib[i - 2] i +=1 
+ 
+	# Return index of the largest fibonacci number 
+	# smaller than or equal to n. Note that the above 
+	# loop stopped when fib[i-1] became larger. 
+	return (i - 2);
+
+data calculated_fib;
+	/* set calculated_fib nobs=p;; */array fib{0:700} fib;
+	;
+	fib{0}=0;
+	fib{1}=1;
+	;
+	N=600;
+
+	/*  */
+	/* 	If cel=month(date) in [2, 4, 6, 8, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30] then */
+	/* 		k=N/2; F(N)=[2*lag1(F(k)) + F(k)]*F(k); */
+	/*  */
+	/* 	if */
+	/* 	cel=month(date)in [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 31]; */
+	/* 	k=(N + 1)/2; */
+	/* 	F(N)=F(k)*F(k) + lag1(F(k)*lag1(F(k)));end; */;
+
+	do i=2 by 1 until (i=N);
+		fib[i]=lag1(fib[i]) + lag2(fib[i]);
+		output;
+	end;
+run;
+
+data calculated_fib;
+	fb{0}=0;
+	fb{1}=1;
+	cel If cel is even then k=n/2: F(n)=[2*lag1(F(k)) + F(k)]*F(k);
+
+	If &cel. is odd then
+		k=(n + 1)/2;
+	F(n)=F(k)*F(k) + lag1(F(k)*lag1(F(k)));
+	OUTPUT;
+
+	do i=2 by 1 while (fib{i} <&cel.);
+		fib[i]=lag1(fib[i]) + lag2(fib[i]);
+		OUTPUT;
+	end;
+end;
+run;
+
+DATA wait;
+	call symput(‘hsize’, left(put(p, best.)));
+	stop;
+	set small nobs=p;
+run;
+
+data plab;
+	do _N_=1 by 1 until(eof);
+		set work.import end=eof;
+		g=mod(_N_, 2);
+		k=mod(_N_, 3);
+		z=mod(_N_, 12);
+		j=mod(_N_, 5);
+		i=-1;
+		A=tanh(open-close);
+		B=i*lag3(A)/tan(A);
+
+		if A=B THEN
+			DO;
+				TM=A/B;
+				X_1=(AB)^-1 X2=AB a=0;
+				c(cosh(-x)/cos(-x))=c(sinh(-x)/sin(-x))=c(tanh(-x)/tan(-x));
+				cosh^2(-x)-sinh^2(-x)=exp(-x);
+				cos^2(g+)+sin^2=exp(+x);
+			END;
+
+		iF A>B(cosh(/g)+i*sin(/g);
+	END;
+	[αα′(a−b)(a−c)z−a+ββ′(b−c)(b−a)z−b+γγ′(c−a)(c−b)z−c] w(z−a)(z−b)(z−c)=0;
+	output;
+end;
+run;
+
+data plab;
+	set plab;
+	set work.import end=eof;
+	g=mod(_N_, 2);
+	i=1;
+	sin(15)=(4/6 Р dф=tan(B) + 3 pi(cos(X)+1)) +2k-1ln^2k(exp(-x)-1);
+	k=mod(_N_, 3);
+	(4k- 1/2kln2 (exp(-x/2))/(k-P)^2 cosh(x(135-15) +1 i=-1 z(1-z*);
+
+	/* 		(2r-R)^3/(r-R)^2 dA^dA^dA*2/3(sqrt(1-R/r/1-r/R)dp)=iM^2 26/24  */
+	Y[0:1]о Ф^-1(Y) ) 
+		/* 		/log10=(k/k^2)gij nji Dx`dx*=-eijk(XdY-YdX) +Lambda(DAXDAXDA) rieman */
+
+		/* 		/ -lie  */
+		/* 		bracket+gauge+gauss curve+spin stat under a knot connected sphere of  */
+		/* 		influence.; */
+		/* 		Stein-ray=							1	/2	(Wil	son d) +  *	/
+		0
+		/* 		П:				S-S18 Boltzman (T^4/A) ((10, 3, 2)F(5, 3, 1)  */
+		
+		2дд (*4, 8, -1) (2, 7, 3) (4, 5, -1)) 
+		z(1-z*}f^3f^f`` + 	2t(m+1-1)f``/f` 2з(n+2)(n-1)=<D|(xH +iH)|<1|1|1>z 
+		exp(-S)/Z|T>
+										|;
+
+	/* 	<х, | XxX|y(ф o ф+i|фф|U-1U[Z])>"	" 3pi==========================""	+- */
+	x^2+y^2[GI, [[J][2t-1]T, Q], 9] 3 3 1.	.9 23 5 6, 11M 8M)(+1)->3	
+				
+				[[1.5]-0.9[2]]3, 1 1, 7] . 2 11] 
+		/* 												\\\===========|==============\\\\\ */
+		i*4(x1-y6) /* 							<			1, 2O 1.31.	 		3 OoO	\\\\\\====5 x, `i, yh[wyx 3]  */
+		D1		<-<-<								`SXS====`===|==============----	\\\\\	[[]9[(O_.o) |__`	-	|O/ 
+		OOO;
+
+	/* 	`]O[.|.] .-O	(1-(-1)) /1			|	 	ww b */
+										 	|о|о|)- *(o) (.|-[.) ] .[.[;
+	(, [. / |;
+
+	/* 	 */
+https:
+	//api.tiingo.com/iex/aapl/prices?startDate=2019-01-02&resampleFreq=5min&columns=open, 
+		high, low, close, volume&token=3a5dd05b622b4504c74add5c1afe6491064363e0;
+	;
+
