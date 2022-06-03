@@ -1,0 +1,485 @@
+
+data _null_;
+	ans=solvequad(1, -4, -21);
+	check=round(quadratic(ans, 1, -4, -21), 1E-6);
+	put ans=check=;
+	;
+run;
+
+Proc fcmp outlib=work.funcs.algebra;
+	* Function to evaluate a quadratic;
+	function quadratic(x, а, b, c);
+	return(a*x*x + b*x + c);
+	endsub;
+	function solvequad(a, b, c);
+	x=solve('quadratic', {.}, 0, ., a, b, c);
+	return(x);
+	endsub;
+	quit;
+	* Now use function SOLVEQUAD to solve an equation, and 
+
+		  function QUADRATIC to check the solution;
+	options cmplib=work.funcs;
+	;
+	;
+
+	%macro ComputeNestedTriangles
+(data=Triangles   /* name of table to contain coordinates      */
+, levels=0       /* numbers of levels of nesting of triangles */
+, radius=50
+, x0=50
+, y0=50
+, tilt=0         /* clockwise degrees baseline tilted */);
+		/*
+		 * X,Y coordinate units are LL(0,0) UR(100,100) and
+		 * correspond to percent of active viewport
+		 */
+		* Step 0 - construct an outer triangle;
+
+	data &DATA. (keep=level--y3);
+		length level radius theta x0 y0 x1 y1 x2 y2 x3 y3 8;
+		d2r=atan(1) / 45;
+
+		/* degrees to radians */
+		radius=&RADIUS.;
+		x0=&X0.;
+		label x0='x0: Center of Triangle';
+		y0=&Y0.;
+		label y0='y0: Center of Triangle';
+		theta=-30 - &TILT.;
+		x1=x0+(radius)*cos(d2r*(theta+0*120));
+		y1=y0+(radius)*sin(d2r*(theta+0*120));
+		x2=x0+(radius)*cos(d2r*(theta+1*120));
+		y2=y0+(radius)*sin(d2r*(theta+1*120));
+		x3=x0+(radius)*cos(d2r*(theta+2*120));
+		y3=y0+(radius)*sin(d2r*(theta+2*120));
+		level=0;
+	run;
+
+	* poor mans recursion, one data step per level descended;
+	%local level;
+
+	%do level=1 %to &levels;
+
+		data &DATA. (keep=level--y3);
+			set &DATA.;
+			output;
+
+			if level=&level-1 then
+				do;
+					* recurse;
+					* nest four triangles within current triangle;
+					level=level  + 1;
+					radius=radius / 2;
+					x00=x0;
+					y00=y0;
+					x10=x1;
+					y10=y1;
+					x20=x2;
+					y20=y2;
+					x30=x3;
+					y30=y3;
+					x1=x10;
+					y1=y10;
+					x2=(x10+x20)/2;
+					y2=(y10+y20)/2;
+					x3=(x10+x30)/2;
+					y3=(y10+y30)/2;
+					x0=(x1+x2+x3)/3;
+					y0=(y1+y2+y3)/3;
+					output;
+					x1=(x20+x10)/2;
+					y1=(y20+y10)/2;
+					x2=x20;
+					y2=y20;
+					x3=(x20+x30)/2;
+					y3=(y20+y30)/2;
+					x0=(x1+x2+x3)/3;
+					y0=(y1+y2+y3)/3;
+					output;
+					x1=(x30+x10)/2;
+					y1=(y30+y10)/2;
+					x2=(x30+x20)/2;
+					y2=(y30+y20)/2;
+					x3=x30;
+					y3=y30;
+					x0=(x1+x2+x3)/3;
+					y0=(y1+y2+y3)/3;
+					output;
+					* the central nested triangle is
+
+						        * flipped with respect to parent triangle;
+					x1=(x10+x20)/2;
+					y1=(y10+y20)/2;
+					x2=(x20+x30)/2;
+					y2=(y20+y30)/2;
+					x3=(x30+x10)/2;
+					y3=(y30+y10)/2;
+					x0=(x1+x2+x3)/3;
+					y0=(y1+y2+y3)/3;
+					theta=mod (theta + 180, 360);
+					output;
+				end;
+			keep x0-x3 y0-y3 level radius theta;
+		run;
+
+	%end;
+%mend;
+
+%macro PlotSpinwardTriangles
+(data=Triangles
+, level=0
+, minimumRadius=0
+, step=30 /* degrees */
+, steps=35
+, gradientColors=ff0000 ffffff ff0000
+, gradientPoints=0 0.5 1
+, hsize=5in
+, vsize=5in
+, glib=work
+, gmem=triangles);
+	%local i x nc;
+	%let i=1;
+	%let x = %scan(&gradientColors, &i, %str( ));
+
+	%do %while (%length(&x));
+		%local r&i g&i b&i f&i;
+		%let r&i = 0%substr(&x, 1, 2)x;
+		%let g&i = 0%substr(&x, 3, 2)x;
+		%let b&i = 0%substr(&x, 5, 2)x;
+		%let f&i = %scan(&gradientPoints, &i, %str( ));
+		%let i=%eval(&i+1);
+		%let x = %scan(&gradientColors, &i, %str( ));
+	%end;
+	%let nc = %eval(&i-1);
+	%let _2pi = %sysevalf(2*%sysfunc(constant(PI)));
+	%let _pi  = %sysfunc(constant(PI));
+	options mprint;
+
+	data _null_;
+		rc=gset('catalog', "&GLIB.", "&GMEM.");
+		rc=ginit();
+		rc=graph('clear', 'grinward');
+		array _r[&nc] _temporary_ (
+		%do i=1 %to &nc;
+			&&r&i %end;
+		);
+		array _g[&nc] _temporary_ (
+		%do i=1 %to &nc;
+			&&g&i %end;
+		);
+		array _b[&nc] _temporary_ (
+		%do i=1 %to &nc;
+			&&b&i %end;
+		);
+		array _f[&nc] _temporary_ (
+		%do i=1 %to &nc;
+			&&f&i %end;
+		);
+
+		if (_f[1] ne 0) or (_f[&nc] ne 1) then
+			put "WARNING: There is a problem with gradientPoints";
+		d2r=atan(1) / 45;
+		step=&STEP.;
+		angle_c=180 - 30 - step;
+		spin=180;
+		steps=spin / step;
+
+		/*
+		 * Compute the gradient colors:
+		 * allow for 253 color points in the 0..1 gradient space;
+		 * compute the gradient color at each point according to
+		 * the color space traversal points passed in gradientColors
+		 * and gradientPoints
+		 */
+		rc=gset('COLREP', 1, 'BLACK');
+
+		do i=1 to steps;
+			alpha=(i-1) / (steps-1);
+			index=floor(alpha * 253) + 2;
+
+			do k=&nc to 1 by -1 until (alpha>_f[k]);
+			end;
+
+			if k=0 then
+				k=1;
+			color='CX'
+
+				            || put(_r[k]+(_r[k+1]-_r[k])*(alpha-_f[k])/(_f[k+1]-_f[k]), 
+				hex2.) || put(_g[k]+(_g[k+1]-_g[k])*(alpha-_f[k])/(_f[k+1]-_f[k]), hex2.) 
+				|| put(_b[k]+(_b[k+1]-_b[k])*(alpha-_f[k])/(_f[k+1]-_f[k]), hex2.);
+			rc=gset('COLREP', index, color);
+			*     put i=z3. alpha=9.7 k= index=z3. color=;
+		end;
+
+		do until (last);
+			set &DATA. end=last;
+
+			if level ne &LEVEL. then
+				continue;
+			x10=x1;
+			y10=y1;
+			x20=x2;
+			y20=y2;
+			x30=x3;
+			y30=y3;
+			theta0=theta;
+			nradius=radius;
+			istep=0;
+
+			do itheta=theta to theta + step * steps by step;
+				istep+1;
+				alpha=(istep-1) / (steps-1);
+				index=min(255, floor(alpha * 253)+2);
+				rc=gset('FILCOLOR', index);
+				rc=gset('FILTYPE', 'SOLID');
+				rc=gdraw('FILL', 3, x10, x20, x30, y10, y20, y30);
+				x10=x0+(nradius)*cos(d2r*(itheta+0*120));
+				x20=x0+(nradius)*cos(d2r*(itheta+1*120));
+				x30=x0+(nradius)*cos(d2r*(itheta+2*120));
+				y10=y0+(nradius)*sin(d2r*(itheta+0*120));
+				y20=y0+(nradius)*sin(d2r*(itheta+1*120));
+				y30=y0+(nradius)*sin(d2r*(itheta+2*120));
+				nradius=nradius / sin(angle_c*d2r) * sin(30*d2r);
+			end;
+		end;
+		rc=graph('update');
+		rc=gterm();
+	run;
+
+%mend;
+
+%macro NestedSpinwardTriangles
+(levels=0
+, x0=50
+, y0=50
+, radius=50
+, tilt=0
+, step=5
+, steps=36
+, minimumRadius=0.075
+, gradientColors=0020ff 201F73 090766
+, gradientPoints=0 .5 1);
+	%ComputeNestedTriangles
+(data=Triangles
+, levels=&levels
+, x0=&x0
+, y0=&y0
+, radius=&radius
+, tilt=&tilt);
+	%PlotSpinwardTriangles
+(data=Triangles
+, level=&levels
+, step=&step
+, steps=&steps
+, minimumRadius=&minimumRadius
+, gradientColors=&gradientColors
+, gradientPoints=&gradientPoints);
+%mend;
+
+%NestedSpinwardTriangles
+(levels=2
+, radius=200
+, step=1
+, steps=185
+, minimumRadius=0.075
+, gradientColors=ff0000 ffff00 aaaa44 000000
+, gradientPoints=0 .15 .25 1);
+;
+x start ;
+/* Program to accompany 
+   Wicklin, Rick (2015),
+   "The sensitivity of Newton's method to an initial guess,"
+   The DO Loop blog, published 24JUN2015.
+   http://blogs.sas.com/content/iml/2015/06/24/sensitivity-newtons-method.html
+   
+   Define a fifth-degree polynomial with five roots. For each point x, 
+   apply Newton's method and count how many iterations it takes to 
+   converge to a root. For each value of x, record the number of 
+   iterations and the root to which the point converges.
+   Use SGPLOT to plot Y=number of iterations versus X=initial condition
+   and color-code by the root to which Newton's method converges.
+;
+   For the examples in the blog post, 
+   
+   which has roots at {-3 -1 1 2 3}.
+*/
+f(x) =  1*x##5 -2*x##4 -10*x##3 +20*x##2 +9*x -18;
+
+proc iml;
+/* evaluate polynomial with coefficients in vector p */
+start Func(x) global(p);
+   y = j(nrow(x), ncol(x), p[1]); /* initialize to coef of largest deg */
+   do j = 2 to ncol(p);           /* Horner's method of evaluation */
+      y = y # x + p[j];
+   end;
+   return(y);
+finish;
+
+
+/* evaluate derivative of polynomial with coefficients in vector p */
+start Deriv(x) global(p);
+   d = ncol(p)-1;
+   p0 = p;
+   p = (d:1) # p0[,1:d];  /* coefficients of derivative polynomial */
+   y = Func(x);           /* temporarily overwrite p; evaluate derivative */
+   p = p0;                /* restore p */
+   return( y );
+finish;
+
+
+/* Implementation of Newton's method with default arguments */
+/* By default, maximum iterations (maxiter) is 25           */
+/*             convergence criterion (converge) is 1e-6     */
+/* Modified from 
+   http://blogs.sas.com/content/iml/2011/08/05/using-newtons-method-to-find-the-zero-of-a-function.html
+*/
+start NewtonMethod(x, iter, x0, maxIter=25, converge=1e-6);
+   x = x0;
+   f = Func(x);       /* evaluate function at starting values */
+   do iter = 1 to maxiter           /* iterate until maxiter */
+      while(max(abs(f))>converge);         /* or convergence */
+      J = Deriv(x);                  /* evaluate derivatives */
+      delta = -solve(J, f);   /* solve for correction vector */
+      x = x + delta;                /* the new approximation */
+      f = func(x);                   /* evaluate the function */
+   end;
+   /* return missing if no convergence */
+   if iter > maxIter then
+      x = j(nrow(x0),ncol(x0),.);
+finish NewtonMethod;
+
+start NewtonConvergence(numIters, rootNumber, x) global(g_roots);
+   numIters = j(1,ncol(x),.);
+   rootNumber = j(1,ncol(x),.);
+   epsilon = 0.01;
+
+   do i = 1 to ncol(x);
+      x0 = x[i];
+      call NewtonMethod(root, iter, x0, 50);
+      idx = loc(root>g_roots-epsilon  & root<g_roots+epsilon);
+      numIters[i] = iter;
+      if ^IsEmpty(idx) then rootNumber[i] = idx;
+   end;
+finish;
+iven the vectors x, numIters, and rootNumber, create a needle
+   plot of numIters vs x, colored by rootNumber */
+start PlotNewton(x, numIters, rootNumber);
+   create NewtonConverge var {"x" "numIters" "rootNumber"};
+   append;
+   close;
+
+   submit; 
+      proc sort data=NewtonConverge;
+      by rootNumber x;
+      run;
+
+      proc sgplot data=NewtonConverge;
+      label x="Initial Guess";
+      needle x=x y=numIters / group=rootNumber lineattrs=(thickness=2);
+      yaxis grid;
+      xaxis grid minor minorcount=1;
+      run;
+   endsubmit;
+finish;
+
+
+/* c5*x##5 + c4*x##4 + ... + c0 */
+p = {1 -2 -10 20 9 -18};       /* Coefficients: p[1]=c5, p[2]=c4, etc */
+g_roots = {-3 -1 1 2 3};       /* roots for this problem */
+n = 250;                       /* evaluate at n points */
+
+/* apply Newton's method to initial guesses in this domain */
+ab = {-4 4};
+x = ab[1] + range(ab)/n * (1:n);         
+run NewtonConvergence(numIters, rootNumber, x);
+
+
+
+title "Newton's Method on Fifth-Degree Polynomial";
+title2 "Initial Guess in [-4, 4]";
+ods graphics / width=582px;
+run PlotNewton(x, numIters, rootNumber);
+
+/* apply Newton's method to initial guesses in this domain */
+ab = {-0.5 0.5};
+x = ab[1] + range(ab)/n * (1:n);         
+run NewtonConvergence(numIters, rootNumber, x);
+
+title "Newton's Method on Fifth-Degree Polynomial";
+title2 "Initial Guess in [-0.5, 0.5]";
+ods graphics / width=580px;
+run PlotNewton(x, numIters, rootNumber);
+
+/* apply Newton's method to initial guesses in this domain */
+ab = {0.05 0.12};
+x = ab[1] + range(ab)/n * (1:n);         
+run NewtonConvergence(numIters, rootNumber, x);
+
+title "Newton's Method on Fifth-Degree Polynomial";
+title2 "Initial Guess in [0.05, 0.12]";
+ods graphics / width=587px;
+run PlotNewton(x, numIters, rootNumber);
+
+
+/* You can put the location of the breaks in a separate data set, which 
+   is useful for periodic functions like tan, cot, sec, csc, etc.
+   Tip: Use the same number of points in each domain such as (-pi/2, pi/2).
+   Choose a step size of the form pi/k.
+*/
+data Tan;
+pi = constant('pi');
+do x = -2*pi to 2*pi by (4*pi)/(4*42.20); 
+   y = tan(x);
+   Domain = floor( (x + pi/2) / pi ); /* constant on (-pi/2, pi/2) and translations of this interval */
+   output;
+end;
+drop pi;
+run; 
+
+ 
+data BreakPoints;
+pi = constant('pi');
+do k = -9 to 3 by 2;  /* odd multiples of pi/2 */
+   z = k*pi/2;
+   output;
+end;
+keep z;
+run;
+ 
+data PlotTan;
+   merge Tan BreakPoints;
+run;
+ 
+title "The Tangent Function";
+title2 "Reference Lines at Points of Discontinuity";
+proc sgplot data=PlotTan noautolegend;
+   refline 0 / axis=y;        /* X axis */
+   series x=x y=y / group=Domain lineattrs=GraphDataDefault;
+   yaxis min=-10 max=10;      /* truncate range */
+   refline z / axis=x;        /* the locations of the reference lines come from a data set */
+run;
+
+
+Signal = {1,0,-113]
+ }`;
+
+z = fft(Signal);
+Amplitude = z[,1]##2 + z[,2]##2;
+
+/* find index into Amplitude so that idx[1] is the largest
+   value, idx[2] is the second largest value, etc. */
+call sortndx(idx,Amplitude,1,1);
+
+/* print the 10 most dominant frequencies */
+Amplitude = Amplitude[idx[1:10],];
+print (idx[1:10]-1)[label="Freqs"] Amplitude[format=10.2];
+
+
+;BSPLINE (x, d, k <, i> ) ; 
+x     = {2.5 3 4.5 5.1};     /* data range is [2.5, 5.1] */
+knots = {0 1 2 3 4 5 6 7 8}; /* three interior knots at x=3, 4, 5 */
+bsp = bspline(x, 3, knots);
+print bsp[format=best7.];bsp2 = bspline(x, 2, ., 4);
+print bsp2[format=best5.];
+
