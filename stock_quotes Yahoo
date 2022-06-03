@@ -1,0 +1,127 @@
+
+%macro stock_quotes (symbol=, start=, end=, prompt=NO, out=);
+
+    %* Richard A. DeVenezia, 4/9/00
+    %* Quotes: A macro to retrieve historical daily stock quotes from Yahoo;
+    %*
+    %* symbol - ticker symbol
+    %* start  - starting date mm/dd/yy, default: 30 days prior to end
+    %* end    - ending   date mm/dd/yy, default: today
+    %* prompt - if YES then raise a macro window, otherwise proceed
+    %* out    - table name, default: same as symbol
+    %*
+    %* Yahoo url that delivers a CSV of daily stock quotes:
+    %* https://query1.finance.yahoo.com/v7/finance/download
+    %*   /<SYMBOL>
+    %*   ?period1=<From-UnixEpochTimeStamp>
+    %*   &period2=<To-UnixEpochTimeStamp>
+    %*   &interval=1d
+    %*   &events=history
+    %*
+    %* 12/08/03 rad Thanks to Andrew Farrer for v.8 bugfix (%window)
+    %*  4/20/07 rad Use IS8601DA to read date value
+    %*  1/12/10 rad Thanks to Sunny in Atlanta for bug report {dash in symbol}
+    %*              Add out= option, compress symbol for default
+    %*  4/01/20 rad Update to current URL and parameters
+    %* 11/20/21 rad Update to includeAdjustedClose=true
+    %*;
+
+    %local symbol start end and;
+    %local _s _e url period1 period2;
+
+    %let and = %str(&);
+
+    %if (%superq(symbol) eq ) %then
+        %let symbol=msft;
+
+    %let symbol = %upcase (&symbol);
+
+    %if (%superq(end) eq ) %then
+        %let end = %sysfunc(today(),mmddyy8);
+
+    %if (%superq(start) eq ) %then %do;
+        %let start = %sysfunc(inputn(&end,mmddyy8.));
+        %let start = %eval (&start-30);
+        %let start = %sysfunc(putn(&start,mmddyy8.));
+    %end;
+
+    %if (%upcase(&prompt) eq YES) %then %do;
+        %window Quotes rows=12 columns=30
+          #2@2 "Symbol: " symbol 8 c=blue a=rev_video
+          #4@2 "Start:  " start  8 c=blue a=rev_video
+          #6@2 "End:    " end    8 c=blue a=rev_video
+        ;
+
+        %display Quotes;
+        %let symbol = %upcase (&symbol);
+    %end;
+
+    %if (%superq(out) eq ) %then
+      %let out = %sysfunc(compress(&symbol,%str(-./)));
+
+    %let _e = %sysfunc(inputn(&end  ,mmddyy10.));
+    %let _s = %sysfunc(inputn(&start,mmddyy10.));
+
+    %let period1 = %sysfunc(intck(SECOND, "01JAN1970:0:0"DT, %sysfunc(DHMS(&_s,0,0,0))));
+    %let period2 = %sysfunc(intck(SECOND, "01JAN1970:0:0"DT, %sysfunc(DHMS(&_e,0,0,0))));
+
+    %let url = https://query1.finance.yahoo.com/v7/finance/download/&symbol;
+    %let url = &url.?period1=&period1.&and.period2=&period2.&and.interval=1d&and.events=history;
+    %let url = &url.&and.includeAdjustedClose=true;
+
+    filename quotes URL "&url";
+
+    data &out;
+      infile quotes dlm=',';
+
+      retain symbol "&symbol";
+
+      if _n_ = 1 then input; * skip header row;
+
+      input Date is8601da. Open High Low Close AdjClose Volume;
+
+      format Date mmddyy10.;
+      format Volume comma11.;
+    run;
+
+    %if &SYSERR ne 0 and &SYSERR ne 4 %then %do;
+      %put NOTE: --------------------;
+      %put NOTE: SYSERR=&SYSERR.;
+      %put NOTE: Check that you have used a valid stock symbol [&symbol];
+      %put NOTE: and a valid date range [&start] to [&end];
+      %put NOTE: --------------------;
+    %end;
+%mend;
+
+Sample code
+
+/*
+%yahoo_stock_quotes (symbol=twx,  prompt=YES)
+%yahoo_stock_quotes (symbol=msft, start=4/1/00, end=4/10/00)
+%yahoo_stock_quotes (symbol=msft, start=10/10/03, end=11/11/03)
+%yahoo_stock_quotes (symbol=tsla, start=04/01/19, end=04/01/20)
+
+%macro hlc_plot (symbol=, start=, end=);
+  %yahoo_stock_quotes (symbol=&symbol, start=&start, end=&end);
+  %let myData = &syslast.;
+
+  proc transpose data=&myData. out=&myData._hlc(rename=col1=Price);
+    by symbol descending date ;
+    var high low close;
+  run;
+
+  symbol1 i=HiLoC;
+  goptions ftext='Arial';
+
+  proc gplot data=&myData._hlc;
+    title "&symbol";
+    plot price * date;
+  run;
+  quit;
+%mend;
+
+%hlc_plot (symbol=HPT-PB, start=1/1/08);
+%hlc_plot (symbol=TCB-PA, start=1/1/08);
+%hlc_plot (symbol=MSFT, start=10/10/03, end=11/11/03);
+*/
+
