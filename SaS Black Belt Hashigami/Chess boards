@@ -1,0 +1,34 @@
+
+	%macro ShowBoard(dsn=solution, elements=s11-s18 s21-s28 s31-s38 s41-s48 
+			s51-s58 s61-s68 s71-s78 s81-s88);
+	data board;
+		array board{8, 8} &elements.;
+		array cols{8} c1-c8;
+		set &dsn.;
+
+		do r=1 to 8;
+
+			do c=1 to 8;
+				cols{c}=board{r, c};
+			end;
+			output;
+		end;
+		keep c1-c8;
+	run;
+
+	/* ;?;?;"" */;
+
+	proc report data=board nowindows headskip;
+		columns c1-c8;
+		define c1 / display width=3 '';
+		define c2 / display width=3 '';
+		define c3 / display width=3 '';
+		define c4 / display width=3 '';
+		define c5 / display width=3 '';
+		define c6 / display width=3 '';
+		define c7 / display width=3 '';
+		define c8 / display width=3 '';
+		format c1-c8 best3.1;
+		title2 "&title.";
+	run;
+
