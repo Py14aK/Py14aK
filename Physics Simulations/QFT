@@ -1,0 +1,37 @@
+/*  */
+
+	Y(x,t)=∬p(x)div^G(x-x`)dS;
+	
+	∬p(x)divG(x-x`)dxdy;  
+	
+	w/k=v;
+	Y(k, t)exp[dk]/2*pi;
+  
+	∬P(x)divG(x-x`)exp(dx)exp(dk)dxdk=Y(x,t)/(2(pi));
+	
+  p=1/lamb=k;pk=h/lamb; 
+  
+  v=h/k*lamb=h/k*f=d(x-x`)/dt=h/k*f 
+	
+  dx/dt=x-x`;       dt-2pi
+	
+  dkd(x-x`)=2pi;
+	
+  k.r=0;
+  
+	1/V∬P(x)divG(x-x`)G(k-k`)exp(dx)exp(dk)dxdk=Y(x, t) exp(dk)dk;
+	
+	DY(X, T)=E|Y(x, t)|;
+	DT;
+  
+	->Y(x,t)=Aexp(kx-Et)+ Bexp(kx+Et)=;
+  
+	<Y|ad-bc|Y>
+  
+Y(x`,t)Y(x, t)*eije^(km)J=(-1)^p=Y(x`, t)Y(x`,t)=p(x)div^2G(x-x`)dx`dx=(p(x)divG(x-x`))dS=<Y|<Y|
+
+
+	    [0 1] [a Exp(kx-ET)+ bexp(kx+ET)*(c exp(kx`-ET)+ d exp(kx`+ET)] 
+		[1 0]=P(X`)/V
+		[0 1] AC EXP(KX-KX`-2ET) + AD EXP(KX`+KX) 
+		+BC EXP(KX+KX`)+ BD(EXP(KX+KX`+2ET)=P(X)
