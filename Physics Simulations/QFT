@@ -35,3 +35,45 @@ Y(x`,t)Y(x, t)*eije^(km)J=(-1)^p=Y(x`, t)Y(x`,t)=p(x)div^2G(x-x`)dx`dx=(p(x)divG
 		[1 0]=P(X`)/V
 		[0 1] AC EXP(KX-KX`-2ET) + AD EXP(KX`+KX) 
 		+BC EXP(KX+KX`)+ BD(EXP(KX+KX`+2ET)=P(X)
+
+  
+gxi gix` Y(x`,t)*Y(x,t)*S=gxx Y(x`,t)Y(x`,t)= 
+
+																						
+Y(x`,t)Y(x, t)*eije^(km)	J|dY(x,t)/dY(x`,t)|=[Y(x, t) ∇ Y(x`,t)-Y(x`,t) ∇ Y(x,t)]= dP/dt
+[Y(X`,T),Y(X,T)] * lie derivative=
+
+			
+∇*[T^abY(x,t)-TbaY(x`,t)] =∇*[Y(x, t) ∇ Y(x`,t)-Y(x`,t) ∇ Y(x,t)]=∇* dP/dt=1/|A| ∮  F d.r =1/|a| *(dk.dr=2pi)
+	∇*J=0; AB-BA=/=0
+	SpinTensor =/= 0-> 			  												 | 1/2 
+	∇xF=∇*∇F + ∇^2F	*										eije^(km)		 | 1
+																				 |-1/2
+	∇	∭∇ F dV	=	∇∬	F dS =			1/|A| ∮  F d.r 
+∭p(x)div^2G(x-x`)dV - ∬(p(x)divG(x-x`))dS=0
+
+		
+		A EXP(KX-KX`-2ET) + 2*EXP(KX`+KX)  	+ D(EXP(KX+KX`+2ET)	=	E d ∇∇G*dV=∇ dp/dt=	
+				G_RET + G_ADV +GFEYMAN	
+				-------->
+		<------  +			
+				-------->
+
+	   [a Exp(kx-ET)+ bexp(kx+ET)*(c exp(kx`-ET)+ d exp(kx`+ET)] 
+	
+
+			Y(x,t)[cos(theta)sin |sincos]  = Y(x,t)*i 
+				  [-cossin|sin(theta)cos] 
+			
+
+			dS=	∇*[T^abY(x,t)-TbaY(x`,t)]	+	gti g_it DY(x,t)/DT DY(x,t`)/DT2 +2pi(-1)^p
+					
+				
+
+dtgt=gti g_it DY(x,t)/DT DY(x,t`)/DT2=2<Ricci>
+
+d/dt	|Y><Y|  =<Y||Y><Y|⨂|Y><Y|+|Y><Y|⨂Y><Y|Y>
+
+KbT 
+
+DS/dt=Tdt=1/B
