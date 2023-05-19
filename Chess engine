@@ -23,9 +23,15 @@ hecause this removes the need no store games
  Instead you have an S matrix approach. With information loss increasing each turn
  and dentsnglemnt happening at one point. 
  
- Essentially the entire board goes in to a single transformer. 
+ Essentially the entire board goes in to a single google transformer. 
  
- To avoid collisions for itself yet try and free force 
+ Try to avoid collisions for itself yet try and force your opponent to make
+ 
+ lattent space to double count some. States. 
+ 
+ Can als
+
+
  
 
  
