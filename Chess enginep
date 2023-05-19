@@ -13,15 +13,19 @@ X 6 pieces
 
 X2 colour
 +1 turn information 
+769 bit string should  have all the knowlable information, all other information
+should be directly derivable from that string. Which is just essential 
 
- hecause this removes the need no store games
+
+
+hecause this removes the need no store games
  
- Instead you have essentially a transitions maatrix
+ Instead you have an S matrix approach. 
  
  this makes a heat maps a clustering techniquez
  Very useful for finding a way oto crrectly 
-Identify a tactic is being commited without having to hard vode
-Anything
+Identify a tactic is being commited without having to hard code 
+Anything 
 
 
 
