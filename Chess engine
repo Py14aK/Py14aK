@@ -1,0 +1,41 @@
+I wanted tocmprovise a solution with.next to no other libraries used.
+It's a hands tied challenge 
+
+Over all i have settled on this
+
+1. Board design 
+
+ A bitmap mask that reads. Everything as a singular
+
+Concaded Strings =™>
+8x8 position blockp9
+X 6 pieces 
+
+X2 colour
++1 turn information 
+
+ hecause this removes the need no store games
+ 
+ Instead you have essentially a transitions maatrix
+ 
+ this makes a heat maps a clustering techniquez
+ Very useful for finding a way oto crrectly 
+Identify a tactic is bei
+
+U
+
+
+
+
+
+
+
+
+
+
+
+Used. 
+
+
+
+
