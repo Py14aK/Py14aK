@@ -20,7 +20,14 @@ should be directly derivable from that string. Which is just essential
 
 hecause this removes the need no store games
  
- Instead you have an S matrix approach. 
+ Instead you have an S matrix approach. With information loss increasing each turn
+ and dentsnglemnt happening at one point. 
+ 
+ Essentially the entire board goes in to a single transformer. 
+ 
+ To avoid collisions for itself yet try and free force 
+ 
+
  
  this makes a heat maps a clustering techniquez
  Very useful for finding a way oto crrectly 
