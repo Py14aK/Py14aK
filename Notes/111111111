@@ -1,0 +1,348 @@
+/* / data is in csv format with Headers, Use DoW-loop and sep. the const. */
+proc contents data=work.import out=names(keep=name);
+run;
+
+data PY.line_col;
+	set names;
+
+	if name="Date" then
+		delete;
+run;
+
+/* Variables*/
+/*  */
+/* 1	Adjusted Close	 */
+/* 2	Close	 */
+/* 3	Date	 */
+/* 4	High	 */
+/* 5	Low	 */
+/* 6	Open	 */
+/* 7	Volume */
+/*  */;
+
+/*for each market, a bit anal */
+data py.NN;
+	->Ny set work.import;
+run;
+
+*/->now all const are in NY
+;
+
+/* ->offload the non automorphic correlation to other set */
+DATA PY.FIVE;
+	SET WORK.IMPORT1;
+RUN;
+
+/*date:19.02.2022*/
+/*  */
+DATA PY.TIME_LINE;
+	SET py.nn;
+	keep Date;
+run;
+
+proc sql;
+	select name into :line separated by ' ' from PY.line_col;
+quit;
+
+proc sql;
+	select DISTINCT date into :T separated by ' ' from PY.TIME_LINE;
+quit;
+
+%put &T. ;
+
+/* ->quite a long list, finde weekends either by date directly, by fuzzy join, or
+_N_ */;
+%put &line;
+
+proc sort data=PY.TIME_LINE out=py.time_line nodupkey;
+	by descending date;
+run;
+
+data py.time_line;
+	do _N_=1 by 1 until(eof);
+		set py.time_line end=eof;
+		date_n=_N_;
+		output;
+	end;
+run;
+
+/* dates go to today: 24.02*/
+/*  */;
+
+data NYSE;
+	do _N_=1 by 1 until(eof);
+		set py.NN end=eof;
+
+		IF _N_=1 THEN
+			do;
+				Counter=0;
+				ID=1;
+			end;
+
+		if _N_>1 then
+			do;
+				counter=counter+1;
+			end;
+
+		if (open=. and close=.) and volume=. then
+			do;
+				counter=0;
+				id=id+1;
+			end;
+		output;
+	end;
+run;
+
+/* Names and Id are a char to numeriic map as defined by the const of  the top 500 companies. */
+/* Notes:->make it easiers for global ID */
+/*  Diff equation that describes the system z(1-z*)^{2}d^{2}y/dz^{2}  */
+/* 		-2 z/|z|->z^3/z^2 1/4 pi -> Green and Fouriers
+{					[dy}/{dz} + (n-1)!=0
+/* 1-f^2 defined as velocity */
+/* we cannot predict ind. beh, but there is a conformal trans based on date, which gives us the entire wave and it follows greens theoren */\
+
+/* /Use Tanh to Create hyperbolic(TEICHMULER?THURSTON) Representation of the Data. */;
+
+/* OUT IS  THURSTSTON ISOTHERMAL COORDINATES(1/2FoF^-1->pullback-> is isomorphism_we have a Thurston and Teich.;
+locally R^n can be quassi-conf, Thusto aka Donnuts;->uNSTABLE EVERYWHERE SURFACE
+always closed off logistic/ln map->
+ISOTERMAL METRIC->
+1/2exp(ix)+1/2exp(2p*(1-r)^-1/1+exp(-x))-:s
+<1/2exp|(2pq/(1+f^2-2*exp(-x))|xsinx/cos^x-1 dx>;
+->Poincare Dots
+
+> (ix/2) + iV(v*x)/3*2) +i*1/2	dE(1/sqrt(5)H+(2t-1)L) ->i1/2 <E^2,E>->field energy <0.5*SXP>
+/* 3/2 J */
+proc sort data=nyse;
+	by id date;
+run;
+
+;
+;
+
+data nyse;
+	do _N_=1 by 1 until(eof);
+		set nyse end=eof;
+		array line[0:6] Adjusted Close Close High Low Open Volume;
+		array out[0:7] dv_dt o_f2 dz_dt i itanix gamma holo parabolic;
+		BY id date;
+		wd=weekday(date);
+		OUT[0]=tanh(Open-Close);
+		out[1]=(1-out[0]**2);
+		OUT[2]=sinh(open-close);
+		out[3]=-1;
+		out[4]=out[3]*out[0];
+		;
+		xГ(x)->intover boundry+vp->fact(10-1)-sqrт(1-p)^1-k)/Г(x)=419/12 
+			3 (3dehn-1/2) /* t>>0	TrT + det(T) ->физическа прах и от там Стат Ем ->Не НОСЕЩА ПЕРТУБАЦИЯ САМО ОТ ПР ВРЕМЕ wAVE FRENT NAMBU GOTO */
+			exp(ix) out[5]=ARTANH(Open-Close);
+
+		/* 1-v^2/c^2->x^2_+1-> conformal field theory  */
+		out[7]=OUT[2]/OUT[1];
+
+		IF wd=6 then
+			do;
+				wd=+1;
+				OUT[6]=exp(1-0.5*lOG2(2)*exp(-close)/log(3));
+				Poison-Disy output;
+				;
+			end;
+		MOD=MOD(COUNTER, 11);
+
+		if out[0]>0 then
+			spin='up';
+
+		if out[0]<0 then
+			spin='do';
+
+		if out[0]=0 then
+			spin='bo';
+		output;
+	end;
+	drop high low 'adjusted close'n;
+run;
+
+/*if out[10]>0 and out[10]<0.3 then cluster='A';*/
+/*if out[10]>=0.3 and out[10]<0.55 then cluster='B';*/
+/*IF OUT[10]>=0.55 AND OUT[10]<0.77 THEN CLUSTER='C';*/
+/*IF OUT[10]>=0.77 THEN CLUSTER='D';*/
+/*           DROP  Close  Open Low High;*/
+run;
+
+data nyse;
+	set nyse;
+
+	if spin='up' then
+		spin_N=1;
+
+	if spin='do' then
+		spin_N=-1;
+
+	if spin='bo' then
+		spin_N=0;
+run;
+
+proc Sort data=NYSE;
+	by id date SPIN_N;
+run;
+
+DATA PY.NSWITHC;
+	do _n_=1 by 1 until(eof);
+		set NYSE (keep=ID DATE SPIN_N)END=EOF;
+		by id DATE SPIN_N;
+		lag_spin=lag1(spin_n);
+		array sw [1] S_F;
+		sw[1]=sum(spin_n, lag_spin);
+
+		if            (sw[1]=2 or sw[1]=-2) then
+			switxh="cont";
+
+		if (sw[1]=1 or sw[1]=-1) then
+			switxh="flip";
+
+		if sw[1]=0 then
+			switxh="bo";
+		switxh2=lag1(switxh);
+		switxh3=lag2(switxh);
+		switxh4=lag3(switxh);
+		switxh5=lag4(switxh);
+		switxh6=lag5(switxh);
+		switxh7=lag6(switxh);
+		;
+		output;
+	end;
+run;
+
+DATA NYSE;
+	IF _N_=0 THEN
+		SET NYSE PY.nswithc;
+
+	if _N_=1 then
+		do;
+			declare hash h(dataset:'PY.nswithc');
+			h.definekey('ID', 'DATE');
+			H.DEFINEDATA(ALL:'Y');
+			h.definedone();
+		end;
+
+	DO _n_=1 BY 1 UNTIL(EF);
+		SET NYSE END=EF;
+		RC=H.FIND();
+
+		IF RC=0 THEN
+			OUTPUT;
+	END;
+RUN;
+
+proc Sort data=NYSE nodupkey;
+	by ID DATE;
+run;
+
+proc Sort data=NYSE;
+	;
+	by date SPIN_N;
+run;
+
+DATA NYSE;
+	SET NYSE;
+
+	IF (open=. and close=.) THEN
+		DELETE;
+run;
+
+DATA py.forbes;
+	2;
+run;
+
+data py.mtm;
+run;
+
+DATA py.ma;
+run;
+
+DATA py.forbes;
+	2;
+
+	/*           array ma1 [0:200] M1M0-M1M200;*/
+	/*           array ma2 [0:200] M2M0-M2M200 ;*/
+	/*           array ma3 [0:200] M3M0-M3M200;*/
+	/*  KEEP M1M0-M1M200 M2M0-M2M200 M3M0-M3M200;*/
+	/*           do o=0 to 200;*/
+	/*                          ma1[o]=.;*/
+	/*                          ma2[o]=.;*/
+	/*                          ma3[o]=.;*/
+	/*           end;*/
+	/**/
+	array ma1 [0:200]_temporary_;
+	array ma2 [0:200] _temporary_;
+	array ma3 [0:200]_temporary_;
+
+	/*  KEEP M1M0-M1M200 M2M0-M2M200 M3M0-M3M200; /*/
+	do o=0 to 200;
+		ma1[o]=.;
+		ma2[o]=.;
+		ma3[o]=.;
+	end;
+
+	do _n_=1 by 1 until(last.date);
+		SET py.forbes;
+		;
+
+		/*                          keep  FFFF FFF  WAMMC3  TT TTT TTTT TTTTA _CHAR_ spin_n switch cor WWMMF WWMMC WWMMT PREDICTED1 PREDICTED12 OPEN FROM CURRENT TO group date open close var dfdx dfdx2 y x dif holo pred cor diff2;*/
+		array a_1[0:10] var dfdx dfdx2 y x dif holo pred cor diff2 R;
+		ARRAY PR [0:6] OPEN pra PREDICT predict2 PREDICTED PREDICTED1 PREDICTED12;
+		array df1 [0:6] diff3 diff4 d_per avg DIFF5 DF6 DF7;
+		array mmm[3] FROM CURRENT TO;
+		ARRAY MM[7] FFFF FFF WAMMC3 TT TTT TTTT TTTTA;
+		BY group date;
+		i=_n_;
+
+		if switxh="flip" then
+			do;
+
+				do j=1 to 200;
+					ma1[j]=0;
+					ma2[j]=0;
+					ma3[j]=0;
+				end;
+
+				DO _J=1 TO 6;
+					MM[_J]=0;
+				END;
+			end;
+		PR[1]=SUM(PR[0], a_1[3]*a_1[2], 2*log(1+a_1[6])*lag1(a_1[7]));
+		pr[2]=pr[1]+2*a_1[7];
+		DF1[0]=PR[2]-CLOSE;
+		df1[1]=100*(pr[2]/open);
+		df1[2]=(100*(pr[2]/open))-100;
+		df1[3]=sum(df1[1], df1[2]);
+		PR[3]=(1*5/6-1*(DF1[1]));
+		PR[4]=(PR[2]+PR[3]);
+		PR[5]=100-(1-PR[4]);
+		PR[6]=PR[5]+DF1[3];
+		DF1[4]=PR[3]-CLOSE;
+		DF1[5]=PR[5]-CLOSE;
+		DF1[6]=PR[6]-CLOSE;
+		MA1[MOD(i, 200)]=PR[0];
+		MA2[MOD(i, 200)]=PR[5];
+		MA3[MOD(i, 200)]=A_1[8];
+		MMM[2]=PR[5];
+		MMM[1]=PR[0];
+		MMM[3]=A_1[8];
+		MM[3]=lag200(mmm[1]);
+		MM[2]=LAG75(mmm[2]);
+		MM[1]=LAG25(mmm[1]);
+		MM[7]=LAG25(mmm[3]);
+		MM[4]=LAG75(mmm[3]);
+		MM[5]=LAG200(mmm[1]);
+		MM[3]=lag500(mmm[2]);
+		MM[6]=lag200(mmm[3]);
+
+		if MOD(_N_, 200)=1 then
+			output;
+	end;
+run;
+
+v PROC SORT DATA=PY.MA;
+BY date SWITCH group;
+RUN;
