@@ -1,0 +1,57 @@
+
+data CMovAv(drop=s t);
+	if _N_=1 then
+		do;
+			dcl hash h(dataset : "py.forbes");
+			h.definekey("date_n","id");
+			h.definedata("open", "close");
+			h.definedone();
+		end;
+/* 	set py.forbes; */
+	s=0;
+	d=0;
+	array value{1:1} ;
+	do t=date_n - 1 to date_n + 1;
+		      value=(open-close);
+
+		if h.find()=0 then
+			do;
+				s=sum(s, value);
+				d + 1;
+			end;
+	end;
+	MovAv=divide(s, d);
+	keep id MovAv date_N value s;
+run;
+
+proc expand data=py.forbes out=Test ;
+by id ;
+   id  date_n;
+   convert close = MA   / transout=(movave 5);
+   convert close = WMA  / transout=(movave(1 2 3 5 7 9 11 13 17 19 23 29 37 43 71 137 143 419)); 
+   convert close = EWMA / transout=(ewma 0.37);
+   convert close = MA   / transout=(movave 5);
+   convert close = WMA  / transout=(movave(1 2 3 5 7 9 11 13 17 19 23 29 37 43 71 137 143 419)); 
+   convert close = EWMA / transout=(ewma 0.37);
+run;
+;;
+ 
+;
+PROC MEANS DATA=test P10 p50 p25 P75 STD MAX n MODE NOPRINT nway 
+		VAR STDERR Q1 Q3 stddev MEAN;
+	CLASS id;
+/* by date_N; */
+	/* 	BY MONTH_FIXED; */
+	VAR ma wma ewma;
+	output OUT=SUM;
+run;
+
+proc sgplot data=test cycleattrs ;
+   series x=DATE y=MA   / name='MA'   legendlabel="MA(5)";
+   series x=DATE y=WMA  / name='WMA'  legendlabel="WMA(1,2,3,4,5)";
+   series x=DATE y=EWMA / name='EWMA' legendlabel="EWMA(0.3)";
+   scatter x=DATE y=close;
+   keylegend 'MA' 'WMA' 'EWMA';
+   xaxis display=(nolabel) grid;
+   yaxis label="Closing Price" grid;
+run;
