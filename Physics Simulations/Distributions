@@ -1,0 +1,454 @@
+/* Simulate from inverse Gaussian (Devroye, p. 149) */
+
+data InvGauss(keep=X);
+	mu=1.5;
+
+	/* mu > 0
+	*/
+	lambda=2;
+
+	/* lambda > 0 */
+	c=mu/(2 * lambda);
+	call streaminit(1);
+
+	do i=1 to 1000;
+		muY=mu * rand("Normal")**2;
+
+		/* or mu*rand("ChiSquare", 1) */
+		X=mu + c*muY - c*sqrt(4*lambda*muY + muY**2);
+
+		/* return X with probability mu/(mu+X); otherwise mu**2/X */
+		if rand("Uniform") > mu/(mu+X) then
+
+			/* 			or rand("Bern", x|(mu+X)) */
+			X=mu*mu/X;
+
+		/* 			IF rand("Bern", X|(mu+X)) */
+		output;
+	end;
+run;
+
+proc iml;
+	/* Sample from a multivariate Cauchy distribution */
+	start RandMVCauchy(N, p);
+	z=j(N, p, 0);
+	y=j(N, 1);
+
+	/* allocate matrix and vector */
+	call randgen(z, "Normal");
+	call randgen(y, "Gamma", 0.618);
+
+	/* alpha=0.5, unit scale
+	*/
+	return(z / sqrt(2*y) );
+	finish;
+
+	/* call the function to generate multivariate Cauchy variates */
+	N=1000;
+	p=3;
+	x=RandMVCauchy(N, p);
+	PRINT x;
+;
+
+proc iml;
+	/* Let X1, X2,...,Xd be binary variables, let
+	p = (p1,p2,...,pd) the their expected values and let
+	Delta be the d x d matrix of correlations.
+	This function returns 1 if p and Delta are feasible for binary
+	variables. The function also computes lower and upper bounds on the
+	correlations, and returns them in LBound and UBound, respectively */
+	start CheckMVBinaryParams(LBound, UBound, _p, Delta);
+	p=rowvec(_p);
+	q=1 - p;
+
+	/* make p a row vector
+	*/
+	d=ncol(p);
+
+	/* number of variables
+	*/
+	/* 1. check range of Delta; make sure p and Delta are feasible
+	*/
+	PP=p`*p;
+	PQ=p`*q;
+	QP=q`*p;
+	QQ=q`*q;
+	A=-sqrt(PP/QQ);
+	B=-sqrt(QQ/PP);
+
+	/* matrices
+	*/
+	LBound=choose(A>B, A, B);
+
+	/* elementwise max(A or B) */
+	LBound[loc(I(d))]=1;
+
+	/* set diagonal to 1
+	*/
+	A=sqrt(PQ/QP);
+	B=sqrt(QP/PQ);
+	UBound=choose(A<B, A, B);
+
+	/* min(A or B)
+	*/
+	UBound[loc(I(d))]=1;
+
+	/* set diagonal to 1*/
+	return 1
+
+	/* <==> specified means and correlations are feasible */;
+	return(all(Delta >=LBound) & all(Delta <=UBound) );
+	finish;
+
+	/* Objective: Find correlation, rho, that is zero of this function.
+	Global variables:
+	pj = prob of success for binary var Xj
+	pk = prob of success for binary var Xk
+	djk = target correlation between Xj and Xk
+	*/
+	
+	start MVBFunc(rho) global(pj, pk, djk);
+	Phi=probbnrm(quantile("Normal", pj), quantile("Normal", pk), rho);
+	qj=1-pj;
+	qk=1-pk;
+	return(Phi - pj*pk - djk*sqrt(pj*qj*pk*qk) );
+	finish;
+	start RandMVBinary(N, p, Delta) global(pj, pk, djk);
+
+	/* 1. Check parameters. Compute lower/upper bounds for all (j,k) */
+	if ^CheckMVBinaryParams(LBound, UBound, p, Delta) then
+		do;
+			print "The specified correlation is invalid." LBound Delta UBound;
+			STOP;
+		end;
+	q=1 - p;
+	d=ncol(Delta);
+
+	/* number of variables
+	*/
+	/* 2. Construct intermediate correlation matrix by solving the
+	bivariate CDF (PROBBNRM) equation for each pair of vars */
+	R=I(d);
+
+	do j=1 to d-1;
+
+		do k=j+1 to d;
+			pj=p[j];
+			pk=p[k];
+			djk=Delta[j, k];
+
+			/* set global vars */
+/* 			R[j,k] = bisection(LBound[j,k], UBound[j,k]); */
+
+			/* pre-12.1 */
+			R[j, k]=froot("MVBFunc", LBound[j, k]||UBound[j, k]);
+
+			/* 12.1 */
+			R[k, j]=R[j, k];
+		end;
+	end;
+
+	/* 3: Generate MV normal with mean 0 and covariance R */
+	X=RandNormal(N, j(1, d, 0), R);
+
+	/* 4: Obtain binary variable from normal quantile */
+	do j=1 to d;
+		X[, j]=(X[, j] <=quantile("Normal", p[j]));
+
+		/* convert to 0/1 */
+	end;
+	return (X);
+	finish;
+
+
+
+
+	/* Use Iman-Conover method to generate MV data with known marginals
+	and known rank correlation. */
+proc iml;
+	start ImanConoverTransform(Y, C);
+	X=Y;
+	N=nrow(X);
+	R=J(N, ncol(X));
+
+	/* compute scores of each column */
+	do i=1 to ncol(X);
+		h=quantile("Normal", rank(X[, i])/(N+1) );
+		R[, i]=h;
+	end;
+
+	/* these matrices are transposes of those in Iman & Conover */
+	Q=root(corr(R));
+	P=root(C);
+	S=solve(Q, P);
+
+	/* same as S = inv(Q) * P; */
+	M=R*S;
+
+	/* M has rank correlation close to target C */
+	/* reorder columns of X to have same ranks as M.
+	In Iman-Conover (1982), the matrix is called R_B. */
+	do i=1 to ncol(M);
+		rank=rank(M[, i]);
+		y=X[, i];
+		call sort(y);
+		X[, i]=y[rank];
+	end;
+	return(X);
+	finish;
+
+	/* Step 1: Specify marginal distributions */
+	call randseed(1);
+	N=100;
+	A=j(N, 4); 
+		/* return X with probability mu/(mu+X); otherwise mu**2/X */ 
+		if rand("Uniform") > mu/(mu+X) then 
+ 
+			/* 			or rand("Bern", x|(mu+X)) */ 
+			X=mu*mu/X; 
+ 
+		/* 			IF rand("Bern", X|(mu+X)) */ 
+		output; 
+	end; 
+run; 
+ 
+proc iml; 
+
+	y=j(N, 1);
+	distrib={"Normal" "Lognormal" "Expo" "Uniform"};
+
+	do i=1 to ncol(distrib);
+		call randgen(y, distrib[i]);
+		A[, i]=y;
+	end;
+
+	/* Step 2: specify target rank correlation */
+	C={1.00 0.75 -0.70 0, 0.75 1.00 -0.95 0, -0.70 -0.95 1.00 -0.2, 0 0
+-0.2 1.0};
+	X=ImanConoverTransform(A, C);
+	RankCorr=corr(X, "Spearman");
+	print RankCorr[format=5.2];
+
+	/* write to SAS data set */
+	create MVData from X[c=("x1":"x4")];
+	quit;
+	append from X;
+	close MVData;
+
+proc corr data=MVData Pearson Spearman noprob plots=matrix(hist);
+	var x1-x4;
+run;
+
+/* ; */
+/* 1. Model the marginal distributions. */
+/* 2. Choose a copula from among those supported by PROC COPULA. Fit the copula to the */
+/* data to estimate the copula parameters. For this example, a normal copula is used, so the */
+/* parameters are the six pairwise correlation coefficients that make up the upper-triangular */
+/* correlation matrix of the data. */
+/* 3. Simulate from the copula. For the normal copula, this consists of generating multivariate */
+/* normal data with the given rank correlations. These simulated data are transformed to */
+/* uniformity by applying the normal CDF to each component. */
+/* 4. Transform the uniform marginals into the marginal distributions by applying the inverse CDF */
+/* for each component. */;
+
+/* Step 2: fit normal copula
+Step 3: simulate data, transformed to uniformity */
+proc copula data=MVData;
+	var x1-x4;
+	fit normal;
+	simulate / seed=1234 ndraws=100 marginals=empirical outuniform=UnifData;
+run;
+
+/* Step 4: use inverse CDF to invert uniform marginals */
+data Sim;
+	set UnifData;
+	normal=quantile("Normal", x1);
+	lognormal=quantile("LogNormal", x2);
+	expo=quantile("Exponential", x3);
+	uniform=x4;
+run;
+
+proc iml;
+	call randseed(6666666);
+	NumSamples=1000;
+
+	/* number of Wishart draws */
+	N=50;
+
+	/* MVN sample size*/
+	Sigma={9 1, 1 1};
+
+	/* Simulate matrices. Each row is scatter matrix */
+	A=RandWishart(NumSamples, N-1, Sigma);
+	B=A / (N-1);
+
+	/* each row is covariance matrix*/
+	S1=shape(B[1, ], 2, 2);
+	S2=shape(B[2, ], 2, 2);
+	print S1 S2;
+
+	/* first row, reshape into 2 x 2 */
+	/* second row, reshape into 2 x 2 */
+	/* two 2 x 2 covariance matrices */
+	SampleMean=shape(B[:, ], 2, 2);
+	print SampleMean;
+	compound symmetry, v>0:
+	{v+v1 v1 v1 v1, v1 v+v1 v1 v1, v1 v1 v+v1 v1, v1 v1 v1 v+v1};
+	start CompSym(N, v, v1);
+	return(j(N, N, v1) + diag(j(N, 1, v) ) );
+	finish;
+	cs=CompSym(4, 4, 1);
+	print cs;
+
+	/* Define and store the functions for random correlation matrices */
+	
+proc iml;
+	load module=_all_;
+
+	/* test it: generate 4 x 4 matrix with given spectrum */
+	call randseed(4321);
+	lambda={2 , 1, 0.75, 0.25};
+
+	/* notice that sum(lambda) = 4 */
+	R=RandCorr(lambda);
+
+	/* R has lambda for eigenvalues */
+	eigvalR=eigval(R);
+
+	/* verify eigenvalues
+	*/
+	print R, eigvalR;
+
+proc iml;
+	/* Project symmetric X onto S={positive semidefinite matrices}.
+	Replace any negative eigenvalues of X with zero */
+	start ProjS(X);
+	call eigen(D, Q, X);
+
+	/* notice that X = Q*D*Q`*/
+	V=choose(D>0, D, 0);
+	W=Q#sqrt(V`);
+
+	/* form Q*diag(V)*Q`*/
+	return(W*W`);
+
+	/* W*W` = Q*diag(V)*Q`*/
+	finish;
+
+
+	/* project square X onto U={matrices with unit diagonal}.
+	Return X with the diagonal elements replaced by ones. */
+	start ProjU(X);
+	n=nrow(X);
+	Y=X;
+	Y[do(1, n*n, n+1)]=1;
+
+	/* set diagonal elements to 1 */
+	return (Y);
+	finish;
+
+	/* the matrix infinity norm is the max abs value of the row sums */
+	start MatInfNorm(A);
+	return(max(abs(A[, +])) );
+	finish;
+
+	/* Given a symmetric matrix, A, project A onto the space of PSD
+	matrices. The function uses the algorithm of Higham (2002) to
+	return the matrix X that is closest to A in the Frobenius norm.*/
+	start NearestCorr(A);
+	maxIter=100;
+	tol=1e-8;
+
+	/* initialize parameters*/
+	iter=1;
+	maxd=1;
+
+	/* initial values*/
+	Yold=A;
+	Xold=A;
+	dS=0;
+
+	do while((iter <=maxIter) & (maxd > tol) );
+		R=Yold - dS;
+
+		/* dS is Dykstra's correction */
+		X=ProjS(R);
+
+		/* project onto S={PSD}
+		*/
+		dS=X - R;
+		Y=ProjU(X);
+
+		/* project onto U={Unit diag} */
+		/* How much has X changed? (Eqn 4.1) */
+		dx=MatInfNorm(X-Xold) / MatInfNorm(X);
+		dy=MatInfNorm(Y-Yold) / MatInfNorm(Y);
+		dxy=MatInfNorm(Y - X) / MatInfNorm(Y);
+		maxd=max(dx, dy, dxy);
+		iter=iter + 1;
+		Xold=X;
+		Yold=Y;
+
+		/* update matrices
+		*/
+	end;
+	return(X);
+
+	/* X is positive semidefinite */
+	/* for large matrices, might need to correct for rounding errors
+	*/
+	eps=1e-10;
+	B=ProjU(A/(1+eps) );
+
+	/* divide off-diag elements by 1+eps */
+	FINISH;
+
+data NonParam;
+	call streaminit(1);
+
+	do x=1 to 30 by 0.1;
+		f=sin(x/5) + 0.2*cos(x);
+		y=f + rand("Normal", 0, 0.2);
+		output;
+	end;
+RUN;
+
+ods graphics on;
+
+proc loess data=NonParam;
+	model y=x;
+	score /;
+	ods output ScoreResults=Score;
+	ods select FitPlot;
+run;
+
+proc iml;
+	use Score;
+	read all var {f p_y};
+	close;
+	KB=f#(log(f)-log(p_y));
+	call quad(KL, KB, {.M .P});
+	print KL;
+	use Score;
+	read all var {f p_y};
+	close;
+	RMSE=sqrt(ssq(f-p_y)/nrow(f) );
+	print RMSE;
+
+proc iml;
+	Phi={0.70 0.00 0.00, 0.30 0.60 0.00, 0.10 0.20 0.50};
+	Theta=j(3, 3, 0);
+	mu={0, 0, 0};
+	sigma={1.0 0.4 0.16, 0.4 1.0 0.4, 0.16 0.4 1.0};
+
+	/* AR coefficients
+	*/
+	/* MA coefficients = 0 */
+	/* mean = 0
+	*/
+	/* covariance of errors */call varmasim(y, Phi, Theta, mu, sigma, &N) 
+		seed=54321;
+	create MVAR1 from y[colname={"y1" "y2" "y3"}];
+	append from y;
+	close MVAR1;
+	quit;
