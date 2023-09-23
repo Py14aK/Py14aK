@@ -1,0 +1,47 @@
+data Torus;
+R = 8;       /* radius to center of tube */
+A = 3;       /* radius of tube */
+pi = constant('pi');
+step = 2*pi/50;
+/* create torus as parametric image of [0, 2*pi] x [0,2*pi] */
+do theta = 0 to 2*pi-step by step;
+   do phi = 0 to 2*pi-step by 2*pi/50;
+      x = (R + A*cos(phi)) * cos(theta);
+      y = (R + A*cos(phi)) * sin(theta);
+      z =      A*sin(phi);
+      output;
+   end;
+end;
+keep x y z;
+run;
+ 
+title "Projections of a Standard Torus";
+proc sgscatter data=Torus;
+   matrix x y z;
+run;
+
+%let N = 2000;         /* number of steps in random walk */
+%let d = 3;            /* S^{d-1} sphere embedded in R^d */
+%let r = 1;            /* radius of sphere */
+data RandSphere;
+array x[&d];
+call streaminit(12345);
+do i = 1 to &N;
+   do j = 1 to &d;
+      x[j] = rand("Normal");      /* random point from MVN(0, I(d)) */
+   end;
+   norm = Euclid( of x[*] );      /* Euclidean distance to origin */
+   do j = 1 to &d;
+      x[j] = &r * x[j] / norm;    /* scale point so that distance to origin is r */
+   end;
+   output;
+end;
+drop j norm;
+run;
+
+https://www.sciencedirect.com/science/article/pii/S0047S259X10001211
+
+
+proc sgscatter data=RandSphere;
+   matrix x y z;
+run;
