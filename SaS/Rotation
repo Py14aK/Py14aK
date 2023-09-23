@@ -45,3 +45,32 @@ https://www.sciencedirect.com/science/article/pii/S0047S259X10001211
 proc sgscatter data=RandSphere;
    matrix x y z;
 run;
+
+
+/*
+* make sure bounds in each coordinate are from [-R, R];
+fake = {-2 -2 .,
+        -2 . -2,
+         2  2 .,
+         2  . 2};
+X = X // fake;
+
+declare RotatingPlot plot = 
+     RotatingPlot.Create("unifB3", X[,1], X[,2], X[,3]);
+plot.SetTitleText("Random Uniform Points in 3-Ball", true);
+plot.SetGraphAreaBackgroundColor(WHITE);
+plot.SetWindowPosition(50, 0, 50, 100);
+plot.SetAxisTickRange( XAXIS, -2, 2 );
+plot.SetAxisTickRange( YAXIS, -2, 2 );
+plot.SetAxisTickRange( ZAXIS, -2, 2 );
+plot.SetAxesLocation( MINIMA );
+pause "CTRL+B to add bounding box, then RESUME";
+
+* save images to disk for animation;
+path = 'C:\Temp\AnimGif\Sim3D\';               * directory to store images;
+plot.SaveToFile(path+"Sim000.bmp");            * save the initial configuration;
+do i = 1 to 63;    
+   plot.Rotate( 3.14159/32, 0, 1, 1 ); 
+   suffix = trim(putn(i, "Z3."));              * 001, 002, ..., 063;
+   plot.SaveToFile(path+"Sim"+suffix+".bmp");  * save image to Sim001.bmp;
+end;
