@@ -1,0 +1,265 @@
+\documentclass[18pt]{article}
+\usepackage{graphicx}
+\usepackage[T1,T2A]{fontenc} 
+\usepackage[utf8]{inputenc}
+\usepackage[bulgarian,english]{babel}
+\usepackage{float}
+\usepackage{hyperref}
+
+\begin{document}
+	\title{Antonio Kotsev }
+	\date{GitHub: \href{https://github.com/Py14aK/Py14aK/tree/main}{https://github.com/Py14aK/Py14aK/tree/main}}
+	\author{E-mail:Antoniokotsevpy14ak@gmail.com
+    Tel:+359 897 525 625 }
+	\maketitle
+	\newpage
+	\pagenumbering{arabic}
+	\section{Short Bio} 
+There exists a map of the form 1/2 Log A/B
+
+Holomorphic map with weak topology can be zero almost anywhere
+
+g*g-1 => Teochmuller theory
+
+The map is orientable in order to have ergodicity
+
+Fundemental group exists if  Teichmuller is hyperbolic
+ 
+ we want to find a Hopf fib
+ 
+Teicjmuller is a orientable surface Z
+1+r/1-r
+
+
+For Hyperbolic Solutions
+Polyakov Has To Have A T-sym Metric(linear sigma model Nambu-GoTo equivalence)
+
+11-D Supra And D10 Super String -> M-Theory Compact
+Also Is A Type Of Teichmuller Torus Embedding -> Strogatsky theorem on manifolds
+$$ 1/(1-Exp(-X)) = 1/2 Log Fx/Fx2. $$
+
+This is A Quantim Model With Additive Model
+$$	(R^11 X S^1D) $$
+    
+- Integral from <-inf to inf>
+
+-> Integral Over Boundry
+% $$	The Thurston Boundary Of The Teichmüller Space Of A Closed Surface Of Genus G
+%      G Is Homeomorphic To A Sphere Of Dimension 6 G − 7  6g-7 6g-7. $$
+	Thurston Constructed A Compactification Of The
+	Teichmüller Space T(S) Of A Surface S Such That
+	The Action Induced On T(S) By Any Diffeomorphism F
+	Of S Extends To A Homeomorphism Of The Thurston
+	Compactification. The Dynamics Of This Homeomorphism
+	Is The Simplest When F Is A Pseudo-Anosov Map: In This
+	Case, There Are Two Fixed Points On The Thurston Boundary,
+	One Attracting And One Repelling, And The Homeomorphism Behaves Similarly To A Hyperbolic Automorphism Of The Poincaré Half-Plane. 
+	A "Generic" Diffeomorphism Of A Surface Of Genus At Least Two Is Isotopic To A Pseudo-Anosov Diffeomorphism.
+$$ -> (1-X^2) Linear Limit. -> For Weak Energy as is done in linearised gravity(Newthonian limit) $$
+
+->Holomorphic Due To Teichmuller Universal covering, embedded torus with Penrose like dynamics)
+	
+    Admits One Einstein-Kahler Solution/ metric, a non closed(gap-existance) ADS/CFT from bellow, and a hyperbolic DS for future cones
+    
+		HOpf map
+ $$ S1->S3>S2 $$
+	-> leads to irreversible change-> linked with TM
+	
+$$
+d s^{2}=-d \tau^{2}+h_{\alpha \beta}\left(\tau, x^{\mu}\right) d x^{\alpha} d x^{\beta}
+$$
+
+Boundry metric
+> which is Thomston
+
+-> , which is just a geometric manifold with tanh.
+A quasi-convex subspace of an hyperbolic space is hyperbolic.
+$$
+A quasi-isometry between two hyperbolic spaces X , Y {\displaystyle X,Y} X,Y induces a homeomorphism between the boundaries. 
+$$
+Zalcman's lemma
+
+ $$ 
+ A family <math>\mathcal F</math> of functions meromorphic [analytic] on the unit disc <math>\Delta</math> is not normal if and  only if there exist
+ $$
+   $$  (a) a number <math>0 < r < 1</math>
+     (b) points <math>z_n,</math> <math>|z_n|<r</math>
+     (c) functions <math>f_n \in \mathcal F</math>
+     (d) numbers <math>\rho_n \to 0 +</math>
+     such that
+     <math>f_n(z_n+\rho_n \zeta)\to g(\zeta), </math>
+     spherically uniformly [uniformly] on compact subsets of <math>C,</math> where <math>g</math> is a nonconstant meromorphic  [entire] function on $$
+     
+     
+
+let $\alpha:[0,1] \rightarrow X$ be a path from $x$ to $y$ in $X$. We define the length of the arc to be $d_{\alpha}(x, y)=\lim _{n \rightarrow \infty} \sum_{i=0}^{n-1} d\left(\alpha\left(\frac{i}{n}\right), \alpha\left(\frac{i+1}{n}\right)\right)$
+
+Definition $3.1$
+
+An arc $\alpha$ in a geodesic metric space $X$ is called a $(\lambda, \epsilon)$-quasigeodesic if there are positive constants $\lambda>1, \epsilon \geq 0$ such that for all points $x, y$ on $\alpha$,
+
+$$
+d_{\alpha}(x, y) \leq \lambda d(x, y)+\epsilon
+$$
+
+We must first prove the following technical result, which is essential to all that follows.
+
+Proposition 3.2.
+( $(\mathrm{G}, 8.1 . \mathrm{D}],[\mathrm{GH}, 8.21])$
+Let $g$ be an element of infinite order in a hyperbolic group $G$, and let $\Gamma$
+ be the Cayley graph with respect to some finite generating set. Let $\alpha$ be a path from the vertex corresponding to the identity element to the vertex corresponding to $g$. Then the bi-infinite path
+ 
+ 
+ What does all this have to do with normed division algebras? To answer this, let $\mathbb{K}$ be a normed division algebra of dimension $n$. Then the Jordan algebra $h_{2}(\mathbb{K})$ is secretly a spin factor! There is an isomorphism 
+ 
+$$
+\phi: \mathfrak{h}_{2}(\mathbb{K}) \rightarrow J(\mathbb{K} \oplus \mathbb{R}) \cong \mathbb{K} \oplus \mathbb{R} \oplus \mathbb{R}
+$$
+
+given by
+
+% $$
+% \phi\left(\begin{array}{cc}
+% \alpha+\beta & x \\
+% x^{*} & \alpha-\beta
+% \end{array}\right)=(x, \beta, \alpha), \quad x \in \mathbb{K}, \alpha, \beta \in \mathbb{R}
+% $$
+
+% Furthermore, the determinant of matrices in $\mathfrak{h}_{2}(\mathbb{K})$ is well-defined even when $\mathbb{K}$ is noncommutative or nonassociative:
+
+% $$
+% \operatorname{det}\left(\begin{array}{cc}
+% \alpha+\beta & x \\
+% x^{*} & \alpha-\beta
+% \end{array}\right)=\alpha^{2}-\beta^{2}-\|x\|^{2}, -> can use Hyp. so that it's a smaller Basiis. $$
+
+
+and clearly we have
+
+$$
+\operatorname{det}(a)=-\phi(a) \cdot \phi(a)
+$$
+
+for all $a \in \mathfrak{h}_{2}(\mathbb{K})$
+
+
+Try dif. Soboleva Schemes for these so lOCALLY CONVEX FUNCTORS ARE CLOSED IN INTERVAL
+
+	existance of isothermal+teichnuller coordintes -> fundemental group such rtha 2t -1 bound
+	
+	$$da=arctanh -> Swartz metric/ Nambu-goto $$
+
+	haar measure
+	Laplace-Beltrami
+	
+	$$
+ \text { area }=\int_{a}^{b} \cosh x d x=\int_{a}^{b} \sqrt{1+left(\frac{d}{d x} \cosh x\right)^{2}} d x=\operatorname{arc~length.~}
+    $$
+    
+$$
+g_{\|_{a b}}\left(x^{k}\right) d x^{a} d x^{b}=-\frac{\rho^{2}}{F} d t^{2}+F(d \phi+A d t)^{2} https://www.overleaf.com/project/61e068aede67730f2ac281f0$$
+
+$$
+\rho^{2}=-\operatorname{det} g_{\|}=V F+W^{2}
+$$
+Именно тази форма на двумерната метрика се оказва най-удобна за гашите по-нататъшни разглеждания.
+Като вземем предвид, че
+$$
+\eta=F(d \phi+A d t)
+$$ ->$$ nuvn^uv $$
+следвайки дефиницията за 1-формата $\omega_{\eta}$, намираме
+$$
+\omega_{\eta}=-\frac{1}{2 \rho} F^{2} \star_{\perp} d A
+$$
+
+
+The hyperboloid model can be represented as the equation $t^{2}=x_{1}^{2}+x_{2}^{2}+1, t>1$. It can used to construct a Poincaré disk model as projection viewed from $\left(t=-1, x_{1}=0, x_{2}=0\right)$, projecting the upper half hyperboloid onto unit disk at $\mathrm{t}=0$. The red geodesic in the Poincaré disk model projects to the brown geodesic on the green hyperboloid.
+
+// insert picture
+
+We build the hopf map S1->S3->S2 -:hopf with base octonion
+
+This will allow for the Ordered metric to exist
+
+See Galois representation
+A gut theory must have Gravity and QT
+
+Hopf Biff-> Eistein left off
+$$
+e_{i} e_{j}= \begin{cases}e_{j}, & \text { if } i=0 \\ e_{i}, & \text { if } j=0 \\ -\delta_{i j} e_{0}+\varepsilon_{i j k} e_{k}, & \text { otherwise }\end{cases} $$ 
+
+where $\delta_{i j}$ is the Kronecker delta (equal to 1 if and only if $i=j$ ), and $\varepsilon_{i j k}$ is a completely antisymmetric tensor with value 1 when $i j k=123,145,176,246,257,347,365.$
+
+The complex numbers can be written as ordered pairs $(a, b)$ of real numbers $a$ and $b$, with the addition operator being component-wise and with multiplication defined by
+$$
+(a, b)(c, d)=(a c-b d, a d+b c) .
+$$
+A complex number whose second component is zero is associated with a real number: the complex number $(a, 0)$ is associated with the real number $a$.
+The complex conjugate $(a, b)^{*}$ of $(a, b)$ is given by
+$$
+(a, b)^{*}=\left(a^{*},-b\right)=(a,-b)
+$$
+since $a$ is a real number and is its own conjugate.
+The conjugate has the property that
+$$
+(a, b)^{*}(a, b)=(a a+b b, a b-b a)=\left(a^{2}+b^{2}, 0\right),
+$$
+which is a non-negative real number. In this way, conjugation defines a norm, making the complex numbers a normed vector space over the real numbers: the norm of a complex number $z$ is
+$$
+|z|=\left(z^{*} z\right)^{\frac{1}{2}} \text {. }
+$$
+Furthermore, for any non-zero complex number $z$, conjugation gives a multiplicative inverse,
+$$
+z^{-1}=\frac{z^{*}}{1} \text {. }
+$$
+
+Suppose $f: D \rightarrow D^{\prime}$ where $D$ and $D^{\prime}$ are two domains in $\mathbf{C}$. There are a variety of equivalent definitions, depending on the required smoothness of $f$. If $f$ is assumed to have continuous partial derivatives, then $f$ is quasiconformal provided it satisfies the Beltrami equation
+$$
+\frac{\partial f}{\partial \bar{z}}=\mu(z) \frac{\partial f}{\partial z},
+$$
+for some complex valued Lebesgue measurable $\mu$ satisfying sup $|\mu|<1$ (Bers 1977). This equation admits a geometrical interpretation. Equip $D$ with the metric tensor
+$$
+d s^{2}=\Omega(z)^{2}|d z+\mu(z) d \bar{z}|^{2},
+$$
+where $\Omega(z)>0$. Then $f$ satisfies $(1)$ precisely when it is a conformal transformation from $D$ equipped with this metric to the domain $D^{\prime}$ equipped with the standard Euclidean metric. The function $f$ is then called $\boldsymbol{\mu}$-conformal. More generally, the continuous differentiability of $f$ can be replaced by the weaker condition that $f$ be in the Sobolev space $W^{1,2}(D)$ of functions whose first-order distributional derivatives are in $L^{2}(D)$. In this case, $f$ is required to be a weak solution of (1). When $\mu$ is zero almost everywhere, any homeomorphism in $W^{1,2}(D)$ that is a weak solution of (1) is conformal.
+Without appeal to an auxiliary metric, consider the effect of the pullback under $lpf$ of the usual Euclidean metric. The resulting metric is then given by
+$$
+\left|\frac{\partial f}{\partial z}\right|^{2}|d z+\mu(z) d \bar{z}|^{2}
+$$
+
+-> if we have a $L^2$ it is Lebesque closed -> We have a meassure u
+
+Beltrami equation -> ODD Solutions because they are always bounded
+ under $ Laplace Beltrami operatoe $ ->ergodic inverse aka log
+as $$ \frac{d}{d x}\left[p(x) \frac{d y}{d x}\right]+q(x) y=-\lambda w(x) y $$  for any non trivial Y
+
+$$p(x)d^2y/dx^2 + dp(x)/dx dy/dx - (-q(x)+aw(x)y = 0$$
+$$
+-> such that for  T+/T-c<=SUM[exp(2K-1).sin(2k-1)dx = -1 +1/3x -1-x^3/5  ...$$
+Quasi Conformal mapping
+
+Hyperbolic analystic of Hawrtz triangle
+
+`isometric to  Poincare Disk
+
+$$
+\operatorname{arcosh}\left(1+\frac{2|p q|^{2}|r|^{2}}{\left(|r|^{2}-|o p|^{2}\right)\left(|r|^{2}-|o q|^{2}\right)}\right)
+$$
+NEW DAY-> RUBBICKS GROUP WITH ACTION . + COSETS
+
+https://en.wikipedia.org/wiki/Borel%E2%80%93Kolmogorov_paradox
+
+Subgroups
+Given a group $\mathcal{R}$, if $S \subseteq \mathcal{R}$ is any subset of the group, then the subroup $H$ generated by $S$ is the smallest subroup of $\mathcal{R}$ that contains all the elements of $S$. For instance, $\{F\}$ generates a group that is a subgroup of $\mathcal{R}$ consisting of all possible different cube permutations you can get to by rotating the front face, $\left\{F, F^{2}, F^{3} F^{4}\right\}$. The group generated by $\{F, B, U, L, R, D\}$ is the whole group $\mathcal{R}$. Below are some examples of some generators of subroups of $\mathcal{R}:$
+- Any single face rotation, e.g., $\{F\}$
+- Any two opposite face rotations, e.g., $\{L R\}$
+8
+Due to T ray both ecliptic and hyp eq are Analytical
+Corenspondence with Taub-Kerr-Godel metrics
+
+also for geontric you (1-sqrt(5))/3
+
+Fibonaci metric is XOR connected
+
+reverse greedy so cartan algebra?/form
+\end{document}
