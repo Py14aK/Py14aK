@@ -5,4 +5,5 @@ Wavelet Analysis, Teichmuller Coverings and metrics, Metric spaces, Topology, Li
   - I’m looking to collaborate on anything that will teach me new techniques in C, Python, Wolfram, SQL etc.
   - How to reach me antoniokotsevpy14ak@gmail.com
   - Antonio Kotsev CV:https://drive.google.com/file/d/1V3rECCVOEyD-D3IVoF8u-rPAZJx8iIUd/view?usp=sharing
-  - Wolfram/SaS Presentation(under construction): https://www.wolframcloud.com/obj/antoniokotsepy14ak/Published/Wu-Yang-Monopol.nbl
+  - FB Group -:
+  - NASA GROUP 
