@@ -1,0 +1,25 @@
+dEDT(t-T)
+
+
+
+S6 has exactly one (class) of outer automorphisms: Out(S6) = C2.
+
+To see this, observe that there are only two conjugacy classes of S6 of size 15: the transpositions and those of class 23. Each element of Aut(S6) either preserves each of these conjugacy classes, or exchanges them. Any representative of the outer automorphism constructed above exchanges the conjugacy classes, whereas an index 2 subgroup stabilizes the transpositions. But an automorphism that stabilizes the transpositions is inner, so the inner automorphisms form an index 2 subgroup of Aut(S6), so Out(S6) = C2.
+
+More pithily: an automorphism that stabilizes transpositions is inner, and there are only two conjugacy classes of order 15 (transpositions and triple transpositions), hence the outer automorphism group is at most order 2. 
+
+
+The list of the GASP monitored blazars includes 28 bright objects:
+
+ 3C 66A, AO 0235+16, PKS 0 42 1, PKS 0528+134, S5 0716+71, PKS 0735+17, OJ 248, OJ 49, 4C 71.07, OJ 287, S4 0954+65, Markarian 421, 4C 29.45, ON 231, 3C 273, 3C 279, PKS 1510−08, DA 406, 4C 38.41, 3C 345, Markarian 501, 4C 51.37, 3C 371, PKS 2155−304, BL Lacertae, CTA 102, 3C 454.3 and 1ES 2344+514. 
+
+
+
+Semiconductor
+
+Semiconductor (or solid state) QCA implementations could potentially be used to implement QCA devices with the same highly advanced semiconductor fabrication processes used to implement CMOS devices. Cell polarization is encoded as charge position, and quantum-dot interactions rely on electrostatic coupling. However, current semiconductor processes have not yet reached a point where mass production of devices with such small features (≈20 nanometers) is possible.[citation needed] Serial lithographic methods, however, make QCA solid state implementation achievable, but not necessarily practical. Serial lithography is slow, expensive and unsuitable for mass-production of solid-state QCA devices. Today, most QCA prototyping experiments are done using this implementation technology.[citation needed]
+Molecular
+
+ A number of technical challenges, including choice of molecules, the design of proper interfacing mechanisms, and clocking technology remain to be solved before this method can be implemented.
+Magnetic
+Magnetic QCA, commonly referred to as MQCA (or QCA: M), is based on the interaction between magnetic nanoparticles. The magnetization vector of these nanoparticles is analogous to the polarization vector in all other implementations. In MQCA, the term “Quantum” refers to the quantum-mechanical nature of magnetic exchange interactions and not to the electron-tunneling effects. Devices constructed this way could operate at room temperature. 
