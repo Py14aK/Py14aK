@@ -1,0 +1,105 @@
+/* 0  */
+/*  */
+
+/* 	 */
+/* S	1 2 3 4 5 6 7 8  */
+/* 	1  */
+/* 	2 */
+/* 	3 */
+/* 	4 */
+/* 	5 */
+/* 	6 */
+/* 	7 */
+/* 	8 */
+/* Piece[Board:k:z}= */
+/* 64:6:2:1	=i*J*k+1 */
+/*  */
+/* 		|	|		 */
+/* 		|	| */
+/* ; */;
+
+data board;
+	/* set dsn; */
+	array board{8, 8} s11-s18 s21-s28 s31-s38 s41-s48 s51-s58 s61-s68 s71-s78 
+		s81-s88;
+	array cols{8} c81-c88;
+	array FI_co{8}
+	;
+	
+	do r=1 UNTIL(K=
+
+		do c=1 to 8;
+			j=c-1;
+			k=c+1;
+			cols{c}=board{r, c};
+			if cols{c}=board{1,1} the( do while 
+								cols()
+
+			if cols{c}="." then
+				cols(c)="0";
+		end;
+		output;
+	end;
+	keep c1-c8;
+run;
+
+data bitmap_pos_cur;
+	set board;
+	array bits [13] _bit_ (13 * 0);
+	*--- Mapping ----;
+
+	do K=03, 15, 06, 04, 12, 11, 14, 05, 01, 08;
+		bits[K]=1;
+	end;
+	*--- Searching --;
+	found=bits[K];
+run;
+
+data board;
+	set dsn;
+	array board{8, 8} s11-s18 s21-s28 s31-s38 s41-s48 s51-s58 s61-s68 s71-s78 
+		s81-s88;
+	array cols{8] c1-c8;
+
+	do r=1 to 8;
+
+		do c=1 to 8;
+			cols{c}=board{r, c};
+		end;
+		output;
+	end;
+	keep c1-c8;
+run;
+
+BITSTR=PUT(BITMAP(X), $BINARY64.);
+SUBSTR(BITSTR, R, 1)='1';
+BITMAP(X)=INPUT(BITSTR, $BINARY64.);
+
+data board_2;
+	set board end=lr2;
+	found=0;
+	h=mod(mod(k1, &hsize.) * 1e4 + k2, &hsize.);
+
+	if link[h] > . then
+		link traverse;
+
+	if found then
+		do;
+			d1=data1[h];
+			d2=data2[h];
+		end;
+	else
+		call missing(d1, d2);
+	output;
+end;
+stop;
+traverse:
+
+if k1=key1 [h] and k2=key2 [h] then
+	found=1;
+else if link [h] ne 0 then
+	do;
+		h=link [h];
+		link traverse;
+	end;
+run;
