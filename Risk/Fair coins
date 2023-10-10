@@ -1,0 +1,83 @@
+
+proc iml;
+/* Transition matrix. Columns are next state; rows are current state */
+/*     Null  H   HT  HTH */
+P =    {0.5  0.5 0   0,   /* Null */
+        0    0.5 0.5 0,   /* H    */
+        0.5  0   0   0.5, /* HT   */
+        0    0   0   1};  /* HTH  */
+states = "0":"3";
+print P[r=states c=states L="Transition Matrix"];
+
+s0 = {1 0 0 0};    /* a new game is in State 1 */
+s1 = s0 * P;       /* probability distribution of states after 1 toss */
+s2 = s1 * P;       /* probability distribution of states after 2 tosses */
+print (s1//s2)[L="Prob of State" c=("1":"4") r={"1 toss" "2 tosses"}];
+
+/* Iterate to see how the probability distribution evolves */
+numTosses = 30;
+s0 = {1 0 0 0};                     /* initial state */
+s = j(numTosses+1, ncol(P), .);     /* allocate room for all tosses */
+s[1,] = s0;                         /* store initial state */
+do i = 2 to nrow(s);
+   s[i,] = s[i-1,] * P;             /* i_th row = state after (i-1) iterations */
+end;
+iteration = 0:numTosses;            /* iteration numbers */
+print s[L="Prob of State" c=("1":"4") r=(char(iteration))];
+
+/* visualize by graphing the probability of each state versus the number of tosses */
+x = iteration` || s;
+varNames = "Iteration" || ("State1":"State4");
+create Markov1 from x[c=varNames];
+append from x;
+close;
+
+/* You could assume any initial distribution of states and any number of tosses */
+/* Repeat for 30 tosses */
+s0 = {0.5 0.3 0.2 0};
+numTosses = 30;
+iteration = 0:numTosses;
+s = j(numTosses+1, ncol(P), .);     /* allocate room for all tosses */
+s[1,] = s0;
+do i = 2 to nrow(s);
+   s[i,] = s[i-1,] * P;
+end;
+
+/* can visualize by graphing the probability of each state versus the number of tosses */
+x = iteration` || s;
+varNames = "Iteration" || ("State1":"State4");
+create Markov2 from x[c=varNames];
+append from x;
+close;
+quit;
+
+
+/* transpose from wide to long format */
+/* http://blogs.sas.com/content/iml/2011/01/31/reshaping-data-from-wide-to-long-format.html */
+proc transpose data=Markov1
+   out=Long1(rename=(Col1=Prob)) name=State;                    
+   by Iteration;                   /* for each subject */
+   var State: ;                    /* make a row for these variables */
+run;
+title "Initial State = 1";
+proc sgplot data=Long1;
+label Prob = "Probability of State";
+series x=Iteration y=Prob / group=State curvelabel;
+xaxis grid; yaxis grid;
+run;
+ 
+ 
+/* transpose from wide to long format */
+/* http://blogs.sas.com/content/iml/2011/01/31/reshaping-data-from-wide-to-long-format.html */
+proc transpose data=Markov2
+   out=Long2(rename=(Col1=Prob)) name=State;                    
+   by Iteration;                   /* for each subject */
+   var State: ;                    /* make a row for these variables */
+run;
+title "Initial State of System Is {0.5 0.3 0.2 0}";
+proc sgplot data=Long2;
+label Prob = "Probability of State";
+series x=Iteration y=Prob / group=State curvelabel curvelabelpos=start;
+xaxis grid; yaxis grid;
+run;
+
