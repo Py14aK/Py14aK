@@ -1,0 +1,368 @@
+
+/* Consider a fantasy study of creatures
+ * visiting watering node in some savannah
+ *
+ * A scientist has made a record of the
+ * creatures as they move from hole to hole.
+ *
+ * The watering hole data has these columns:
+ *  id - a watering hole identifier
+ *  x  - x coordinate
+ *  y  - y coordinate
+ *
+ * The wandering data table is very simple, it has these columns
+ * id -  a observation identifier
+ * subjectId - the identifier of the creature
+ * holeId - where the observation took place
+ * pid - the observation identifier of the previous observation of the creature
+ * time - when the observation took place
+ *
+ * Today is thursday. On monday a report on subject total path lengths is
+ * to be submitted before receiving additional funding.
+ *
+ * On friday a devious intern secretly working for a competing study
+ * managed to drop the time and subjectId columns and scramble the rows
+ * before he got found out !
+ *
+ * Can you create the total path lengths report before monday ?
+ */
+/*
+ * Construct the fantasy data
+ */
+
+%let nnode = 50;
+%let nCreatures = 500;
+%let maxNumObsCreature = 500;
+%let maxDistanceRankToNextHole = 10;
+
+/*
+%let nnode = 15;
+%let nCreatures = 100;
+%let maxNumObsCreature = 50;
+*/
+/*
+ * Fake watering node
+ */
+data node (keep=id x y);
+	retain seed 10;
+	* use a hash to ensure unique ids are generated;
+	declare hash h_id();
+	h_id.defineKey('id');
+	h_id.defineDone();
+
+	do i=1 to &nnode;
+
+		do until (h_id.check());
+			id=1 + int(1e6 * ranuni(seed));
+		end;
+		h_id.add();
+		x=rannor (seed);
+		y=rannor (seed);
+		output;
+	end;
+run;
+
+/*
+ * Determine nearest neighbors of each hole
+ */
+proc sql;
+	create table Nearestnode as select A.id as holeId
+       , B.id as neighborId
+       , sqrt((A.x-B.x)**2 + (A.y-B.y)**2) as distance format=7.5 from 
+		node as A, node as B where A.id ne B.id order by holeId, distance;
+quit;
+
+data Nearestnode;
+	set Nearestnode;
+	by holeId;
+
+	if first.holeId then
+		rank=1;
+	else
+		rank+1;
+
+	if rank <=&maxDistanceRankToNextHole;
+run;
+
+/*
+ * Fake the wandering creature observations
+ * When a creature finds a new hole it will be one of the 10 nearest node
+ */
+%macro putHash (hash, vars);
+	%let hi = hi_%substr(%sysfunc(ranuni(0), 10.8), 3);
+	declare hiter &hi ("&hash");
+	do rc=&hi..first() by 0 while (rc=0);
+	put %sysfunc(translate(&vars, =, #));
+	rc=&hi..next();
+	end;
+	&hi..delete();
+	put;
+%mend;
+
+data wanderers (keep=id subjectId holeId pid time);
+	*  length index holeId neighborId rank 8;
+	declare hash h_node(ordered:'ascending');
+	h_node.defineKey  ('index');
+	h_node.defineData ('holeId');
+	* h_node.defineData ('index');
+	h_node.defineDone ();
+	call missing (index, holeId);
+	index=0;
+
+	do while (not eo1);
+		set node(rename=(id=holeId)) end=eo1;
+		index+1;
+		h_node.add();
+	end;
+	*  %putHash (h_node, holeId#);
+	declare hash h_nearest(dataset:'Nearestnode', ordered:'ascending');
+	h_nearest.defineKey  ('holeId', 'rank');
+	h_nearest.defineData ('neighborId');
+	h_nearest.defineData ('holeId', 'rank');
+	h_nearest.defineDone ();
+	call missing (holeId, rank, neighborId);
+	*  %putHash (h_nearest, holeId# rank# neighborId#);
+	retain seed 4;
+	retain id 0;
+	* use a hash to ensure unique subject ids are generated ;
+	declare hash h_subject();
+	h_subject.defineKey('subjectId');
+	h_subject.defineDone();
+	call missing (subjectId);
+	* use a hash to ensure unique observation ids are generated ;
+	declare hash h_obs();
+	h_obs.defineKey('id');
+	h_obs.defineDone();
+
+	do i=1 to &nCreatures;
+
+		do until (h_subject.check());
+			subjectId=1 + int(1e6 * ranuni(seed));
+		end;
+		h_subject.add();
+		nObs=1 + int(&maxNumObsCreature * ranuni(seed));
+		pid=.;
+		time='01JAN1980:00:00:00'dt + int(365*86400*ranuni(seed));
+		index=1 + int(&nnode * ranuni(seed));
+		h_node.find();
+
+		do j=1 to nObs;
+			%let scale = %sysfunc (min(
+                      &maxDistanceRankToNextHole
+                    , %eval (&nnode-1)
+                   ));
+
+			if (ranuni(seed) < 0.40 and &scale) then
+				do;
+					rank=1 + int(&scale*ranuni(seed));
+					h_nearest.find();
+					holeId=neighborId;
+				end;
+			n=0;
+
+			do until (h_obs.check());
+				id=1 + int(1e8 * ranuni(seed));
+				n+1;
+			end;
+			h_obs.add();
+			time + int(7*86400*ranuni(seed));
+			output;
+			pid=id;
+		end;
+	end;
+	format time datetime16.;
+	stop;
+run;
+
+/*
+ * Devious internception
+ */
+proc sql;
+	reset undo_policy=none;
+	create table wanders as select id, holeId, pid from wanderers order by 
+		ranuni(0);
+quit;
+
+/*
+ * Rebuild the path information.
+ * The subjectIds are not recoverable, but the paths they traveled are.
+ */
+data paths;
+	call missing (subjectId);
+	declare hash h_path (dataset:'Wanders', ordered:'ascending');
+	h_path.defineKey ('id');
+	h_path.defineData ('id', 'pid', 'holeId');
+	h_path.defineDone ();
+	call missing (id, pid, holeId);
+	declare hash h_next (ordered:'ascending');
+	h_next.defineKey ('id');
+	h_next.defineData ('id', 'nid');
+	h_next.defineDone ();
+	call missing (id, nid);
+	* populate h_next based on h_path;
+	declare hiter hi ('h_path');
+
+	do rc=hi.first() by 0 while (rc=0);
+
+		if pid then
+			do;
+				* the next id of the previous id is this id;
+				nid=id;
+				id=pid;
+				h_next.add();
+			end;
+		rc=hi.next();
+	end;
+	* iterate through h_path;
+	* for each unmarked id
+  * 0. assign arbitrary subjectId;
+	* 1. find start of path using h_path
+  * 2. follow path using h_next, mark each id visited
+  *;
+	subjectId=0;
+
+	do rc=hi.first() by 0 while (rc=0);
+		thisId=id;
+		* follow pids to start of path;
+
+		do while (pid ne . and rc=0);
+			id=pid;
+			rc=h_path.find ();
+		end;
+
+		if rc ^=0 then
+			do;
+				put "ERROR: Start of path not found.";
+				stop;
+			end;
+		* id is now pointing to start of a path;
+		* follow nids to end of path;
+		subjectId + 1;
+		sequence=1;
+		output;
+
+		if id ne thisId then
+			h_path.remove();
+
+		do while (0=h_next.find());
+			id=nid;
+			h_path.find ();
+			sequence + 1;
+			output;
+
+			if id ne thisId then
+				h_path.remove();
+			id=nid;
+		end;
+
+		do until ((rc ne 0) or (id ne .));
+			* find next id of a path.  Remember, if a path has been processed,
+
+				      * the data:id will have been set to missing;
+			rc=hi.next();
+		end;
+	end;
+	stop;
+	keep subjectId sequence id pid holeId;
+run;
+
+* for comparison;
+
+data report1;
+	declare hash h_node (dataset:'node');
+	h_node.defineKey ('id');
+	h_node.defineData ('x', 'y');
+	h_node.defineDone ();
+	call missing (holeId, x, y);
+	call missing (subjectId, pathLength);
+	* presume:
+  * - subjects within group data is ordered by time
+  * - subjects themselves are not, although group data is contiguous
+  * thus NOTSORTED may be used;
+
+	do until (end);
+		x2=.;
+		y2=.;
+		pathLength=0;
+
+		do until (last.subjectId);
+			set wanderers end=end;
+			by subjectId notsorted;
+			x1=x2;
+			y1=y2;
+			rc=h_node.find(key:holeId);
+			x2=x;
+			y2=y;
+
+			if (x1 and y1) then
+				pathLength + sqrt((x2-x1)**2 + (y2-y1)**2);
+		end;
+		output;
+	end;
+	keep subjectId pathLength;
+run;
+
+* generate report from recovered paths;
+
+data report2;
+	declare hash h_node (dataset:'node');
+	h_node.defineKey ('id');
+	h_node.defineData ('x', 'y');
+	h_node.defineDone ();
+	call missing (holeId, x, y);
+	call missing (subjectId, pathLength);
+	* presume:
+  * - subjects within group data is ordered by time
+  * - subjects themselves are not, although group data is contiguous
+  * thus NOTSORTED may be used;
+
+	do until (end);
+		x2=.;
+		y2=.;
+		pathLength=0;
+
+		do until (last.subjectId);
+			set paths end=end;
+			by subjectId notsorted;
+			x1=x2;
+			y1=y2;
+			rc=h_node.find(key:holeId);
+			x2=x;
+			y2=y;
+
+			if (x1 and y1) then
+				pathLength + sqrt((x2-x1)**2 + (y2-y1)**2);
+		end;
+		output;
+	end;
+	keep subjectId pathLength;
+run;
+
+proc sort data=report1;
+	by pathLength;
+run;
+
+proc sort data=report2;
+	by pathLength;
+run;
+
+ods listing;
+
+proc compare base=report1(keep=pathLength) compare=report2(keep=pathLength);
+run;
+
+* The listing for Proc COMPARE should state:
+* "NOTE: No unequal values were found. All values compared are exactly equal."
+*;
+goptions ftext='Arial';
+title 'Distribution of path lengths';
+footnote j=r 'Ontime and accurate';
+axis1 label=(rotate=0 angle=-90 h=12pt j='Distance(steps' j=c ' ');
+
+proc gchart data=report2;
+	hbar pathLength / maxis=axis1;
+	run;
+quit;
+
+title;
+footnote;
