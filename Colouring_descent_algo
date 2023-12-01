@@ -1,0 +1,172 @@
+Kagehisa Ichiro Hashigama
+;  %let i=1;
+; data _null_;
+
+, initialRadius=1
+, minimumRadius=0
+, stepTheta=30 
+, initialTheta=0
+, steps=35
+, device=win
+, gradientColors='ff0000 ffffff ff0000'
+, gradientPoints=0 0.5 1
+, hsize=5in
+, vsize=5in;
+put %i;
+x = %scan(&gradientColors,&i.,%str( ));
+x=length(x)
+do while (while x>=0);
+r&i. = 0%substr(x,1,2)x;
+	g&i. = 0%substr(x,3,2)x;
+	b&i. = 0%substr(x,5,2)x;
+f&i. = %scan(&gradientPoints.,&i.,%str( ));
+i=&i.+1;
+ x = %scan(&gradientColors.,&i.,%str( ));
+; n=4
+  nc = (i-1);
+
+   _2pi = %sysevalf(2*%sysfunc(constant(PI)));
+ _pi  = %sysfunc(constant(PI));
+ step = %sysevalf ( &stepTheta * &_2pi. / 360 );
+ initialTheta = %sysevalf ( &initialTheta * &_2pi. / 360 );
+end;
+;
+%macro descent(device=win
+, nSides=7
+, steps=85
+, stepTheta=4
+, initialRadius=1
+, minimumRadius=0.075
+, gradientColors='0020ff ffffff 00aa20 ffffff'
+, gradientPoints= 0 0.2 .5 1,
+  initialTheta=45,
+  vsize=6in,
+  hsize=6in);
+;
+  %let i=1;
+
+  data _null_;
+
+    rc = ginit();
+
+    array _r[&nc] _temporary_ (%do i = 1 %to &nc; &&r&i %end;);
+    array _g[&nc] _temporary_ (%do i = 1 %to &nc; &&g&i %end;);
+    array _b[&nc] _temporary_ (%do i = 1 %to &nc; &&b&i %end;);
+    array _f[&nc] _temporary_ (%do i = 1 %to &nc; &&f&i %end;);
+
+    call gask ('hsize', h, rc);
+    call gask ('vsize', v, rc);
+
+    * find the largest square within the output dimensions;
+    if h > v then do;
+      llx = (h-v)/2/h;
+      lly = 0;
+      urx = llx + v/h;
+      ury = 1;
+    end;
+    else do;
+      llx = 0;
+      lly = (v-h)/2/v;
+      urx = 1;
+      ury = lly + h/v;
+    end;
+
+    rc = graph('CLEAR', 'SQUARES');
+    rc = gset('WINDOW', 1, -1,-1, 1,1);
+    rc = gset('VIEWPORT', 1, llx,lly, urx,ury);
+    rc = gset('TRANSNO', 1);
+
+    * polygon vertices;
+    array x x1-x&nSides1;
+    array y y1-y&nSides1;
+
+    * gradient colors occupy slots 2-255;
+    rc = gset('COLREP', 1, 'BLACK');
+    do i = 1 to &steps;
+      alpha = (i-1)/(&steps-1);
+      index = floor(alpha * 253)+2;
+
+      do k=&nc to 1 by -1 until (alpha>_f[k]);
+      end;
+      if k=0 then k=1;
+
+      color = 'CX'
+            || put(_r[k]+(_r[k+1]-_r[k])*(alpha-_f[k])/(_f[k+1]-_f[k]), hex2.)
+            || put(_g[k]+(_g[k+1]-_g[k])*(alpha-_f[k])/(_f[k+1]-_f[k]), hex2.)
+            || put(_b[k]+(_b[k+1]-_b[k])*(alpha-_f[k])/(_f[k+1]-_f[k]), hex2.)
+      ;
+      rc = gset('COLREP', index, color);
+
+*     put i=z3. alpha=9.7 k= index=z3. color=;
+    end;
+
+   rc = gdraw('LINE', 5, -1,-1,1,1,-1, -1,1,1,-1,-1);
+
+    do i = 1 to &steps until (r<&minimumRadius.);
+
+      theta = (i-1) * &step. + &initialTheta.;
+
+      if i = 1 then
+        r = &initialRadius ;
+      else do;
+        * find r of ray at angle theta that intersects prior squares first edge;
+        r = (x1*y2 - y1*x2) / (sin(theta)*(x1-x2)+cos(theta)*(y2-y1));
+      end;
+
+      %do j = 0 %to &nSides;
+
+        phi = theta + %sysevalf(&j *  &_2pi./&nSides);
+
+        x%eval(&j+1) = round(r * cos (phi),1e-8);
+        y%eval(&j+1) = round(r * sin (phi),1e-8);
+
+      %end;
+
+      alpha = (i-1)/(&steps-1);
+      index = floor(alpha * 253)+2;
+
+      rc = gset('FILCOLOR',index);
+      rc = gset('FILTYPE','SOLID');
+      rc = gdraw('FILL', %eval(&nSides+1), of x1-x&nSides1, of y1-y&nSides1);
+
+      alpha = (&steps-i)/(&steps-1);
+      index = floor(alpha * 253)+2;
+      rc = gset('LINCOLOR',index);
+ *    rc = gdraw('LINE', &nSides1, of x1-x&nSides1, of y1-y&nSides1);
+    end;
+
+    put i=;
+
+    rc = graph('UPDATE');
+    rc = gterm();
+
+    stop;
+
+  run;
+
+%mend;
+
+;;%macro loop;
+  %do i = 1 %to 40;
+    %descent(device=win, n=9, steps=200, stepTheta=&i, initialRadius=1)
+  %end;
+%mend;
+
+%descent(device=win, N=4, steps=2000, stepTheta=5, initialRadius=1, minimumRadius=0.075);
+
+
+options mprint;
+
+filename gout "\\extreme\samples\descent.png";
+
+%descent(device=win
+, nSides=7
+, steps=85
+, stepTheta=4
+, initialRadius=1
+, minimumRadius=0.075
+, gradientColors='0020ff ffffff 00aa20 ffffff'
+, gradientPoints= 0 0.2 .5 1,
+  initialTheta=45,
+  vsize=6in,
+  hsize=6in);
