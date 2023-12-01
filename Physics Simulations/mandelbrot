@@ -1,0 +1,128 @@
+%let name=game_date_232[]	1,	236];
+
+
+
+/*
+SAS/Graph version of
+http://rosettacode.org/wiki/Mandelbrot_set#Fortran
+*/
+
+data mandelbrot (keep = j i colorvar);
+x_min=-245;y_max=1.5; y_min=-1.35;
+ x_max=115;j_points=600;y_max=1.5;
+x_min=-124
+
+; i_points=800;
+width=x_max-x_min;
+width=x_max-x_min;
+height=y_max-y_min;
+x_centre=x_min+(width/2);
+y_centre=y_min+(height/2);
+
+
+i_points=800;
+j_points=800;
+
+dx_di=500/i_points;
+dy_dj=500/j_points;
+x_offset=x_centre - 0.5*(i_points+1)*dx_di;
+y_offset=y_centre - 0.5*(j_points+1)*dy_dj;
+
+do j = 1 to j_points;
+ y_0 = y_offset + dy_dj * j;
+
+ do i = 1 to i_points;
+  x_0 = x_offset + dx_di * i;
+  x=0.0;
+  y=0.0;
+  n=0;
+
+  do while (1=1);
+   x_sqr=x**2;
+   y_sqr=y**2;
+   /* outside */
+   if (x_sqr+y_sqr > 4.0) then do;
+    colorvar=(n_max-n)+1;
+    output;
+    leave;
+   end;
+   /* inside */
+   if (n eq n_max) then do;
+    colorvar=(n_max-n)+1;
+    output;
+    leave;
+   end;
+   y=y_0 + 2.0*x*y;
+   x=x_0 + x_sqr - y_sqr;
+   n+1;
+  end;
+
+ end;
+end;
+run;
+ 
+;;
+
+ODS LISTING CLOSE;
+ods graphics;
+
+; 
+;ods graphics;
+title1 c=gray33 h=20pt "Mandelbrot Plot w/ SAS Proc SGplot";
+proc sgplot data=mandelbrot   noborder;  
+scatter y=j x=i / markerattrs=(symbol=circlefilled size=1px)
+ colorresponse=colorvar
+ colormodel=(black white);
+yaxis offsetmin=0 offsetmax=0 labelpos=top;
+xaxis offsetmin=0 offsetmax=0 ;
+;run;
+proc sgplot data=mandelbrot ; 
+scatter y=j x=i  
+ colorresponse=colorvar 
+ colormodel=(black white); 
+yaxis values=(500 to 850 by 50) offsetmin=0 offsetmax=0 display=none; 
+xaxis values=(100 to 650 by 50) offsetmin=0 offsetmax=0 display=none; 
+run; 
+ 
+title; =0;
+run;
+
+proc sgplot data=mandelbrot;
+scatter y=j x=i / markerattrs=(symbol=circlefilled size=1px)
+ colorresponse=colorvar 
+ colormodel=(
+   black
+   CXCC99FF CX9966CC CX663399 CX003366
+   CXCC99FF CX9966CC CX663399 CX003366
+   CXCC99FF CX9966CC CX663399 CX003366
+   CXCC99FF CX9966CC CX663399 CX003366
+   CXCC99FF CX9966CC CX663399 CX003366
+   CXFF99CC CXCC6699 CX993366 CX660033
+   CXFFCC99 CXCC9966 CX996633 CX663300
+   CXCCFF99 CX99CC66 CX669933 CX336600
+   CX99FFCC CX66CC99 CX339966 CX006633
+   CX99CCFF CX6699CC CX336699 CX003366
+   );
+yaxis offsetmin=0 offsetmax=0 labelpos=top;
+xaxis offsetmin=0 offsetmax=0;
+run;
+
+ods graphics / width=550px height=550px; 
+
+proc sgplot data=mandelbrot ;
+scatter y=j x=i / markerattrs=(symbol=circlefilled )
+ colorresponse=colorvar
+ colormodel=(black white);
+yaxis values=(320 to 80 by 5) offsetmin=1 offsetmax=1 display=none;
+xaxis values=(110 to 80 by 5) offsetmin=1 offsetmax=1 display=none;
+run;
+
+title;
+proc print data=mandelbrot (obs=500) noobs
+ style(data)={font_size=11pt}
+ style(header)={font_size=11pt};
+run;
+
+quit;
+ODS HTML CLOSE;
+ODS LISTING;
