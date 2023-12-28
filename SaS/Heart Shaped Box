@@ -1,0 +1,91 @@
+proc iml;
+/* define the heart-shaped region */
+start H(xy);
+  x = xy[,1]; y = xy[,2];
+  return ( (x**2 + y**2 - 1)**3 - x**2 * y**3 );
+finish;
+ 
+/* return 1 if (x,y) is inside the region */
+start InRegion(xy, tol=1e-14);
+  return (H(xy) <= tol);
+finish;
+ 
+/* given a point, x, and a vector, v, this function returns the function
+   f(t) = H(x + t*v), t in [0,1]. If f has a root, then the line segment from 
+   x to x+v intersects the boundary of the reqion. 
+   This function is used by FROOT to find points on the boundary of the region. */
+start OnBoundary(t) global(G_x, G_v);
+  return ( H( G_x + t*G_v ) );
+finish;
+ 
+/* Start at x. Try to step to x+v.
+   If x+v is in the region, take the step.
+   Otherwise, see if we can take part of the step to land on the boundary. */
+start StepInRegion(x, v) global(G_x, G_v);
+   if InRegion(x + v) then 
+      return (x + v);
+   if InRegion(x) then do;
+      G_x = x; G_v = v;
+      /* does the line from x to x+v cross the boundary? */
+      t = froot("OnBoundary", {0 1});  /* find intersection of line and region */
+      if t > 0 then 
+         return (x + t*v);       /* step onto the boundary */
+      else
+         return (x);             /* cannot step in this direction */
+   end;
+   /* something is wrong: x is not in the region */
+   return ( {. .} );
+finish;
+ 
+N = 1300;
+call randseed(233141024);
+vel = randfun(N//2, "Normal", 0, 0.2);
+ 
+x = j(1, 2, 0);
+create walk from x [c={x y}];
+do i = 1 to N;
+   x = StepInRegion(x, vel[i,]);
+   append from x;
+end;
+close;
+QUIT;
+ 
+title "Random Walk Inside a Heart-Shaped Region";
+proc sgplot data=Walk;
+   series x=x y=y / lineattrs=(color=lightred);
+run;
+
+
+
+ods graphics / width=480px height=480px;
+title "Random Walk Inside a Heart-Shaped Region";
+proc sgplot data=Walk noautolegend nowall;
+/*    scatter x=hx y=hy / markerattrs=(symbol=SquareFilled color=lightpink size=5); */
+   series x=x y=y  / lineattrs=(color=lightred);
+   xaxis display=none min=-1.2 max=1.2;
+   yaxis display=none min=-1 max=1.3;
+run;
+
+
+/* Show the evolution of the random walk for N=100, 300, ... */
+%macro plotIters();
+%do N = 25 %to 1500 %by 25;
+
+data All;
+set Walk(obs=&N);
+run;
+title "Trajectory After N = &N Iterations";
+ods graphics / width=800px height=500px;
+proc sgplot data=All noautolegend nowall;
+/*    scatter x=hx y=hy / markerattrs=(symbol=SquareFilled color=lightpink size=5); */
+   series x=x y=y / lineattrs=(color=lightred);
+   xaxis display=none min=-2.4 max=2.4;
+   yaxis display=none min=-2 max=2.3;
+run;
+%end;
+%mend;
+ods graphics / width=240px height=240px;
+ods layout gridded columns=2 advance=table
+      column_gutter=10px row_gutter=0px;
+%plotIters;
+ods layout end;
