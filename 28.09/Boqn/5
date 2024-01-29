@@ -1,0 +1,311 @@
+
+Y(x,t)=∬p(x)div^G(x-x`)dS;
+
+∬p(x)divG(x-x`)dxdy;  
+
+w/k=v;
+Y(k, t)exp[dk]/2*pi;
+
+∬P(x)divG(x-x`)exp(dx)exp(dk)dxdk=Y(x,t)/(2(pi));
+
+p=1/lamb=k;pk=h/lamb; 
+
+v=h/k*lamb=h/k*f=d(x-x`)/dt=h/k*f 
+<
+
+dx/dt=x-x`;       dt-2pi
+
+dkd(x-x`)=2pi;
+
+k.r=0;
+dk.dr=2pi
+
+1/V∬P(x)divG(x-x`)G(k-k`)exp(dx)exp(dk)dxdk	=Y(x, t) exp(dk)dk;
+
+DY(X, T)=E|Y(x, t)|;
+DT;
+
+->Y(x,t)=Aexp(kx-Et)+ Bexp(kx+Et)=;
+
+
+
+gxi gix` Y(x`,t)*Y(x,t)*S=gxx Y(x`,t)Y(x`,t)= 
+
+																				
+Y(x`,t)Y(x, t)*eije^(km)	J|dY(x,t)/dY(x`,t)| = [Y(x, t) ∇ Y(x`,t)-Y(x`,t) ∇ Y(x,t)]= dP/dt
+	x 
+[Y(X`,T),Y(X,T)] * lie derivative=
+
+	
+∇*[T^abY(x,t)-TbaY(x`,t)] = ∇*[Y(x, t) ∇ Y(x`,t)-Y(x`,t) ∇ Y(x,t)] = ∇* dP/dt=1/|A| ∮  F d.r = 1/|a| *(dk.dr=2pi)
+
+
+АASSUME:
+Noether:∇*J=0;
+
+AB-BA=/=0 
+SpinTensor =/= 0->
+ 			  												 | 1 ->POSITrON
+∇xF=∇*∇F + ∇^2F	*								eije^(km)		 | 0 - БОСОН
+															 |-1 - ELCTRON
+1/v ∇	∭∇ F dV	=	∇∬	F .dS =			|A| ∮  F d.r  
+∭p(x)div^2G(x-x`)dV - ∬(p(x)divG(x-x`))dS=0
+
+
+A EXP(KX-KX`-2ET) + 2*EXP(KX`+KX)  	+ D(EXP(KX+KX`+2ET)	=	E d ∇∇G*dV=∇ dp/dt=	
+		G_RET + G_ADV +GFEYMAN	"
+		-------->
+<------  +			
+		-------->
+
+[a exp(kx-ET)+ bexp(kx+ET)*(c exp(kx`-ET)+ d exp(kx`+ET)] 
+
+
+	Y(x,t) [cos(theta)sin |sincos]  = Y(x,t)*i 
+		  [-cossin|sin(theta)cos] 
+	
+
+	dS= 	[T^abY(x,t)-TbaY(x`,t)]	+	gti g_it DY(x,t)/DT DY(x,t`)/DT2 +2pi(-1)^p
+			
+			 q
+∆
+dtgt=gti g_it DY(x,t)/DT DY(x,t`)/DT2=2<Ricci>
+
+d/dt	
+
+
+<Y1|p|Y1><Y2|=P	 ∇^2G(x-x`)dv;
+
+Y(x,t)=∬p(x)div^G(x-x`)dS;
+|Y1><Y2|  =<Y1||Y1><Y2|⊕|Y1><Y2||Y2>⊕<Y2||Y1><Y2|⊕|Y1><Y2||Y1>
+			a+<YR|⊕|YL>a- ⊕<a-a+|<YR|⊕|YL>|a+a->
+			
+		
+KbT 
+
+
+Сега правим същото за другия режим
+
+
+DS/dt=Tdt=1/B
+
+t=t0+1/т +t0/t->
+
+
+DY(x,t)=E (Y(x0,t0)+Y(x1,t1))=	E Y(x,t0+dt) where
+Dt	
+
+(2t-1)		
+
+dS=	∇*[T^abY(x,t)-T^baY(x`,t)]	+	gti g_it DY(x,t)/DT *DY(x,t`)/DT2 +2pi(-1)^p
+∇*[T^abY(x,t)-TbaY(x`,t)] =∇*[Y(x, t) ∇ Y(x`,t)-Y(x`,t) ∇ Y(x,t)]= ∇ .J -dP/dt=
+
+
+gti g_it DY(x,t)/DT DY(x,t`)/DT2 gxi gix` dY(x`,t)/dx*Y(x,t)/dx
+
+PEXP(|A| ∮  F d.r)= 
+j [Y(x, t) ∇ Y(x`,t)-Y(x`,t) ∇ Y(x,t)]
+
+
+dtgt=gti g_it DY(x,t)/DT DY(x,t`)/DT2=2<Ricci>=PEXP(|A| ∮  F d.r)= 
+|Y(x,t)   |=eijY_0
+|Y(x,t)*|
+
+DS=2D_X *D+X + iY+DY_+iY_DY+ + 2PIL/-it+2<Ricci>=1/b
+`
+=T__ - T++ +dS=0
+
+∇ .J -dP/dt+dxΩ=0
+
+DP=E|Y(x, t)|/2=EY(x,t0)/2+EY(x,t1)/2=<ricci>=P_0EXP(|A| ∮  F d.r)= W=E-⊕E0⊕E+
+DT;
+
+dtgt=gti g_it DY(x,t)/DT DY(x,t`)/DT2=2<Ricci>
+
+
+Change of state via tetrad  tensor
+
+ckbibick ckcj
+
+non linear sigma model in two dimensions == ground state R2xx3xxxe
+
+
+Chern_S dual to Nambu goto 
+:not true[ becaue  By the discussion at 11-dimensional supergravity this field is in genera
+l not simply a 3-connection as above but receives corrections by a Green-Schwarz mechanism and “flux quantization” which give it non-abelian components. 
+	:da+ da^da +da^da^da from 
+						:S^3->s^7->s^4 == Dirac string==
+		-> can create local curvature
+			F=dA+A^A^A]
+
+BRST ->dilaton->Inflation and lattice confinement
+
+->get hubbard model from 
+
+
+
+	|	|
+|    |
+|	| 
+
+dgab/dt=2<ricci>=ϕ[Tab-Tba] + [Y(x,t1),Y(x,t2)] + 2pi X
+						Y(x)(1-s)exp(1/(1-s)) -> from vanishing curvature
+a[Tab-Tba]=0 , -1, 1 -> (-1)^p
+
+[Y(x,t1),Y(x,t2)]= Y(x,t1) S=Y(x,t2)
+
+∂Y(x,t1)/dt= E (Y(x,t1) - Y(x,t1)*S)= p0EXP(|A| ∮  F d.r) = 
+		
+		Y(x,t)(1-S)->exp(2Ф-1)Y(x)exp(1/(1-2Ф))
+		
+		
+		
+	
+		
+	   
+		Soliton solutions
+		ds=(1−2GMc2r)(cdt)2−(dr)^(2)(1−2GMc2r)−r2(dϕ)2 ->R^2xS^2
+		
+		ds^(2)=4/(1-r^2)^(2)	(dr^(2)+r^(2)dϕ^(2)) R^2xS^1
+		(1-S)->	4log(1-r^3/r^1)
+				(1−2GMc2r)
+				1/2*log k1/k2	S1xS1
+		
+		2/1-r^2= 1-s=f[x][dr+rdf]
+		dA+A^A^A ->loacl cyrvature
+			 p(means it breaks a symmetry)
+		s1->s3->s2 -> hopf  due to torsion
+		
+				
+e.r/r^3	
+∇xF=∇*∇F + ∇^2F			|Y|^2=P^2=P				p0(x,x`).n			0					|A| ∮  F d.r=|A|*2pi(-1)∂n.r Y(x,t) =∇ *∬p(x)∇^G(x-x`).dS
+					Y(x)*S=Y(X`) EY=d^2 Y/d^2x																				2pi(-1)r*|A|	=p0(x,x`)
+EY(x,t)=∂Y(x,t1)/dt =	∇∇* [Y(x,t)(1-S(t,t2))]=Y(x,t)s(t,t2)∇Y(x,t)-∇Y(x,t)(Y(x,t1)S(t,t2))= ∇ .∬p(x,x`)∇^G(x-x`).dS - ∭p(x)∇(^2)G(x-x`)dV + Y(x)*0 = 
+												 
+												∇[Y(x,t1)S(t,t2),∇Y(x,t1)]=j	->	∇(Y(x,t1)S(t,t2))			
+									∇*j=J 	
+		∇.j=∇. [Y(x,t)s(t,t2)∇Y(x,t)-∇Y(x,t)(Y(x,t1)S(t,t2))]
+∇ X Y(x,t) =∇ .∬p(x,x`)∇^G(x-x`)ndS- - 	∂Y(x,t)/dt = ∇x. [Y(x,t)s(t,t2)∇Y(x,t)-∇Y(x,t)(Y(x,t1)S(t,t2))]-∂Y(x,t)/dt + ∭p(x)∇(^2)G(x-x`)dV 
+
+
+[Y(x,t1)S(t,t2),∇Y(x,t1)]=j
+
+|A| ∮  F d.r=|A|*2pi(-1)∂n.DR/Dr Y(x,t) -> exterior algebra and gauge (wick rotation+time ordered product)
+	∇.j-dp/dt+ dxΩ 
+	
+	|A|*2pi(-1)∂n.r Y(x,t) -> ∇ X Y(x,t)-> ∇ X B ->  ∇.[Y(x,t1)S(t,t2),∇Y(x,t1)]-∂Y(x,t)/dt 
+											∇f + ∇ X A
+											->∇. (∇f + ∇ X A)->∇^2f ∇* ∇xA->∇.j=0dd
+	= |A|*2pi(-1)∂n/HF< Y(x):>:+ ∇.[Y(x,t1)S(t,t2),∇Y(x,t1)]-∂Y(x,t)/dt 
+`
+
+EY(x`,t0)/2+EY(x`,t1)/2= dY/dt		
+
+x x` t0 t1 
+x`x	
+F(x) F(x-x0) F(t) F(t+t0)
+dE=w=f.dr
+
+ey=hy
+
+|r-r| + |r- r|^2  ->Г(р/К!
+[2/3 ]
+E (Y(x,t1) - Y(x,t1)*S)/2	-> Y(x,t1) ->0.5* (Y(x,t1) - Y(x,t1)*S) 
+
+Y(x,t)S=Y(x`,t`)
+
+~~~~~~~~~~~~~~			~ ~ e+--->
+	  					~~	~~	-->	
+~~~	--->	~~~~~~		V			[Ф,iФ]-[,] -[o}[o]+ = Spin(16][o]
+		~~~~	~			
+~~~~~~~~~~~~~~			~ e---->
+ 
+j=q(xd
+
+|A|∮F.dr=W=dE=|A|*2pi(-1)∂n.r^2 -> T_>CP->Stereographic projection to-> M
+
+∂Y(x,t)/dt = Y(x,t)*S=Y(x`,t`)= Y(x,t)s(t,t2)∇Y(x,t)-∇Y(x,t)(Y(x,t1)S(t,t2)
+
+F=-∂n/∂x .d|	|r-r~|^3/R/	
+
+D_FD+=-∂_n/∂x .r^3/r^2  n+
+-ct+x 
+
+Y(x,t)*S=Y(x`,t`)
+	dx-dx0=dx		p*(1-p)=R+T=1 
+	dt dt				v(1+v)		[Y(x,t)s(t,t2)∇Y(x,t)-∇Y(x,t)(Y(x,t1)S(t,t2))]=j
+	
+	f=mdx^2/dt^2
+	Y(x)exp(1/(1-s))= ϕ[Tab-Tba]-> (-1)^(p-1)*1/p Y(X)EXP(1/(1-S)) -> E0-E1=EMF=dV 
+	L^p								
+	u									0.5|A>⨁<B|0.5	1/b=T _>>>Вместо бозонация на фермионите, може да
+	 се изпадне във този потенненциал тъй като действието има Т симетрия, която 
+	
+	М12->
+	М11XTM-?D10 stringXT2->d10xT2->D10S1xS1
+															
+															
+															
+															Breaking if SY is T dependant ->
+															
+														M^2pupw=0	
+															 leads to Y(x,t) going
+					e8xe8 su6										  in to ground state Y(x,t) splits in to fermionic and bosonic fields
+		 E7×SU(2)/U(−1){0}U(1)
+		) 								1/2	____	  _____ 1/2	+ spin 0 
+		 
+		 										
+		 d10xS1XS1 _>Light cone Gauge->T symmetry ->D8xD2XT2 -> CFT3 X S1xS1	->E7xR4->hopfian+WP+Lattice->
+		 	Gauge/gravity duality->Large N limit -> QCD/cft Duality ->E7  _____ 
+		 	-1 1
+		 
+		 
+		 R^4 gives us classical Gravity solutions aka kerr taub nut Fm etc
+		 
+		 These are expressed as Instantons that create Potentials and are created  when we destroy the worldsheet supersymmetry (2<riccy>=/=0)
+		 4
+		
+		The torsion [Tab-Tba] of the wor  _____ 
+		 	-1 1ldshhet can be set to give us Different Ricci Curvature ->which is a type of phase transtion or symmetry breakinng ;)
+		 
+		 it also turns on inflation
+		 
+		 For R^4 we set it to 1 0 -1 -> this is a spin connection_> since our gauge is a time ordered product ->0 corresponds to 
+		 Y(x,t)->Y(x)git the worldsheet is static
+		 
+		 If we set curvature to -1 we get kahler manifold ->D,Lambert Oantoniokotsevpy14ak@gmail.comperator ->
+		  the wilson loop and WP metric are isometric. We have a so(3)=So(2)/U(1) Gauge
+		 
+		 SU(2) (which double-covers SO(3)) so(3)=SU(2)->SU(2)/U[1]-> we remove one ov the covers and give it direction?
+		 
+		 
+		 	
+		(-1)^p gives us an L^p space in this case l^2 -> The Euclidean space R n \mathbb {R} ^{n} with its usual metric is a
+		  Cartan-Hadamard manifold with constant sectional curvature equal to 0. {\displaystyle 0.}
+
+Standard n n-dimensional hyperbolic space H  _____ 
+		 	-1 1 n {\mathbb {H}}^{n} is a Cartan-Hadamard manifold with consta 	nt sectional curvature equal to − 1. -1. 
+		 
+		 	-					 	
+				
+		 			1		-1		 				1	 	1	1		
+		 			1		-1
+		 				1	 	1	1	
+						-1	    
+						-1	    
+		 ____	  _____ 
+		 	-1 1	-1r
+		 	1	1		
+		 
+		 
+		 Tab-Tba=0->2r
+		 
+		 Group of automorhisms1 -> ф^(-1)oM12oФ=M12
+		 
+		 R^6(g)-6+2r+1
+		 =
+		 C^inf
+		 
+		 
+		 
+		 
