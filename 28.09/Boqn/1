@@ -1,0 +1,152 @@
+\documentclass{article} % Packages
+\usepackage{amsmath} % For mathematical symbols and equations
+\usepackage{graphicx} % For including figures
+\usepackage{cite} % For citations
+\usepackage{hyperref} % For hyperlinks % Title and authors
+\title{ON THE MEANING OF REALITYIVTY} \author{Antonio Kotsev}n\thanks{Affiliation 1
+\begin{document} \maketitle
+
+\begin{O} %
+	THE MEANING OF REALITYIVTY.
+	 We make arguments that Gravity is 
+	already quantised, for proof we use the cosmic microwave background, we take 
+	the princeple of equivalence as the , ost important aspect of GR
+. We use the observed fact that GRAVITY CAN only be weak. We notice that EM 
+	even though affected by the newly found gravitaonal BG, seems to be 
+	unaffected. For we proof we give the photoelectrTHE MEANING OF REALITYIVTYic effect.  If GR WAS 
+	INDEPENDAT, WE WOULD OBSERVE THE ELONGATION OF LIGHT WAVES AND THE 
+	SPONTANASIOUS EMISSION THAT FOLLOW. WE DO OBSERVE THAT ELECTRONS ARE AFFECTED 
+	BY GR AFFECTED AT THE SAME TIME BY NOTCING A(MUON LIFETIME, TAO IN ATMP). 
+THE BACKSCATTERING OF OUR ATM SIGNALKING NON LINEAR GAMMA. The energy of the 
+	recent Gamma sc. event is close to that of the higgs energy, it came 30 years 
+	after the current record holder from the same angle of space. BUT WHEN ONE 
+	TRIES TO MATH THE TIVE OF THE EVENT WITH THE SOURCE THE DISTANCE OF SPACETIME 
+	TAKES A THOMAE LIKE DISTRIBUTION. this is impossible when comparing an 
+	expanding universe that is the requirent that Spacetime is a pseudo rieman 
+	manifold LOCALLY + pr of eq lead to the possibility that Euclid's 5th postulate is wrong. That meeans that lines are perpendicular only for a short time. 
+	 Notice as well that Ligo cathegorised the emission as that of a medium BH MERGER. THE LACK OF NON SPINNIG BH OR FOR A MATTER OF FACT THE IMPOSSIBILITYH OF ONE. BY MACH'S 
+	PRINCIPLE ANGULUR MOMENTUM IS CONSEVERVED. THE INVOLUTION AND STELLAR COLLAPSE 
+	AND THE VILANT EVENTS THAT FOLLOW FOR A SUPERNOVA PRODUCTYION, B MAGNETARS, 
+	CNEUTRANT STARS AND, FAILED BROWN DWARVES.SINCE DIRECT BH COLLAP[SE IS OF THE 
+	ORDER 2.5MO. THE LIMIT DO DIRECT BH COLLAPSE WOULD GIVE A SIZEABLE DISTR OF 
+	SWARTZCHILD CANDIDATE BHS. THAT ARE EMITTING JETS AT A ANGLE SMALLER THAN THAT 
+	OF XRAY EMISSION. [add figure one]
+
+\end{abstract}IN FACT ACRREATION DISKS AROUND BINARRY HOLLES WOULD SHOW 
+	THIS. The fock soluttion for 3 body scattering is not observed. it also allows 
+	for another question. can a bh appear collapsed to a obsever that is not 
+	spinning since the swz solution allows for such a frame. Event further the 
+	recent nanograv experiment, showed evidence for cosmic strings. We argue that 
+	this distr is exac
+\section{Introduction}exactly tailed to that of a null vector in Swz, and the 
+	date can be explained by Torsion in Spacetime itself. Noether's theorem requires lorentz invariance but this can be done in two ways. either the spin
+	 tensor is zero,that is the trace is zero or that the Swarzchild derivative is not zero.
+
+	 	 We construct an Octanion Algebra with Galois Completion in 5 Diomensions , a Division algebra Z/nZ with a power completion thanks to hensel lifting . 
+
+R, _ = QadicField(7, 30)
+
+a = 1 + 7 + 2*7^2 + O(R, 7^3)
+b = 2 + 5*7 + 3*7^2 + O(R, 7^3)
+c = 3*7 + 2*7^2 + O(R, 7^5)
+
+c = exp(c)
+d = log(a)
+c = exp(R(0))
+d = log(R(1))
+f = teichmuller(b)
+g = frobenius(a, 2)
+
+We have A CHANDRA ISOMORPHISM U(g)=U(h)o+(U(g)n^(+)+n^(-)U(g))
+
+I create a Pertubation Generating Function  and some fermionic fields 
+
+so that we have even ODD EUler Characterisitc iD_Y+ ID+Y_ (-1)^|p-q|
+We have bosonic modes [2D_X *2D+X-2<Ricci>] 
+bett periodcity -b(k,f)
+and We have and Extra dimension that is defined as т=-1/т 2П([АB]-[BA]/r^2)/t-> aNGULAR fREQUENCY W(K)=W(I)+W(K)=hw/c
+We have Doexter Duals 2n-1	| h/cП
+2n	|2r+1 
+2n+1	|2r++2->1/4(W(n,p)-W((p,n)))-> c^2
+			 Sobolev space 
+2n+2	|2r+3->c3
+A6		Specter c^4
+% Introduction to your research topicx
+Higgs bundle (V,Ф)
+Φ∧Φ=0\Phi \wedge \Phi = 0.
+we define a path order Weil peterson metric 
+
+
+ Suppose f(x,t) is a solution for 0<t<T, let e(f)(x,t) denote the energy density of the 
+ 
+ We get the following identity
+ 
+ Partial derivative e(f0)/t trianglee(t)=|nabladf|^ +<df Ric^M(u_a),df(ua)> where Ric	^M Ricci curvature of (M,g).In particular	
+  
+the induced metric is 6g-6+2n
+=> We have an Levesque Metric lp
+
+∑∫ int f(y,Y)dy=∫ F(x,X)dx
+п(А,X)-П(X,A)=фа Yx->П(x)->Sum [Yxфа]
+
+
+->eid +e^-id + 1/2 logK3/K2 where K3 AND K2 ARE ELIPTIC
+Which Is  nOETHER THEOREM
+c2∇×(∇×A)−∂∂t(−∇ϕ−∂A∂t)=jϵ0 
+S(q)-S(p)= i*Г(к/p!)
+|r-r1| + |r+ r2|^2  ->Г(р/К)
+T__ - T++ +dS=0
+5g*ug*u5.=> 3/2 + 3/2 -> dv goes as 4/3
+-> iso spin and first theorem on monopoles -> mAGNETIC MONOPOLES DO NOT EXIST 0.52g
+g(- V -uguv(∂Ab-∂∂A)*g)
+
+BY THE WU EXOERIMENT 1/r functions do not exist-> the volume increases complexity faster than sphere
+
+
+Wick Rotation _>Dyson Spheres
+Tr(−1)F+(−y)F−e−βH->eliptic genus integral and CHERN CLASS -<
+
+ 
+  	 THERE EXISTS A FROB END 
+x=|x|
+ 1/6* (Fab^ba +Fby^yb +Fay^ya)=||2e(-)-2(e-)||e(+)Ye(+) 
+							||2i||
+							
+							Let F (X) be a power series with coefficients in Zp that converges on Zp.
+(1) For x and y in Zp, F (x + y) = F (x) + F ′(x)y + zy2 for some z ∈ Zp.
+(2) For x and y in Zp, |F (x) − F (y)|p ≤ |x − y|p
+
+The trees visible from the origin are those at lattice points 
+(x, y, 0), where x and y are coprime, i.e., where the fraction x/y is in reduced form. The name Euclid's orchard is derived from the Euclidean algorithm.
+
+If the orchard is projected relative to the origin onto the plane
+ x + y = 1 (or, equivalently, drawn in perspective from a viewpoint at the origin) the tops of the trees form a graph of Thomae's function. The point (x, y, 1) projects to 
+ 
+ T^ab-Tab= T_T0 +T+T_ + T_T+ T0T
+ 
+		8pi c^4	r^3 	log 2.5/log2.5
+    1-y5 955 y5+1
+ α(2.5)	β  	7.2551 144.75− (α‖x‖2 + β‖y‖2 + γ‖z‖2) + 2Re(xyz).
+ 
+SO(8) IS BROKEN AS spinC(9,1)
+su6xsu2
+SO5 is an impossibility because it is a tautalagy
+
+
+(∆t∆	X + ∆p∆E) DX/dT=v+	V[(dv| +ih		[∆t∆x∆p∆]+
+
+
+\section{Results}
+% Presentation of your results
+
+\section{Discussion}
+% Discussion of your findings and their implications=
+
+\section{Conclusion}
+% Summary and concluding remarks
+
+\section*{References}
+% List of references cited in your paper
+% You can use BibTeX or manually format the references
+
+\end{document}
