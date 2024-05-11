@@ -1,0 +1,104 @@
+/* 1. Simple harmonic oscillator:
+      F = -kx ==> x'' = -cx  -OR-
+      Let  v = x';
+      Then */
+  /* in matrix language: return( {0 1, -1 0}*z ); */
+proc iml;
+start SHO(t, z);
+  dxdt =  z[2];
+  dvdt = -z[1];
+  return( dxdt // dvdt );
+finish;
+
+
+x0 = {2, 0};           /* initial values */
+t = do(0, 10, 0.2);    /* compute solution at these time pts */
+h = {1.e-6 1 1e-3};    /* min, max, and initial step size */
+call ode(soln, "SHO", x0, t, h);
+
+traj = t` || (x0` // soln`);
+create SHO from traj[c={"Time" "x" "v"}];
+append from traj;
+close SHO;
+
+submit;
+title "Simple Harmonic Motion";
+proc sgplot data=SHO;
+   label x="Position" v="Velocity";
+   series x=Time y=x;
+   series x=Time y=v / y2axis;
+run;
+endsubmit;
+
+/* Phase portrait
+   To facilitate using the GROUP= statement in PROC SGPLOT,
+   store trajectories in "long" form as a data set with variables
+   IC, T, X, and V. */
+
+/* Choose initial conditions */
+x0 = T(do(0.2, 3.0, 0.4)); /* initial positions */
+numIC = nrow(x0);
+IC = x0 || j(numIC,1,0);   /* each row specifies (x0, v0) */
+
+/* Choose maximum time length of integration for each IC.
+   You might want some trajectories to be longer than others. */
+maxT = j(numIC, 1, 6.4);   /* all times the same for SHO */
+
+names = {"IC" "Time" "x" "v"};
+M = {. . . .};  /* establish M as numeric matrix with 4 cols */
+create PhasePortrait from M[c=names];  /* open for writing */
+do i = 1 to numIC;
+   z0 = IC[i,]`;
+   t = do(0, maxT[i], 0.2);   /* time intervals for this traj */
+   call ode(soln, "SHO", z0, t, h);
+   /* fill M with data */
+   M = j(ncol(t),1,IC[i,1]) || t` || (z0` // soln`);
+   append from M;             /* write this trajectory */
+end;
+close PhasePortrait;
+
+submit;
+/* the ASPECT= option is a SAS 9.4 feature */
+title "Phase Portrait of Simple Harmonic Oscillator";
+proc sgplot data=PhasePortrait aspect=1 noautolegend;   
+   series x=x y=v / group=IC;
+   xaxis grid label="Position";
+   yaxis grid label="Velocity";
+run;
+endsubmit;
+
+
+/***************************************/
+/* 2. The Pendulum */
+start Pendulum(t, z);
+  dThetadt =  z[2];
+  dvdt = -sin(z[1]);
+  return( dThetadt // dvdt );
+finish;
+
+x0 = T(do(0.2, 3.0, 0.4)); /* initial positions */
+numIC = nrow(x0);
+IC = x0 || j(numIC,1,0);   /* each row specifies (x0, v0) */
+maxT = {6.4, 6.6, 6.8, 7.2, 8, 9, 11, 16.2};
+
+create PhasePortrait from M[c=names];  /* open for writing */
+do i = 1 to numIC;
+   z0 = IC[i,]`;
+   t = do(0, maxT[i], 0.2);   /* time intervals for this traj */
+   call ode(soln, "Pendulum", z0, t, h);
+   /* fill M with data */
+   M = j(ncol(t),1,IC[i,1]) || t` || (z0` // soln`);
+   append from M;             /* write this trajectory */
+end;
+close PhasePortrait;
+
+submit;
+/* the ASPECT= option is a SAS 9.4 feature */
+title "Phase Portrait of Pendulum";
+proc sgplot data=PhasePortrait aspect=0.66 noautolegend;   
+   series x=x y=v / group=IC;
+   xaxis grid label="Position";
+   yaxis grid label="Velocity";
+run;
+quit;
+endsubmit;
