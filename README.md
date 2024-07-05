@@ -7,3 +7,5 @@ Wavelet Analysis, Teichmuller Coverings and metrics, Metric spaces, Topology, Li
   - Antonio Kotsev CV:https://drive.google.com/file/d/1V3rECCVOEyD-D3IVoF8u-rPAZJx8iIUd/view?usp=sharing
   - FB Group -:
   - NASA GROUP 
+  - The repository is being reorganized in a sep Business portfolio one as this has gotten a bit out of hand
+  - 
