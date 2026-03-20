@@ -1,7 +1,22 @@
 %let name=game_date_232[]	1,	236];
 
+figure out how to make in julia and add the burning one
+Technical Details
+The formula for the Burning Ship fractal is very similar to the formula for the Mandelbrot set. Instead of iterating
 
+z = z2 + c
 
+which expands to
+
+z = [Re(z) + i Im(z)]2 + c
+
+which generates the Mandelbrot set, the Burning Ship fractal is obtained by iterating
+
+z = [|Re(z)| + i |Im(z)|]2 + c
+
+The difference, in case it's not clear from the 1-pixel wide lines in the above equation, is the absolute values of the real and imaginary components are used in the Burning Ship fractal.
+
+A small detail to note: Traditionally, the Burning Ship fractal is drawn with at least the y-axis inverted (i.e. negative numbers at the top), so that it looks like a ship. Often, the x-axis is reversed as well, so the ship appears to be heading to the left rather than to the right. All images here have only the y-axis reversed.
 /*
 SAS/Graph version of
 http://rosettacode.org/wiki/Mandelbrot_set#Fortran
