@@ -1,0 +1,35 @@
+
+import datetime
+import spiceypy
+import numpy as np
+import pandas as pd
+
+# Load the SPICE kernels via a meta file
+spiceypy.furnsh('kernel_meta.txt')
+
+# We want to compute miscellaneous positions w.r.t. the centre of
+# the Sun for a certain time interval.
+# First, we set an initial time in UTC.
+INIT_TIME_UTC = datetime.datetime(year=2000, month=1, day=1, \
+                                  hour=0, minute=0, second=0)
+
+# Add a number of days; you can play around with the datetime variables; but
+# leave it as it is for the first try, since other computations and comments
+# are based on this value.
+DELTA_DAYS = 10000
+END_TIME_UTC = INIT_TIME_UTC + datetime.timedelta(days=DELTA_DAYS)
+
+# Convert the datetime objects now to strings
+INIT_TIME_UTC_STR = INIT_TIME_UTC.strftime('%Y-%m-%dT%H:%M:%S')
+END_TIME_UTC_STR = END_TIME_UTC.strftime('%Y-%m-%dT%H:%M:%S')
+
+# Print the starting and end times
+print('Init time in UTC: %s' % INIT_TIME_UTC_STR)
+print('End time in UTC: %s\n' % END_TIME_UTC_STR)
+
+# Convert to Ephemeris Time (ET) using the SPICE function utc2et
+INIT_TIME_ET = spiceypy.utc2et(INIT_TIME_UTC_STR)
+END_TIME_ET = spiceypy.utc2et(END_TIME_UTC_STR)
+
+# Create a numpy array that covers a time interval in delta = 1 day step
+TIME_INTERVAL_ET = np.linspace(INIT_TIME_ET, END_TIME_ET, DELTA_DAYS)

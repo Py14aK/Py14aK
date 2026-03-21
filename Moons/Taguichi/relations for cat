@@ -1,0 +1,32 @@
+Daily updates
+[I] Distribution Channel Normed based on Country code, updated on date
+	update	->
+		Relation_Date | Distribution Channel |Relation_currency| Coutry COde
+-->
+[II] Agreement.Identifier_ST Nordmed on Currency and Stock namne, updated on date
+	update	->
+
+			Relation_Date | Distribution Channel| |	Relation_currency| Coutry_COde|Stock_Name|SYMBOL|
+-->	  Relation_Date |	Relation_currency|| Coutry COde|Stock_Name|SYMBOL|Open| closing| high | low |	Volume	|
+
+[III]	Agreement.Identifier_CLIENT Normed on Stock_Name, updated on date
+			 Relation_Date |Stock_Name|SYMBOL|Open| closing| high | low |	Volume	|
+
+
+	->	DERIVEDE RELATIONS :
+			->TRENDS bASED on third
+			
+
+:Market name
+ : Working currency name
+  : Working currency code
+   : Country name
+:Country code
+
+For every Stock Market the daily Stock Trading Activity is received. The information includes:
+	:Name of the corporation, issuing the stock
+	 :Stock code, identifying the stock of the corporation
+	: Country code of the corporation's country of register
+:Trading date of the Stock Market, on which the trading activity has happened
+: Open, closing, high and low prices for the stock for the specific trading date
+: The trading volume of the stock

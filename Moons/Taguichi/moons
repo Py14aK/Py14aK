@@ -1,0 +1,121 @@
+fubini metric from Doboult complex due to p addic Teichmuller action, RG flow and ergodicity of hyperbolic metrcic from Thurston
+covariant
+Coexter 
+2n-1	| h/cП
+2n	| 
+2n+1	|
+2n+2	|
+A6
+S=T/c dA sqrt(-h)h^abguv[2D_X *D+X-2<Ricci>] + iY+DY_+iY_DY+ * (-1)^|p-q| + 2П/it=
+
+S/dh=T^ab=t/csqrt(-h)->[2D_X *D+X-2<Ricci>] is time dep  gauge aka light cone
+					 iY+DY_+iY_DY is * (-1)^|p-q| on Space time itself
+					 is chandra isomorphism where p-q give bett periodcity -b(k,f)
+					T^ab-Tab= T_T0 +T+T_ + T_T+ T0T+=∑C^ij
+					we defined a binomial theorem ∑C^ij(-1)^i bi(k,f)=EulerChar
+
+p-q=p-(p-2)=b(k,f)
+ds=(1-2gm/r)ct+
+
+dEdt=>h/2Пc3		
+E2-E1=hw(x)/3
+1/2 Rij=λ(2t-1) 
+w(x)=w(x)^p x mod p -> x mod 2 
+				    x mod 4
+					x mod 8	    1 mod 2 → 1, 3 mod 4
+  								  1 mod 4 → 1, 5 mod 8 and 3 mod 4 → 3, 7 mod 8
+ 									   1 mod 8 → 1, 9 mod 16 and 7 mod 8 → 7, 15 mod 16, while 3 mod 8 and 5 mod 8 don't lift to roots mod 16
+  				failure of algo->[9x1 lattice] 9 mod 16 → 9, 25 mod 32 and 7 mod 16 → 7, 23 mod 16, while 1 mod 16 and 15 mod 16 don't lift to roots mod 32.
+t2-t1=ir 
+w(k)=w(i)+w(j) mod p => i+j=k
+п(А)-п(B)=∑фхY== п/2 -> Wick rotation to β ≡ exp(−ΔE/kT),
+				П(W,N)=1/4(fx|v_t|^2-f/4(fh)V^2->
+
+∑∫ int f(y,Y)dy=∫ F(x,X)dx+ (cosh x+sinh x+sin x + log x+log y)->eid +e^-id + 1/2 logK3/K2
+П(W,N)-П(N,W)=∑фxYa
+f''=v0+dv=H=73
+f'''=?
+dp=id/dx
+dx=G(x-x')dk/2П		guv=U(1)=h+dh=U(n_⨁g n+⨁p) 
+									dh=∇bE+∇aEb= Killing particle Horizon
+ H=73
+1/2 Rij=λ(a-1)/{o} ->-2<riccy> |λf-λi| 
+
+g/dt
+R
+ΔE
+
+Kerr+Shrodinger+Swartz
+Surgery on the 2-sphere In this case there are more possibilities, since we can start by cutting out either S1 × D1 or S0 × D2.
+	
+    S1 × D1: If we remove a cylinder from the 2-sphere, we are left with two disks. We have to glue back in S0 
+    × D2 – that is, two disks – and it is clear that the result of doing so is to give us two disjoint spheres. 
+dW=>ф(D2⋀D2)*(1+Х^2)
+
+ds=(1−2GMc2r)(cdt)−(dr)(1−2GMc2r)−r^2(dϕ) ->R^2xS^1
+		4*(1-r^2)	(dr+rdϕ)	
+			R^2xS^1 ->S2 × D0 to S0 × D2 +S^1 -> S1 × D1 or S0 × D2. R^2*R^2 teich lepvane ili solder form R^3Xs1->S^3->S2 HOPF FIBRATION + change of Euler characteristic 
+			4log(1-r^3/r^1) 1/2*log K3/K2 S2XRP3
+2B(U,n)/r - Shrodinger
+2a/r _weyl rescaling
+			.
+		.		.				S(32|1)->sp(16){o}sp(16)	~ ∇SiSj+∇Sj∇Si
+			.		.
+					Spinc(9,1)		SO(8)/(SU(5))xz5->	SU3LXSU3R	 so6->R Grassmanian
+	.			2a(1-z x z*|ci-cj|							O(4,2C)x2Z/nZ SU(2)xU1
+				.
+			.	
+Heat=T/c domega sqrt(g)g^ab=A|T-Tc|^4-> Laplace-beltrami->df=udf/dz-4 <RICCY>->		logK3/K2->LOGK3 +LOGK2
+
+<
+d^2 Y/d^2x-SPherical harmonics																				2pi(-1)r*|A|	=p0(x,x`)
+EY(x,t)=∂Y(x,t1)/dt =	∇∇* [Y(x,t)(1-S(t,t2))]=Y(x,t)s(t,t2)∇Y(x,t)-∇Y(x,t)(Y(x,t1)S(t2,t))= ∇ .∬p(x,x`)∇^G(x-x`).dS - ∭p(x)∇(^2)G(x-x`)dV + Y(x)*0 = 
+
+∇X∇ X A ∇=∰∇.(∇f)- ∇^2F=>
+
+ j=c2∇×(∇×A)−∂∂t(−∇ϕ−∂A∂t) - V -uguv(∂Ab-∂∂A)
+
+P_0EXP(|A| ∮  F d.r)=
+
+ dW=E-⊕E0⊕E+
+
+1/3 Fuj -Fji+Fkl=F(B)-F(A)=i[A,B]=AUB,BUA-BA-AB
+
+ Group of automorhisms1 -> ф^(-1)oM12oФ=M12
+		 
+		 (R^6(g)+2r+1 ,C^inf)
+		 
+
+∂Ab-∂∂A 
+Fμν = ∂μAν − ∂ν Aμ − i[Aμ, Aν ]
+		∂Y(t-to)/∂t->t^4->t3(t2(2t1+1) 
+		  	  [tanh(*it)]
+0		[		 			F=1/6eijk]
+		
+					
+		``
+		 bound 8pi^2/e^2 1.61803399 -1 l b
+		0.92 +dEdt->+0.058 - 0.08 ln(0.61/0.39)	  1- 0.61
+		 Ce-it+Deit	4пr^2
+			 			0	x^2-1 cosh sinh
+			 					-
+			 					>
+		Be+it Ae-it	-8пr^2	1-X^2  sinx
+		    
+		 
+R, _ = QadicField(7, 30)
+
+a = 1 + 7 + 2*7^2 + O(R, 7^3)
+b = 2 + 5*7 + 3*7^2 + O(R, 7^3)
+c = 3*7 + 2*7^2 + O(R, 7^5)
+
+c = exp(c)
+d = log(a)
+c = exp(R(0))
+d = log(R(1))
+f = teichmuller(b)
+g = frobenius(a, 2)
+] itan tanh 
+			   dtgt=gti g_it DY(x,t)/DT DY(x,t`)/DT2 =b^(-1)[1-2Ф]	
+		 alpha=2.50290...
+	

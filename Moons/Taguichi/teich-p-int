@@ -1,0 +1,12 @@
+If x is a p-adic integer, then ω ( x ) \omega (x) is the unique solution of ω ( x ) p = ω ( x ) {\displaystyle \omega (x)^{p}=\omega (x)} that is congruent to x mod p. It can also be defined by
+
+    ω ( x ) = lim n → ∞ x p n \omega (x)=\lim _{{n\rightarrow \infty }}x^{{p^{n}}}
+
+The multiplicative group of p-adic units is a product of the finite group of roots of unity and a group isomorphic to the p-adic integers. The finite group is cyclic of order p – 1 or 2, as p is odd or even, respectively, and so it is isomorphic to (Z/qZ)×.[citation needed] The Teichmüller character gives a canonical isomorphism between these two groups.
+
+A detailed exposition of the construction of Teichmüller representatives for the p-adic integers, by means of Hensel lifting, is given in the article on Witt vectors, where they provide an important role in providing a ring structure.
+
+
+Surgery on the 2-sphere In this case there are more possibilities, since we can start by cutting out either S1 × D1 or S0 × D2.
+
+    S1 × D1: If we remove a cylinder from the 2-sphere, we are left with two disks. We have to glue back in S0 × D2 – that is, two disks – and it is clear that the result of doing so is to give us two disjoint spheres. 
