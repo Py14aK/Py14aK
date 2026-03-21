@@ -1,0 +1,15 @@
+g^2+[0.054286 -0.764286]
+z^2+i*|x|-y+[0.005000 -0.965000] - nebula
+z^2+|y|-i*|x|+[-0.945000 -0.115000] - spikes (strange julia)
+g^2+[0.660000 -1.080000] - double edged sword 
+g^2+[-0.715714 -0.475714] - pentagon
+g^2+[-0.540000 -0.638571] - funny bizness
+g^2+[0.115714 -0.600000] - heptagon
+g^2+[-0.690000 -0.351429]  - nine pentagons
+z^2+i*|x|-y+[-0.170000 -1.136667] - klein bottle
+<<<<<<< ATTRACTORS
+x^2-y^3+i*x*y*re(c)+c c = [-1.057143 -0.621429] - wierd swirly (logistic too)
+x^2-y^3+i*(x+y*c)+c c = [-0.822857 -0.394286] - wierd squiggly=======
+y+i*(x^2-im(c)) - logistic meets parabola
+>>>>>>> 1.6
+z^2+i*|x|-y+[-0.070000 -0.990000] - funky ceili

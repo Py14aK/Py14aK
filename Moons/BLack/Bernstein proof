@@ -1,0 +1,10 @@
+Via p adic Teichmuller theory
+and Hensel_lifting
+We derive the ring of p p-adic integers Z p
+ {\displaystyle \mathbb {Z} _{p}} from the finite field F p = Z / p Z {\displaystyle \mathbb {F} _{p}=\mathbb {Z} /p\mathbb {Z} }
+ using a construction which naturally generalizes to the Witt vector construction.
+https://en.wikipedia.org/wiki/Witt_vector
+w(x)=w(x)^p x mod p -> x mod 2 
+				    x mod 4
+					x mod 8	
+while 3 mod 8 and 5 mod 8 don't lift to roots mod 16
