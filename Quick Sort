@@ -1,29 +1,14 @@
-%macro quicksort(DSN, OUT, BY, DEBUG=N);
-	%let KEEP_SYNTAX_HIGHLIGHTING = %nrstr(%mend);
-	%let LIB = %upcase(%scan(&DSN, 1, .));
-	%let DS  = %upcase(%scan(&DSN, -1, .));
-	%let BY  = %upcase(%trim(%sysfunc(compbl(&BY))));
-	%let BYVARS = %eval(%sysfunc(countc(&BY, %str( )))+1);
-	%put Sorting &LIB..&DS by &BY into output dataset &OUT;
-
-	%if &LIB=&DS %then
-		%let LIB = WORK;
+ 
 
 	proc sql noprint;
 		select upcase(NAME), LENGTH, COUNT(*)
 
-        into    :NNAMES     separated by ' ', 
-			:NLENGTHS separated by ' ', :NCOUNT
-
-        from sashelp.vcolumn
-
-        where LIBNAME = "&LIB" and MEMNAME = "&DS" and TYPE = 'num'
-
-        ;
+        
 		select upcase(NAME), LENGTH, COUNT(*), max(LENGTH) into    :CNAMES separated 
 			by ' ', :CLENGTHS separated by ' ', :CCOUNT, :MAXCLENGTH from 
 			sashelp.vcolumn where LIBNAME="&LIB" and MEMNAME="&DS" and TYPE='char';
-		select NAME into    :LISTNAMES separated by '--' from sashelp.vcolumn where 
+		select NAME into    :LISTNAMES 
+ where 
 			LIBNAME="&LIB" and MEMNAME="&DS" having varnum=min(varnum) or 
 			varnum=max(varnum);
 		select NLOBS into    :NOBS from sashelp.vtable where LIBNAME="&LIB" and 
@@ -124,6 +109,7 @@
 			%end;
 
 		/*Array to hold quicksort parameters low and high for each branch, plus whether or not it's run*/
+
 		array _branch[2, &NOBS];
 
 		/*Populate the 2-d arrays ready for sorting*/
@@ -162,57 +148,7 @@ queue:
 			do;
 				max_branch + 1;
 				_branch[1, max_branch]=row1;
-Skip to content
-Pull requests
-Issues
-Marketplace
-Explore
-@Py14aK
-Py14aK /
-Py14aK
-Public
 
-Code
-Pull requests
-Actions
-Projects
-Security
-Insights
-
-    Settings
-
-Py14aK/Trading View and Funstions for SaS
-@Py14aK
-Py14aK Create Trading View and Funstions for SaS
-Latest commit 99615dd 10 days ago
-History
-1 contributor
-Skip to content
-Pull requests
-Issues
-Marketplace
-Explore
-@Py14aK
-Py14aK /
-Py14aK
-Public
-
-Code
-Pull requests
-Actions
-Projects
-Security
-Insights
-
-    Settings
-
-Py14aK/Trading View and Funstions for SaS
-@Py14aK
-Py14aK Create Trading View and Funstions for SaS
-Latest commit 99615dd 10 days ago
-History
-1 contributor
-100 lines (43 sloc) 2.17 KB
 
 / Get API Trading data
 data _null_;
@@ -243,11 +179,13 @@ quit;
 
 data PY.constituents;
 
-               set work.c0onstituents_csv end=eof; array ASS {0:200000} &IEX_name2. ;
+            
+
+ set work.constituents_csv end=eof; array ASS {0:200000} &IEX_name2. ;
 
                do _N=1 BY 1 TO 200 ;   ASS{_N}=200;
 
-                              caTAP=cats(' https://a pi.tiingo.com/tiingo/fundamentals/',  symbol, '/daily?token=3a5dd05b622b4504c74add5c1afe6491064363e0');
+                              caTAP=cats(' https://api.tiingo.com/tiingo/fundamentals/',symbol,'/daily?token=3a5dd05b622b4504c74add5c1afe6491064363e0');
 
  
 
