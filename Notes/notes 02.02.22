@@ -1,11 +1,16 @@
 
 
-Inverse Map (фоф-1) of a R^n->R^n-1 such that the L-B eq. are sattisfied means 
+Inverse Map (фоф-1) of a R^n->R^n-1 such that the L-B eq. are sattisfied means - > YM / ADS / SELF DUAL + A SD / DONALDSON / FLOCHER / KD RULED SURFACE / RIEM SURF X RIEM SURF
+CAT -> OBJ(B) - > u(a) + u(b) = U(b*∪a*) - > VV**-linear anti linear and symmetric anti simmetric ( all span L(u) -> l^p -> 0 E [L^1) - > R(G,V) for G,V in R and less than 6
+-> 6 does not have a unique rep. -. 2xA	 <> 3xB ~	b*x2xb bx3xb*
 Existence Of Teichmuller Holomorphic Function(Feynman/Polyakov Path integral).
 
+Hadamard d4rivative vanishesh at zero curvature and at center ??
+
 Such That
-	F*F^-1= 1/2 Log Fx/Fx2
-	-> Which Is Jacoby Change Of Coordinates and is how Bosonic string is derived.
+	F*F^-1= 1/2 dx Log Fx/Fx2
+	-> Which Is а jacobian Change Of basis 
+and is how Bosonic string is derived.
 
 For Hyperbolic Solutions
 Polyakov Has To Have A T-sym Metric(linear sigma model Nambu-GoTo equivalence)
