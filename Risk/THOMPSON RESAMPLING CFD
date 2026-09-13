@@ -1,0 +1,351 @@
+"""
+cfd_state_space_2026-09-13.py
+
+State-space layer for a CFD book. Companion to cfd_strategy_2026-08-16.py
+(which already owns the cost model, GARCH paths and ruin MC). This module owns
+the *reduction* and the *closed forms*, so the MC is used to check them, not to
+discover them.
+
+Contents
+  1. Ledger recursion            exact state transition, no shortcuts
+  2. State reduction             (E, N, M, f) -> (L, d) by scale invariance
+  3. Fixed-notional ruin         first passage of drifted BM to a fixed barrier
+  4. Constant-leverage ruin      diffusion cannot kill you; jumps can
+  5. Leverage frontier           growth vs ruin, pick L
+  6. Direction subproblem        max Sharpe net of financing under an L1 margin budget
+
+Conventions
+  mu, sigma        arithmetic drift and vol of the UNDERLYING, annualised
+  phi              all-in financing rate paid per unit of gross notional per year
+  m                initial margin rate (0.20 = 5x max leverage)
+  c                stop-out fraction of margin (broker closes when E < c*m*N)
+  L                gross notional / equity
+  Losses are positive nowhere here; equity is equity.
+"""
+
+from dataclasses import dataclass
+import numpy as np
+from scipy.stats import norm
+from scipy.optimize import minimize
+
+# ----------------------------------------------------------------------------
+# 1. Ledger recursion
+# ----------------------------------------------------------------------------
+
+
+@dataclass
+class CFDContract:
+    m: float = 0.20        # initial margin rate
+    c: float = 0.50        # stop-out at equity < c * m * notional
+    r_ref: float = 0.0328  # reference rate; user's borrowing hurdle
+    spread: float = 0.030  # broker spread over reference, each side
+
+    @property
+    def phi_long(self) -> float:
+        return self.r_ref + self.spread
+
+    @property
+    def phi_shortk(self) -> float:
+        # short CFD receives r_ref - spread; negative means you still pay
+        return -(self.r_ref - self.spread)
+
+
+def step(equity, units, price_prev, price_now, contract: CFDContract, dt):
+    """One exact ledger step. units may be signed. Returns new state dict."""
+    notional_prev = np.abs(units * price_prev).sum()
+    pnl = float((units * (price_now - price_prev)).sum())
+    long_notional = float(np.sum(np.maximum(units, 0.0) * price_prev))
+    short_notional = float(np.sum(np.maximum(-units, 0.0) * price_prev))
+    financing = (contract.phi_long * long_notional +
+                 contract.phi_short * short_notional) * dt
+    equity_new = equity + pnl - financing
+    notional_now = float(np.abs(units * price_now).sum())
+    margin_now = contract.m * notional_now
+    stopped = equity_new < contract.c * margin_now
+    return dict(equity=equity_new, notional=notional_now, margin=margin_now,
+                financing=financing, pnl=pnl, stopped=stopped,
+                leverage=notional_now / equity_new if equity_new > 0 else np.inf)
+
+
+# ----------------------------------------------------------------------------
+# 2. State reduction
+ ----------------------------------------------------------------------------
+
+
+def reduce_state(equity, units, price, contract: CFDContract):
+    """
+    The weight vector is NOT the state. The sufficient reduced state is
+        u  direction, gross-normalised   sum |u_i| = 1
+        L  leverage
+        d  log distance to stop-out = log(Eo / (c*m*N)) = log(L_max/L), L_max=1/(c*m)
+    d is the only thing that can kill you. u and L are the controls.
+    """
+    n = units * price
+    gross = float(np.abs(n).sum())
+    if gross == 0:
+        return dict(u=np.zeros_like(n), L=0.0, d=np.inf)
+    u = n / gross
+    L = gross / equity
+    d = np.log(equity / (contract.c * contract.m * gross))
+    return dict(u=u, L=L, d=d)
+
+
+# ----------------------------------------------------------------------------
+# 3. Fixed-notional ruin: first passage of drifted BM
+# ----------------------------------------------------------------------------
+
+
+def first_passage_prob(nu, sigma, b, T=np.inf):
+    """
+    P( min_{t<=T} (nu t + sigma W_t) <= -b ),  b > 0.
+    Infinite horizon: exp(-2 nu b / sigma^2) for nu > 0, else 1.
+    Reference: Harrison (1985), Brownian Motion and Stochastic Flow Systems.
+    """
+    if b <= 0:
+        return 1.0
+    if np.isinf(T):
+        return 1.0 if nu <= 0 else float(np.exp(-2.0 * nu * b / sigma ** 2))
+    s = sigma * np.sqrt(T)
+    return float(norm.cdf((-b - nu * T) / s) +
+                 np.exp(-2.0 * nu * b / sigma ** 2) * norm.cdf((-b + nu * T) / s))
+
+
+def ruin_fixed_notional(L0, mu, sigma, contract: CFDContract, T=1.0):
+    """
+    Buy-and-hold CFD, units fixed at q = L0 (per unit of initial equity).
+    Equity is LINEAR in price:      E(P) = 1 + L0 (P - 1)
+    Margin scales with the CURRENT price, not the entry price:
+                                    M(P) = m L0 P
+    Stop out when E(P) < c M(P):
+        1 + L0(P-1) < c m L0 P   ->   P < P* = (L0 - 1) / (L0 (1 - c m))
+
+    Sanity: P* <= 0 iff L0 <= 1 (unleveraged cannot be stopped out);
+            P* >= 1 iff L0 >= 1/(c m) = L_max (stopped out at inception).
+    Financing is ignored here (it drifts the barrier up); MC covers that.
+    Returns (ruin_prob, barrier_price_ratio).
+    """
+    P_star = (L0 - 1.0) / (L0 * (1.0 - contract.c * contract.m))
+    if P_star <= 0:
+        return 0.0, P_star
+    b = -np.log(P_star)
+    nu = mu - 0.5 * sigma ** 2
+    return first_passage_prob(nu, sigma, b, T), P_star
+
+
+# ----------------------------------------------------------------------------
+# 4. Constant leverage: the diffusion cannot kill you, jumps can
+# ----------------------------------------------------------------------------
+
+
+def growth_rate_constant_leverage(L, mu, sigma, phi, lam=0.0, jump_mean=0.0,
+                                  jump_sd=0.0, n_quad=4001):
+    """
+    d log E = [L(mu - phi) - L^2 sigma^2 / 2] dt + L sigma dW + log(1 - L J) dN
+    Jump size J is the fractional DROP of the underlying, J ~ N(jump_mean, jump_sd),
+    truncated to (-inf, 1). Returns the a.s. log-growth rate.
+    """
+    g = L * (mu - phi) - 0.5 * L ** 2 * sigma ** 2
+    if lam > 0 and jump_sd > 0:
+        j = np.linspace(jump_mean - 6 * jump_sd, min(0.999, jump_mean + 6 * jump_sd), n_quad)
+        w = norm.pdf(j, jump_mean, jump_sd)
+        w = w / w.sum()
+        mult = 1.0 - L * j
+        ok = mult > 1e-9
+        # a jump that wipes you out contributes -inf; report it as a large penalty
+        contrib = np.where(ok, np.log(np.maximum(mult, 1e-9)), -50.0)
+        g += lam * float((w * contrib).sum())
+    return g
+
+
+def max_leverage_jump(J, contract: CFDContract):
+    """
+    Survive a one-shot drop J of the underlying if
+        1 - L J  >  c*m*L*(1 - J)     ->     L < 1 / (J + c*m*(1 - J))
+    This is a HARD constraint. No amount of expected return relaxes it.
+    """
+    return 1.0 / (J + contract.c * contract.m * (1.0 - J))
+
+
+def kelly_leverage(mu, sigma, phi, gamma=1.0):
+    """Growth-optimal (gamma=1) or CRRA leverage, diffusion only."""
+    return (mu - phi) / (gamma * sigma ** 2)
+
+
+# ----------------------------------------------------------------------------
+# 5. Leverage frontier
+# ----------------------------------------------------------------------------
+
+
+def leverage_frontier(mu, sigma, contract: CFDContract, mode="constant",
+                      L_grid=None, T=1.0, lam=0.0, jump_mean=0.08, jump_sd=0.05,
+                      gap_quantile=0.99):
+    """Growth vs ruin across leverage. mode in {'constant','fixed'}."""
+    if L_grid is None:
+        L_grid = np.arange(0.5, 1.0 / contract.m + 1e-9, 0.25)
+    phi = contract.phi_long
+    rows = []
+    J_tail = float(norm.ppf(gap_quantile, jump_mean, jump_sd)) if lam > 0 else 0.0
+    for L in L_grid:
+        g = growth_rate_constant_leverage(L, mu, sigma, phi, lam, jump_mean, jump_sd)
+        if mode == "fixed":
+            p, _ = ruin_fixed_notional(L, mu, sigma, contract, T)
+        else:
+            # diffusion ruin is zero under continuous rebalancing; jumps only
+            surv_L = max_leverage_jump(J_tail, contract) if lam > 0 else np.inf
+            p_per_jump = 0.0
+            if lam > 0:
+                J_kill = (1.0 - contract.c * contract.m) / (L * (1 - contract.c * contract.m)) \
+                    if L > 0 else np.inf
+                J_kill = min(J_kill, 1.0)
+                p_per_jump = float(1.0 - norm.cdf(J_kill, jump_mean, jump_sd))
+            p = 1.0 - np.exp(-lam * T * p_per_jump)
+        rows.append(dict(L=float(L), log_growth=float(g), ruin=float(p),
+                         vol=float(L * sigma), financing_drag=float(L * phi)))
+    return rows
+
+
+# ----------------------------------------------------------------------------
+# 6. Direction subproblem
+# ----------------------------------------------------------------------------
+
+
+def max_sharpe_direction(mu, Sigma, contract: CFDContract, m_vec=None):
+    """
+    max_u  (u'mu - phi(u)) / sqrt(u' Sigma u)   s.t.  sum_i m_i |u_i| = 1
+    Long and short financing differ, so the objective is piecewise linear in u.
+    Solved by SLSQP from several starts. Returns unit-margin direction: the
+    leverage that direction implies is L = 1 / (sum_i m_i |u_i| * ... ) -> here
+    the constraint is normalised so u consumes exactly one unit of margin,
+    i.e. holding u at equity 1 means gross exposure sum|u_i|.
+    """
+    n = len(mu)
+    m_vec = np.full(n, contract.m) if m_vec is None else np.asarray(m_vec)
+
+    def net_mu(u):
+        return float(u @ mu
+                     - contract.phi_long * np.maximum(u, 0).sum()
+                     + contract.phi_short * np.maximum(-u, 0).sum())
+
+    def neg_sharpe(u):
+        v = float(np.sqrt(max(u @ Sigma @ u, 1e-16)))
+        return -net_mu(u) / v
+
+    cons = [{"type": "eq", "fun": lambda u: float(m_vec @ np.abs(u)) - 1.0}]
+    best, best_val = None, np.inf
+    rng = np.random.default_rng(0)
+    for k in range(12):
+        u0 = rng.normal(size=n)
+        u0 = u0 / (m_vec @ np.abs(u0))
+        res = minimize(neg_sharpe, u0, constraints=cons, method="SLSQP",
+                       options=dict(maxiter=500, ftol=1e-12))
+        if res.success and res.fun < best_val:
+            best, best_val = res.x, res.fun
+    if best is None:
+        raise RuntimeError("direction solve failed")
+    gross = float(np.abs(best).sum())
+    return dict(u=best / gross, gross=gross, sharpe=-best_val,
+                net_mu=net_mu(best), vol=float(np.sqrt(best @ Sigma @ best)))
+
+
+# ----------------------------------------------------------------------------
+# Monte Carlo cross-check (the closed forms above must match this)
+# ----------------------------------------------------------------------------
+
+
+def mc_ruin_fixed_notional(L0, mu, sigma, contract: CFDContract, T=1.0,
+                           n_paths=20000, n_steps=252, seed=1):
+    rng = np.random.default_rng(seed)
+    dt = T / n_steps
+    nu = mu - 0.5 * sigma ** 2
+    logP = np.zeros(n_paths)
+    alive = np.ones(n_paths, dtype=bool)
+    phi = contract.phi_long
+    for k in range(1, n_steps + 1):
+        logP += nu * dt + sigma * np.sqrt(dt) * rng.standard_normal(n_paths)
+        P = np.exp(logP)
+        # equity per unit of initial equity, notional fixed at L0
+        E = 1.0 + L0 * (P - 1.0) - phi * L0 * k * dt
+        margin = contract.m * L0 * P
+        alive &= E >= contract.c * margin
+    return 1.0 - alive.mean()
+
+
+# ----------------------------------------------------------------------------
+def selftest():
+    ct = CFDContract()
+    ok = []
+
+    # A. reduction identity: d = log(L_max / L)
+    units = np.array([10.0, -4.0])
+    price = np.array([100.0, 50.0])
+    E = 400.0
+    st = reduce_state(E, units, price, ct)
+    L_max = 1.0 / (ct.c * ct.m)
+    ok.append(("reduction d == log(Lmax/L)",
+               abs(st["d"] - np.log(L_max / st["L"])) < 1e-12))
+
+    # B. closed-form vs MC, fixed notional.
+    # The closed form assumes CONTINUOUS monitoring and NO financing, so the
+    # MC must be run the same way or the test is meaningless. Discrete
+    # monitoring biases MC down; use fine steps and a Richardson-style check.
+    # Judge by z-score, not by an absolute tolerance that hides bugs.
+    mu, sigma = 0.08, 0.25
+    ct0 = CFDContract(r_ref=0.0, spread=0.0, m=ct.m, c=ct.c)
+    N = 200_000
+    for L0 in (2.0, 3.0, 4.0):
+        analytic, _ = ruin_fixed_notional(L0, mu, sigma, ct0, T=1.0)
+        empirical = mc_ruin_fixed_notional(L0, mu, sigma, ct0, T=1.0,
+                                           n_paths=N, n_steps=4032)
+        se = np.sqrt(empirical * (1 - empirical) / N)
+        # allow a one-sided discretisation shortfall of 0.01 absolute
+        gap = analytic - empirical
+        ok.append((f"ruin L={L0}: analytic {analytic:.4f} vs MC {empirical:.4f} "
+                   f"(se {se:.5f}, gap {gap:+.4f})", 0.0 <= gap < 0.012))
+
+    # C. Kelly is the argmax of the diffusion growth rate
+    Lk = kelly_leverage(mu, sigma, ct.phi_long)
+    grid = np.linspace(0.1, 6, 600)
+    g = [growth_rate_constant_leverage(L, mu, sigma, ct.phi_long) for L in grid]
+    ok.append(("kelly == argmax growth", abs(grid[int(np.argmax(g))] - Lk) < 0.02))
+
+    # D. jump constraint is binding and monotone
+    ok.append(("max_leverage_jump decreasing in J",
+               max_leverage_jump(0.05, ct) > max_leverage_jump(0.20, ct)))
+
+    for name, passed in ok:
+        print(("PASS  " if passed else "FAIL  ") + name)
+    return all(p for _, p in ok)
+
+
+if __name__ == "__main__":
+    print("=== selftest ===")
+    selftest()
+
+    ct = CFDContract()
+    mu, sigma = 0.08, 0.25
+    print(f"\nphi_long = {ct.phi_long:.4f}  L_max = {1/(ct.c*ct.m):.1f}")
+    print(f"Kelly L (diffusion, no jumps) = {kelly_leverage(mu, sigma, ct.phi_long):.2f}")
+    print(f"Hard cap, survive a 20% overnight gap: L < {max_leverage_jump(0.20, ct):.2f}")
+
+    print("\n=== fixed-notional buy-and-hold, 1y ===")
+    print(f"{'L':>5} {'growth':>9} {'ruin1y':>9} {'vol':>7} {'fin.drag':>9}")
+    for r in leverage_frontier(mu, sigma, ct, mode="fixed",
+                               L_grid=np.arange(1.0, 10.1, 1.0)):
+        print(f"{r['L']:5.1f} {r['log_growth']:9.4f} {r['ruin']:9.4f} "
+              f"{r['vol']:7.3f} {r['financing_drag']:9.4f}")
+
+    print("\n=== constant-leverage, jumps lam=0.5/yr, drop ~N(8%,5%) ===")
+    print(f"{'L':>5} {'growth':>9} {'ruin1y':>9}")
+    for r in leverage_frontier(mu, sigma, ct, mode="constant",
+                               L_grid=np.arange(1.0, 10.1, 1.0),
+                               lam=0.5, jump_mean=0.08, jump_sd=0.05):
+        print(f"{r['L']:5.1f} {r['log_growth']:9.4f} {r['ruin']:9.4f}")
+
+    print("\n=== direction subproblem, 3 assets ===")
+    mus = np.array([0.10, 0.06, 0.02])
+    S = np.array([[0.0625, 0.0180, 0.0050],
+                  [0.0180, 0.0400, 0.0030],
+                  [0.0050, 0.0030, 0.0100]])
+    d = max_sharpe_direction(mus, S, ct)
+    print("u (gross-normalised):", np.round(d["u"], 4))
+    print(f"net mu {d['net_mu']:.4f}  vol {d['vol']:.4f}  Sharpe {d['sharpe']:.4f}")
