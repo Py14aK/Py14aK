@@ -1,8 +1,3 @@
-1. Оправи простотията с Адреса
-2. HoH as manifolds via Kalza-Klein theory,try and mimick manifold behaviour more interactively.
-3. Maybe use the market as fluctuations and bacakgroudn noise.
-4. Запише се на някво тъпо съзтезание за да разнасяш Yang monopola
-5.
 
 ticker_metadata = client.get_ticker_metadata(BYND,IBM,CRISP,PLAB,AKAAM,TJX,GRAB,NTCO,NUE,TJX,RTX,HWM,CRS)
 
