@@ -4,21 +4,7 @@ and Truth are one.
 
 https://keen-pastelito-f39ab1.netlify.app
 -----------
-Tied to the mast , know, I am the captain of this ship. Took one last hit.\
-Optimise for T24 KBC ROLE AS DEV I have decided to increase my pay and due to bad managment. Must promote my pay the old fashioned way.
 
-I have been let go even though I made 80% oc the teams deliverables. and over 50 of UBB BG total output as far as payments and T24 functionality are concerned, over twicce the amount oc ticket as the other FA if u COmbine NEDA AND AGRO they are less than me, NMore ownership than Reni the senior. ANd they gave me a severence.
-
-I aas not fired I agreed to leave and now IM back, for the dev Position. I am a perfect cand. I already know most of the system, i am liked by the team. Convincing HR to shut up will be annoying but can be DOne thru Nadya
-  ──────
-Tied to the mast , know, I am the captain of this ship. Took one last hit.\
-Optimise for T24 KBC ROLE AS DEV I have decided to increase my pay and due to bad managment. Must promote my pay the old fashioned way.
-
-I have been let go even though I made 80% oc the teams deliverables. and over 50 of UBB BG total output as far as payments and T24 functionality are concerned, over twicce the amount oc ticket as the other FA if u COmbine NEDA AND AGRO they are less than me, NMore ownership than Reni the senior. ANd they gave me a severence.
-
-I aas not fired I agreed to leave and now IM back, for the dev Position. I am a perfect cand. I already know most of the system, i am liked by the team. Convincing HR to shut up will be annoying but can be DOne thru Nadya
-
-https://careers.kbc-group.com/TIME_BG/job/T24-Developer/91331-en_GB/
 
 # Antonio Nikolaev Kotsev
 
